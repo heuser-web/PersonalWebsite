@@ -1,0 +1,298 @@
+<!-- =====================================================================
+     EXCEL GPT CHATBOT  —  paste into a "Custom HTML" block.
+
+     ▶ BEFORE YOU PUBLISH: find and replace EVERY occurrence of
+       YOUR_CUSTOM_GPT_URL_HERE (3 in this file) with the share link to the
+       Custom GPT you built in Lab #3.
+       It looks like:  https://chatgpt.com/g/g-XXXXXXXXX-your-gpt-name
+
+     Why a launcher + on-page assistant instead of a raw iframe:
+     chatgpt.com sends X-Frame-Options/frame-ancestors headers that block
+     it from being embedded in an iframe. Any tutorial that tells you to
+     iframe a Custom GPT produces a blank box. So this widget answers the
+     common Excel questions right on the page, and hands off to the real
+     Custom GPT for anything deeper.
+     ===================================================================== -->
+
+<div class="xlbot" id="xlbot">
+  <div class="xlbot__head">
+    <div class="xlbot__mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 3h9l7 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 3v7h7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 13.5l3.2 4.5M11.2 13.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div class="xlbot__id">
+      <p class="xlbot__kicker">Custom GPT · Built for this site</p>
+      <h3 class="xlbot__title">Excel Helper</h3>
+    </div>
+    <span class="xlbot__dot" title="Online"></span>
+  </div>
+
+  <div class="xlbot__log" id="xlbot-log" role="log" aria-live="polite" aria-label="Excel Helper conversation"></div>
+
+  <div class="xlbot__chips" id="xlbot-chips" aria-label="Suggested questions"></div>
+
+  <form class="xlbot__form" id="xlbot-form" autocomplete="off">
+    <label class="xlbot__sr" for="xlbot-input">Ask an Excel question</label>
+    <input id="xlbot-input" class="xlbot__input" type="text"
+           placeholder="Ask about VLOOKUP, PivotTables, IF, charts…" maxlength="300">
+    <button class="xlbot__send" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5L21 12 3.5 3.5 3.5 10l12 2-12 2z" fill="currentColor"/></svg>
+    </button>
+  </form>
+
+  <div class="xlbot__foot">
+    <span>Answers below are built in. For anything deeper, open the full GPT.</span>
+    <a class="xlbot__cta" href="YOUR_CUSTOM_GPT_URL_HERE" target="_blank" rel="noopener noreferrer">
+      Open Excel Helper GPT <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</div>
+
+<style>
+/* Uses the theme's design tokens when present, with standalone fallbacks so
+   this block also looks right if it is pasted onto a different theme. */
+.xlbot{
+  --xb-ink:      var(--rh-text,      #0A1426);
+  --xb-muted:    var(--rh-text-muted,#5C6B85);
+  --xb-line:     var(--rh-line,      #E4E8F1);
+  --xb-card:     var(--rh-card,      #FFFFFF);
+  --xb-alt:      var(--rh-bg-alt,    #F6F7FB);
+  --xb-accent:   var(--rh-accent,    #C9A227);
+  --xb-deep:     var(--rh-bg-invert, #0A1426);
+  --xb-onDeep:   #F7F5EF;
+  --xb-green:    #1D7044;
+
+  max-width:760px; margin:2rem auto; border:1px solid var(--xb-line);
+  border-radius:var(--rh-radius-lg,20px); background:var(--xb-card); overflow:hidden;
+  box-shadow:var(--rh-shadow, 0 1px 2px rgba(10,20,38,.04), 0 12px 32px -12px rgba(10,20,38,.14));
+  font-family:var(--rh-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+  color:var(--xb-ink);
+}
+.xlbot__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.xlbot__head{display:flex;align-items:center;gap:.85rem;padding:1rem 1.25rem;background:var(--xb-deep);color:var(--xb-onDeep)}
+.xlbot__mark{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:10px;background:var(--xb-green);color:#fff}
+.xlbot__mark svg{width:22px;height:22px}
+.xlbot__id{flex:1;min-width:0}
+.xlbot__kicker{margin:0;font-size:.6rem;font-weight:700;letter-spacing:.19em;text-transform:uppercase;color:var(--xb-accent)}
+.xlbot__title{margin:.15rem 0 0;font-size:1.1rem;font-weight:600;color:var(--xb-onDeep);font-family:inherit;letter-spacing:.01em}
+.xlbot__dot{width:9px;height:9px;border-radius:50%;background:#3DD68C;box-shadow:0 0 0 3px rgba(61,214,140,.22);flex:0 0 9px}
+
+.xlbot__log{padding:1.25rem;display:flex;flex-direction:column;gap:.85rem;max-height:440px;overflow-y:auto;background:var(--xb-alt);scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){.xlbot__log{scroll-behavior:auto}}
+.xlbot__msg{max-width:86%;padding:.8rem 1rem;border-radius:14px;font-size:.94rem;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.xlbot__msg--bot{align-self:flex-start;background:var(--xb-card);border:1px solid var(--xb-line);border-bottom-left-radius:5px}
+.xlbot__msg--me{align-self:flex-end;background:var(--xb-deep);color:var(--xb-onDeep);border-bottom-right-radius:5px}
+.xlbot__msg code{background:rgba(127,127,127,.16);padding:.1em .38em;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
+.xlbot__msg b{font-weight:700}
+.xlbot__typing{align-self:flex-start;display:flex;gap:4px;padding:.9rem 1rem;background:var(--xb-card);border:1px solid var(--xb-line);border-radius:14px;border-bottom-left-radius:5px}
+.xlbot__typing i{width:6px;height:6px;border-radius:50%;background:var(--xb-muted);animation:xb-blink 1.3s infinite}
+.xlbot__typing i:nth-child(2){animation-delay:.18s}
+.xlbot__typing i:nth-child(3){animation-delay:.36s}
+@keyframes xb-blink{0%,60%,100%{opacity:.28;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion: reduce){.xlbot__typing i{animation:none;opacity:.6}}
+
+.xlbot__chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:.9rem 1.25rem 0;background:var(--xb-card)}
+.xlbot .xlbot__chip{
+  padding:.42rem .8rem;margin:0;border:1px solid var(--xb-line);background:var(--xb-alt);color:var(--xb-muted);
+  border-radius:999px;font-size:.78rem;cursor:pointer;font-family:inherit;
+  background:var(--xb-alt);color:var(--xb-muted);
+  transition:border-color .25s,color .25s,background .25s;
+}
+.xlbot .xlbot__chip:hover{border-color:var(--xb-accent);color:var(--xb-ink);background:var(--xb-card)}
+
+.xlbot__form{display:flex;gap:.6rem;padding:.9rem 1.25rem;background:var(--xb-card)}
+.xlbot .xlbot__input{
+  flex:1;width:auto;min-width:0;padding:.75rem 1rem;border:1px solid var(--xb-line);
+  border-radius:999px;background:var(--xb-alt);color:var(--xb-ink);font:inherit;font-size:.92rem;
+}
+.xlbot .xlbot__input:focus{outline:none;border-color:var(--xb-accent);box-shadow:0 0 0 3px rgba(201,162,39,.2)}
+.xlbot .xlbot__send{
+  width:44px;height:44px;min-width:44px;flex:0 0 44px;padding:0;margin:0;border:0;
+  border-radius:50%;cursor:pointer;justify-self:auto;
+  background:var(--xb-accent);color:var(--xb-deep);display:grid;place-items:center;
+  transition:transform .25s,filter .25s;
+}
+.xlbot .xlbot__send:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.xlbot .xlbot__send svg{width:19px;height:19px;display:block}
+
+.xlbot__foot{
+  display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;
+  padding:.85rem 1.25rem;border-top:1px solid var(--xb-line);background:var(--xb-alt);
+  font-size:.76rem;color:var(--xb-muted);
+}
+.xlbot__cta{
+  display:inline-flex;align-items:center;gap:.35rem;padding:.5rem 1rem;border-radius:999px;
+  background:var(--xb-deep);color:var(--xb-onDeep);text-decoration:none;font-weight:600;font-size:.78rem;
+  transition:background .25s;
+}
+.xlbot__cta:hover{background:var(--xb-green);color:#fff}
+@media (max-width:520px){ .xlbot__msg{max-width:94%} }
+</style>
+
+<script>
+(function(){
+  'use strict';
+  var GPT_URL = "YOUR_CUSTOM_GPT_URL_HERE";
+
+  /* ---- Knowledge base -------------------------------------------------
+     Each entry: keys (matched against the question) + a written answer.
+     Add your own entries by copying the shape of any object below.      */
+  var KB = [
+    {k:["vlookup","v lookup","look up a value","lookup function"],
+     a:"<b>VLOOKUP</b> finds a value in the first column of a range and returns something from a column to its right.\n\n<code>=VLOOKUP(lookup_value, table_array, col_index_num, FALSE)</code>\n\nExample — pull a price from a product table:\n<code>=VLOOKUP(A2, $D$2:$F$50, 3, FALSE)</code>\n\nThree rules that prevent almost every VLOOKUP error:\n1. Always end with <code>FALSE</code> (exact match). <code>TRUE</code> silently returns wrong answers on unsorted data.\n2. Lock the table with <code>$</code> (press F4) so it does not drift when you fill down.\n3. VLOOKUP can only look <i>right</i>. If your answer is left of the lookup column, use XLOOKUP or INDEX/MATCH."},
+
+    {k:["xlookup","x lookup"],
+     a:"<b>XLOOKUP</b> is the modern replacement for VLOOKUP — it looks in any direction and needs no column counting.\n\n<code>=XLOOKUP(lookup_value, lookup_array, return_array, \"Not found\")</code>\n\nExample:\n<code>=XLOOKUP(A2, D:D, F:F, \"Not found\")</code>\n\nWhy it is better: exact match is the default, it searches left or right, the 4th argument handles missing values so you do not need IFERROR, and inserting a column will not break it. Requires Microsoft 365 or Excel 2021."},
+
+    {k:["index match","index/match","index and match"],
+     a:"<b>INDEX + MATCH</b> is the flexible lookup that works in every version of Excel.\n\n<code>=INDEX(return_range, MATCH(lookup_value, lookup_range, 0))</code>\n\nExample:\n<code>=INDEX(F2:F50, MATCH(A2, D2:D50, 0))</code>\n\nRead it inside-out: MATCH finds <i>which row</i> the value is on, INDEX returns what is on that row. The <code>0</code> in MATCH means exact match. Unlike VLOOKUP it can return columns to the left, and it does not break when someone inserts a column."},
+
+    {k:["pivot","pivottable","pivot table","summarize data"],
+     a:"A <b>PivotTable</b> summarizes thousands of rows into a small table you can rearrange by dragging.\n\nSteps:\n1. Click any cell inside your data.\n2. <b>Insert → PivotTable → OK</b>.\n3. Drag a text field to <b>Rows</b> (e.g. Region).\n4. Drag a number field to <b>Values</b> (e.g. Sales).\n5. Drag another field to <b>Columns</b> to cross-tabulate.\n\nTips: click a Values field → <b>Value Field Settings</b> to switch Sum/Average/Count. Right-click → <b>Refresh</b> after your source data changes — pivots do not update on their own. Convert your data to a Table first (Ctrl+T) so new rows are included automatically."},
+
+    {k:["if statement","if function","if formula","nested if","ifs"],
+     a:"<b>IF</b> returns one thing when a test is true and another when it is false.\n\n<code>=IF(test, value_if_true, value_if_false)</code>\n\nExample:\n<code>=IF(B2>=70, \"Pass\", \"Fail\")</code>\n\nFor several conditions, use <b>IFS</b> instead of nesting:\n<code>=IFS(B2>=90,\"A\", B2>=80,\"B\", B2>=70,\"C\", TRUE,\"F\")</code>\n\nOrder matters — IFS stops at the first true test, so go from strictest to loosest. The final <code>TRUE</code> acts as the catch-all.\n\nCombine tests with AND/OR:\n<code>=IF(AND(B2>=70, C2=\"Yes\"), \"Eligible\", \"No\")</code>"},
+
+    {k:["sumif","sumifs","conditional sum","sum based on","sum only","sum where","sum by","add up if","total for","sum the","sum if"],
+     a:"<b>SUMIF</b> adds numbers that meet one condition; <b>SUMIFS</b> handles several.\n\n<code>=SUMIF(range, criteria, sum_range)</code>\n<code>=SUMIF(A2:A100, \"West\", C2:C100)</code>\n\n<code>=SUMIFS(sum_range, range1, crit1, range2, crit2)</code>\n<code>=SUMIFS(C2:C100, A2:A100, \"West\", B2:B100, \">1000\")</code>\n\nWatch the argument order — it flips. SUMIF puts the sum range <i>last</i>; SUMIFS puts it <i>first</i>. Criteria with an operator go in quotes: <code>\">1000\"</code>. To reference a cell instead, concatenate: <code>\">\"&E1</code>."},
+
+    {k:["countif","countifs","count how many","count cells"],
+     a:"<b>COUNTIF</b> counts cells meeting one condition; <b>COUNTIFS</b> handles several.\n\n<code>=COUNTIF(A2:A100, \"West\")</code>\n<code>=COUNTIFS(A2:A100,\"West\", B2:B100,\">1000\")</code>\n\nUseful variants:\n• <code>=COUNTA(A2:A100)</code> — non-empty cells\n• <code>=COUNT(A2:A100)</code> — numbers only\n• <code>=COUNTBLANK(A2:A100)</code> — empty cells\n• <code>=COUNTIF(A:A, A2)>1</code> — flags duplicates\n\nWildcards work in criteria: <code>\"*west*\"</code> matches anything containing \"west\"."},
+
+    {k:["absolute reference","dollar sign","$","f4","relative reference","lock a cell"],
+     a:"The <code>$</code> locks part of a reference so it does not shift when you copy a formula. Press <b>F4</b> (Fn+F4 on some laptops) to cycle through the options.\n\n• <code>A1</code> — both move (relative)\n• <code>$A$1</code> — neither moves (absolute)\n• <code>A$1</code> — row locked, column moves\n• <code>$A1</code> — column locked, row moves\n\nThe classic use: a tax rate in one cell.\n<code>=B2*$E$1</code>\n\nFill that down and every row still points at E1. Without the dollar signs, row 3 would look at E2 and return zero — the single most common spreadsheet bug there is."},
+
+    {k:["conditional formatting","highlight cells","color cells","color scale","data bar"],
+     a:"<b>Conditional formatting</b> colors cells automatically based on their value.\n\n<b>Home → Conditional Formatting</b>, then pick:\n• <b>Highlight Cells Rules</b> — greater than, text contains, duplicate values\n• <b>Top/Bottom Rules</b> — top 10, above average\n• <b>Data Bars / Color Scales / Icon Sets</b> — in-cell visual comparison\n\nFor real control use <b>New Rule → Use a formula</b>. Write the formula for the <i>top-left cell only</i> and let Excel apply it to the rest:\n<code>=$C2<TODAY()</code>\n\nThat highlights an entire row when the date in column C has passed. Note the mixed reference — <code>$C</code> locks the column, <code>2</code> lets the row move."},
+
+    {k:["chart","graph","visualize","bar chart","line chart","pie chart"],
+     a:"Select your data (including headers) → <b>Insert</b> → pick a chart, or press <b>Alt+F1</b> for an instant chart.\n\nChoosing the right one:\n• <b>Column/Bar</b> — comparing categories (use bar when labels are long)\n• <b>Line</b> — change over time\n• <b>Pie</b> — parts of one whole, and only with about five slices or fewer\n• <b>Scatter</b> — relationship between two numeric variables\n• <b>Combo</b> — two different scales, e.g. revenue bars with a margin line\n\nCleanup that makes a chart look professional: delete the gridlines, delete the legend if there is only one series, title it with the finding rather than the topic (\"Sales fell 12% in Q3\" beats \"Q3 Sales\"), and start value axes at zero for bars."},
+
+    {k:["remove duplicates","duplicate rows","dedupe","unique"],
+     a:"<b>To delete duplicates:</b> select your range → <b>Data → Remove Duplicates</b> → tick which columns define a duplicate → OK. Excel reports how many it removed.\n\n⚠️ This permanently deletes rows. Copy the sheet first.\n\n<b>To find them without deleting:</b> Home → Conditional Formatting → Highlight Cells Rules → Duplicate Values.\n\n<b>To get a unique list into new cells</b> (Microsoft 365):\n<code>=UNIQUE(A2:A100)</code>\n\n<b>To count duplicates:</b>\n<code>=COUNTIF($A$2:$A$100, A2)</code>"},
+
+    {k:["freeze","freeze panes","header row stays","lock top row"],
+     a:"<b>View → Freeze Panes</b> keeps headers visible while you scroll.\n\n• <b>Freeze Top Row</b> — locks row 1\n• <b>Freeze First Column</b> — locks column A\n• <b>Freeze Panes</b> — locks everything <i>above and to the left</i> of the selected cell\n\nSo to freeze row 1 and column A together, click <b>B2</b> first, then Freeze Panes. That off-by-one is what trips most people up.\n\nTo undo: View → Freeze Panes → Unfreeze Panes."},
+
+    {k:["data validation","dropdown","drop down","restrict input","list"],
+     a:"<b>Data validation</b> creates dropdowns and blocks bad entries.\n\nDropdown list:\n1. Select the cells.\n2. <b>Data → Data Validation</b>.\n3. Allow: <b>List</b>.\n4. Source: type <code>Yes,No,Pending</code> or point at a range like <code>=$H$2:$H$10</code>.\n\nOther useful rules: Whole number between 1 and 100; Date after today; Text length under 50.\n\nThe <b>Error Alert</b> tab lets you write the message someone sees when they break the rule — worth doing, because the default message explains nothing."},
+
+    {k:["text function","concat","concatenate","textjoin","combine text","combine first","join text","full name","first and last","split text","split a name","separate names","left","right","mid"],
+     a:"<b>Joining text:</b>\n<code>=A2&\" \"&B2</code> — the fastest way\n<code>=CONCAT(A2:C2)</code> — joins a whole range\n<code>=TEXTJOIN(\", \", TRUE, A2:A10)</code> — joins with a separator and skips blanks\n\n<b>Pulling text apart:</b>\n<code>=LEFT(A2, 5)</code> · <code>=RIGHT(A2, 4)</code> · <code>=MID(A2, 3, 4)</code>\n<code>=LEFT(A2, FIND(\" \", A2)-1)</code> — first name from a full name\n\n<b>Cleaning:</b>\n<code>=TRIM(A2)</code> removes extra spaces · <code>=PROPER(A2)</code> fixes capitalization · <code>=SUBSTITUTE(A2,\"-\",\"\")</code> strips characters\n\nFor a one-off split, <b>Data → Text to Columns</b> or <b>Flash Fill (Ctrl+E)</b> is faster than any formula."},
+
+    {k:["flash fill","ctrl+e","autofill pattern"],
+     a:"<b>Flash Fill</b> learns a pattern from what you type and finishes the column.\n\n1. In the cell beside your data, type the result you want for row 1.\n2. Start typing row 2 — Excel previews the rest in grey.\n3. Press <b>Enter</b>, or press <b>Ctrl+E</b> to fill immediately.\n\nIt handles splitting names, extracting area codes, reformatting dates and combining fields — no formula required. Two cautions: it produces static text, not a formula, so it will not update when the source changes; and it guesses from your example, so give it two examples if the first result looks wrong."},
+
+    {k:["iferror","error","#n/a","#value","#ref","#div/0","na error"],
+     a:"<b>IFERROR</b> replaces an error with something readable:\n<code>=IFERROR(VLOOKUP(A2,D:F,3,FALSE), \"Not found\")</code>\n\nWhat each error is telling you:\n• <code>#N/A</code> — lookup found nothing. Check for stray spaces with TRIM, and for numbers stored as text.\n• <code>#VALUE!</code> — wrong data type, usually text where a number belongs.\n• <code>#REF!</code> — the formula points at a deleted cell. Undo immediately; this one cannot be recovered later.\n• <code>#DIV/0!</code> — dividing by zero or by an empty cell.\n• <code>#NAME?</code> — a misspelled function name or missing quotes.\n• <code>####</code> — not an error, the column is just too narrow.\n\nUse IFERROR to present results, not to hide problems — wrap the formula only after you know <i>why</i> it errors."},
+
+    {k:["shortcut","shortcuts","keyboard","hotkey","faster"],
+     a:"The shortcuts that actually save time:\n\n<b>Moving</b>\n<code>Ctrl+Arrow</code> jump to the edge of the data\n<code>Ctrl+Shift+Arrow</code> select to the edge\n<code>Ctrl+Home</code> back to A1\n\n<b>Editing</b>\n<code>Ctrl+T</code> convert to Table\n<code>Ctrl+D</code> / <code>Ctrl+R</code> fill down / right\n<code>Ctrl+;</code> today's date\n<code>Alt+=</code> AutoSum\n<code>F4</code> toggle $ in a reference, or repeat last action\n<code>Ctrl+Shift+V</code> paste values only\n\n<b>Sheets</b>\n<code>Ctrl+PgUp/PgDn</code> switch sheets\n<code>Ctrl+Shift+L</code> toggle filters\n<code>Ctrl+E</code> Flash Fill\n\nOn a Mac, swap Ctrl for Cmd on most of these."},
+
+    {k:["table","ctrl+t","format as table","structured reference"],
+     a:"Converting a range to a <b>Table</b> (<code>Ctrl+T</code>) is the single highest-value habit in Excel.\n\nWhat you get:\n• Formulas auto-fill to new rows\n• Charts and PivotTables expand automatically when data is added\n• Filter buttons and banded rows for free\n• Readable formulas: <code>=SUM(Sales[Revenue])</code> instead of <code>=SUM(C2:C5000)</code>\n• A totals row you toggle on with <code>Ctrl+Shift+T</code>\n\nName it right after creating it: <b>Table Design → Table Name</b>. Then your formulas read like sentences."},
+
+    {k:["sort","filter","autofilter","sort by"],
+     a:"<b>Filter:</b> click inside your data → <b>Ctrl+Shift+L</b> (or Data → Filter). Use the dropdowns to show only what matches. The row numbers turn blue where rows are hidden.\n\n<b>Sort by several columns:</b> Data → Sort → Add Level. Excel applies the levels top-down, so put the primary sort first.\n\nTwo warnings:\n1. Always select a <i>single cell inside</i> the data, not one column. Selecting one column and sorting scrambles every row — the rest of the data does not follow.\n2. Turn your range into a Table first and this problem disappears entirely.\n\n<code>=SORT()</code> and <code>=FILTER()</code> do the same thing as live formulas in Microsoft 365."},
+
+    {k:["round","roundup","rounddown","decimal","percentage","format number"],
+     a:"<b>Rounding the value</b> (changes the number):\n<code>=ROUND(A2, 2)</code> — 2 decimal places\n<code>=ROUNDUP(A2, 0)</code> / <code>=ROUNDDOWN(A2, 0)</code> — force direction\n<code>=MROUND(A2, 5)</code> — to the nearest 5\n\n<b>Formatting</b> (changes only the display): <code>Ctrl+1</code> → Number tab.\n\nThe distinction matters. Formatting a cell to show 2 decimals does not change what is stored, so your totals can look wrong by a cent. If the number must genuinely be 2 decimals, use ROUND.\n\nPercentages: type <code>=B2/C2</code>, then press <code>Ctrl+Shift+%</code>."},
+
+    {k:["date","dates","today","datedif","networkdays","age"],
+     a:"Excel stores dates as numbers, which is why date math just works.\n\n<code>=TODAY()</code> today's date · <code>=NOW()</code> date and time\n<code>=B2-A2</code> days between two dates\n<code>=EDATE(A2, 3)</code> three months later\n<code>=EOMONTH(A2, 0)</code> last day of that month\n<code>=NETWORKDAYS(A2, B2)</code> weekdays between two dates\n<code>=YEAR(A2)</code> · <code>=MONTH(A2)</code> · <code>=TEXT(A2,\"mmmm\")</code> month name\n\nAge in years:\n<code>=DATEDIF(A2, TODAY(), \"Y\")</code>\n\nIf a date shows as a 5-digit number, the cell is formatted as General — press <code>Ctrl+Shift+#</code>. If dates will not sort, they are text; use <b>Text to Columns → Date</b> to convert them."},
+
+    {k:["named range","name a range","define name"],
+     a:"A <b>named range</b> gives a cell or range a real name so formulas read clearly.\n\nCreate one: select the range → type a name in the <b>Name Box</b> (left of the formula bar) → Enter. Or <b>Formulas → Define Name</b> for more control.\n\nThen <code>=B2*TaxRate</code> instead of <code>=B2*$E$1</code>.\n\nRules: no spaces (use underscores), cannot start with a number, and cannot look like a cell reference (<code>A1</code> is not allowed). Manage them all under <b>Formulas → Name Manager</b>, which is also where you delete the ones that break after you move data."},
+
+    {k:["print","page setup","fit to one page","print titles"],
+     a:"Excel prints badly by default. Fix it in <b>Page Layout</b>:\n\n• <b>Orientation → Landscape</b> for wide data\n• <b>Scale to Fit → Width: 1 page</b>, leave Height as Automatic\n• <b>Print Titles → Rows to repeat at top</b> = <code>$1:$1</code> so headers appear on every page\n• <b>Print Area</b> to print only a selection\n• <b>Margins → Custom → Center on page: Horizontally</b>\n\nAlways check <b>File → Print</b> for the preview before sending it. Use <b>Page Break Preview</b> to drag the blue page boundaries where you want them."},
+
+    {k:["power query","get data","clean data","import"],
+     a:"<b>Power Query</b> (Data → Get Data) imports and cleans data with steps you can replay.\n\nThe reason it matters: every transformation is recorded. Next month you paste in new data, hit <b>Refresh</b>, and the entire cleanup runs again — no repeated manual work.\n\nA typical flow: Data → Get Data → From File → choose the file → <b>Transform Data</b> → remove columns, split columns, change types, filter rows, replace values → <b>Close & Load</b>.\n\nIt is the right tool the moment you catch yourself doing the same cleanup twice."},
+
+    {k:["average","median","standard deviation","largest","smallest","basic formula","statistics","add a column of numbers"],
+     a:"The core aggregations:\n<code>=SUM(A2:A100)</code> · <code>=AVERAGE(A2:A100)</code> · <code>=MEDIAN(A2:A100)</code>\n<code>=MIN(A2:A100)</code> · <code>=MAX(A2:A100)</code> · <code>=COUNT(A2:A100)</code>\n<code>=LARGE(A2:A100, 2)</code> second largest · <code>=SMALL(A2:A100, 3)</code> third smallest\n<code>=STDEV.S(A2:A100)</code> standard deviation\n\n<b>Alt+=</b> inserts SUM with the range already guessed.\n\nUse MEDIAN rather than AVERAGE when a few extreme values would distort the picture — salaries and home prices, for example. AVERAGE ignores text and blanks but counts zeros, which is usually what you want but occasionally is not."}
+  ];
+
+  var FALLBACK =
+    "I do not have a built-in answer for that one — my on-page knowledge covers the core Excel topics: lookups (VLOOKUP, XLOOKUP, INDEX/MATCH), PivotTables, IF and IFS, SUMIF/COUNTIF, absolute references, conditional formatting, charts, dates, text functions, tables, filtering, error messages and shortcuts.\n\nFor anything beyond that — macros, VBA, Power Pivot, or a specific formula you are debugging — open the full Excel Helper GPT using the button below. Paste your formula in and it will walk through it line by line.";
+
+  var GREETING =
+    "Hi — I am <b>Excel Helper</b>, the Custom GPT built for this site.\n\nAsk me about formulas, PivotTables, charts, cleaning data, or the error message you are staring at. Tap a suggestion below or type your own question.";
+
+  var CHIPS = ["How does VLOOKUP work?","Make a PivotTable","IF vs IFS","Why do I get #N/A?","Best Excel shortcuts","Remove duplicates","Conditional formatting","Freeze the header row"];
+
+  var log   = document.getElementById('xlbot-log');
+  var form  = document.getElementById('xlbot-form');
+  var input = document.getElementById('xlbot-input');
+  var chips = document.getElementById('xlbot-chips');
+  if (!log || !form) return;
+
+  // Wire the real Custom GPT URL into the CTA + fallback text.
+  Array.prototype.forEach.call(document.querySelectorAll('.xlbot__cta'), function(a){ a.href = GPT_URL; });
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function push(html, who){
+    var d = document.createElement('div');
+    d.className = 'xlbot__msg xlbot__msg--' + who;
+    d.innerHTML = html;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+    return d;
+  }
+
+  function typing(){
+    var d = document.createElement('div');
+    d.className = 'xlbot__typing';
+    d.innerHTML = '<i></i><i></i><i></i>';
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+    return d;
+  }
+
+  /* Score each KB entry against the question; longer key matches win. */
+  function answer(q){
+    var s = ' ' + q.toLowerCase().replace(/[^a-z0-9#/+ ]/g,' ').replace(/\s+/g,' ') + ' ';
+    var best = null, bestScore = 0;
+    KB.forEach(function(item){
+      var score = 0;
+      item.k.forEach(function(key){
+        if (s.indexOf(' ' + key) !== -1 || s.indexOf(key) !== -1) {
+          score += key.length + 2;
+        } else {
+          // partial credit when every word of a multi-word key appears
+          var parts = key.split(' ');
+          if (parts.length > 1 && parts.every(function(p){ return s.indexOf(p) !== -1; })) score += key.length;
+        }
+      });
+      if (score > bestScore) { bestScore = score; best = item; }
+    });
+    return bestScore >= 5 ? best.a : FALLBACK;
+  }
+
+  function ask(q){
+    if (!q) return;
+    push(esc(q), 'me');
+    input.value = '';
+    var t = typing();
+    var reply = answer(q);
+    // A short, deliberate delay so the exchange reads as a conversation.
+    setTimeout(function(){
+      t.remove();
+      push(reply, 'bot');
+    }, 420 + Math.min(reply.length, 900) * 0.35);
+  }
+
+  form.addEventListener('submit', function(e){ e.preventDefault(); ask(input.value.trim()); });
+
+  CHIPS.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'xlbot__chip'; b.textContent = c;
+    b.addEventListener('click', function(){ ask(c); });
+    chips.appendChild(b);
+  });
+
+  push(GREETING, 'bot');
+}());
+</script>

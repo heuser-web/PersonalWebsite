@@ -1,0 +1,91 @@
+/* Excel GPT Assistant — floating launcher.
+   Deliberately different from the inline panel chatbot: this one lives in the
+   corner of every page it is placed on, so it is available while reading.
+   Self-contained variables so it survives whatever theme it lands in. */
+.rhxg{
+  --x-ink:#0E1726; --x-paper:#fff; --x-alt:#F4F6FA; --x-line:#E1E6EF;
+  --x-muted:#5B6879; --x-accent:#C9A227; --x-green:#1D7044;
+  --x-radius:16px;
+  position:fixed; right:clamp(12px,2.5vw,26px); bottom:clamp(12px,2.5vw,26px);
+  z-index:99998;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  .rhxg{ --x-ink:#E9EDF5; --x-paper:#141F31; --x-alt:#0F1928; --x-line:#25344B; --x-muted:#93A1B6; }
+}
+.rhxg__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* launcher */
+.rhxg .rhxg__launch{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.72rem 1.15rem;border:0;border-radius:999px;cursor:pointer;
+  background:var(--x-green);color:#fff;font:inherit;font-size:.88rem;font-weight:600;
+  box-shadow:0 6px 22px -6px rgba(10,20,38,.45);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.rhxg .rhxg__launch:hover{transform:translateY(-2px);box-shadow:0 10px 30px -8px rgba(10,20,38,.55)}
+.rhxg__launch-icon{display:grid;place-items:center;width:20px;height:20px}
+.rhxg__launch-icon svg{width:20px;height:20px}
+.rhxg.is-open .rhxg__launch{display:none}
+@media (max-width:520px){ .rhxg__launch-label{display:none} .rhxg .rhxg__launch{padding:.85rem} }
+
+/* panel */
+.rhxg__panel{
+  width:min(92vw,392px);max-height:min(76vh,620px);
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--x-paper);color:var(--x-ink);
+  border:1px solid var(--x-line);border-radius:var(--x-radius);
+  box-shadow:0 24px 60px -20px rgba(10,20,38,.5);
+}
+.rhxg__panel[hidden]{display:none}
+.rhxg__head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  padding:.95rem 1.1rem;background:var(--x-ink);color:#F7F5EF;
+}
+.rhxg__kicker{margin:0;font-size:.58rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--x-accent)}
+.rhxg__title{margin:.16rem 0 0;font-size:1.02rem;font-weight:600;color:#F7F5EF}
+.rhxg .rhxg__close{background:none;border:0;color:#F7F5EF;font-size:1.5rem;line-height:1;cursor:pointer;padding:0 .2rem;opacity:.75}
+.rhxg .rhxg__close:hover{opacity:1}
+
+.rhxg__log{
+  flex:1;overflow-y:auto;padding:1rem;background:var(--x-alt);
+  display:flex;flex-direction:column;gap:.7rem;
+}
+.rhxg__msg{
+  max-width:88%;padding:.7rem .9rem;border-radius:13px;
+  font-size:.9rem;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;
+}
+.rhxg__msg--bot{align-self:flex-start;background:var(--x-paper);border:1px solid var(--x-line);border-bottom-left-radius:4px}
+.rhxg__msg--me {align-self:flex-end;background:var(--x-ink);color:#F7F5EF;border-bottom-right-radius:4px}
+.rhxg__msg--err{align-self:stretch;background:#FDF0EC;border:1px solid #E7BFB2;color:#8A3A22;font-size:.84rem}
+@media (prefers-color-scheme: dark){
+  .rhxg__msg--err{background:#2B1712;border-color:#5A2E20;color:#F0AE94}
+}
+.rhxg__msg code{background:rgba(127,127,127,.16);padding:.08em .34em;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em}
+.rhxg__typing{align-self:flex-start;display:flex;gap:4px;padding:.8rem .9rem;background:var(--x-paper);border:1px solid var(--x-line);border-radius:13px}
+.rhxg__typing i{width:6px;height:6px;border-radius:50%;background:var(--x-muted);animation:rhxg-b 1.3s infinite}
+.rhxg__typing i:nth-child(2){animation-delay:.18s}
+.rhxg__typing i:nth-child(3){animation-delay:.36s}
+@keyframes rhxg-b{0%,60%,100%{opacity:.28}30%{opacity:1}}
+
+.rhxg .rhxg__form{display:flex;gap:.55rem;padding:.8rem 1rem;background:var(--x-paper);border-top:1px solid var(--x-line)}
+.rhxg .rhxg__input{
+  flex:1;width:auto;min-width:0;padding:.66rem .9rem;border:1px solid var(--x-line);
+  border-radius:999px;background:var(--x-alt);color:var(--x-ink);font:inherit;font-size:.9rem;
+}
+.rhxg .rhxg__input:focus{outline:none;border-color:var(--x-accent);box-shadow:0 0 0 3px rgba(201,162,39,.2)}
+.rhxg .rhxg__send{
+  width:40px;height:40px;min-width:40px;flex:0 0 40px;padding:0;margin:0;border:0;
+  border-radius:50%;cursor:pointer;background:var(--x-accent);color:var(--x-ink);
+  display:grid;place-items:center;
+}
+.rhxg .rhxg__send svg{width:17px;height:17px;display:block}
+.rhxg .rhxg__send[disabled]{opacity:.45;cursor:default}
+.rhxg__foot{margin:0;padding:.6rem 1rem;background:var(--x-alt);border-top:1px solid var(--x-line);font-size:.76rem;text-align:center}
+.rhxg__foot a{color:var(--x-muted);text-decoration:none}
+.rhxg__foot a:hover{color:var(--x-accent)}
+
+@media (prefers-reduced-motion: reduce){
+  .rhxg .rhxg__launch,.rhxg__typing i{transition:none;animation:none}
+  .rhxg .rhxg__launch:hover{transform:none}
+}

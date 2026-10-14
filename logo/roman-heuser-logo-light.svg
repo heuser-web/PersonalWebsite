@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="420" viewBox="0 0 1440 420" role="img" aria-label="Roman Heuser">
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#E3C35C"/>
+      <stop offset="45%"  stop-color="#F2DBA0"/>
+      <stop offset="100%" stop-color="#E3C35C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Monogram plate -->
+  <rect x="56" y="66" width="288" height="288" rx="8" fill="none" stroke="url(#brass)" stroke-width="3"/>
+  <rect x="74" y="84" width="252" height="252" rx="3" fill="none" stroke="url(#brass)" stroke-width="1" opacity=".45"/>
+  <text x="200" y="272" text-anchor="middle" textLength="196" lengthAdjust="spacingAndGlyphs"
+        font-family="Didot, 'Bodoni 72', 'Playfair Display', Georgia, serif"
+        font-size="168" fill="url(#brass)">RH</text>
+
+  <!-- Divider -->
+  <line x1="418" y1="88" x2="418" y2="332" stroke="#E3C35C" stroke-width="2" opacity=".55"/>
+
+  <!-- Wordmark -->
+  <text x="482" y="214" textLength="900" lengthAdjust="spacing"
+        font-family="Didot, 'Bodoni 72', 'Playfair Display', Georgia, serif"
+        font-size="112" fill="#F7F5EF">ROMAN HEUSER</text>
+
+  <!-- Hairline -->
+  <line x1="484" y1="256" x2="1382" y2="256" stroke="#E3C35C" stroke-width="1.5" opacity=".7"/>
+
+  <!-- Tracked tagline -->
+  <text x="484" y="314" textLength="894" lengthAdjust="spacing"
+        font-family="'Helvetica Neue', Helvetica, Inter, Arial, sans-serif"
+        font-size="29" font-weight="500" fill="#CBB98C">FOUNDER · BUILDER · STUDENT</text>
+</svg>

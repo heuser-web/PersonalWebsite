@@ -1,0 +1,13 @@
+{
+  "name": "is101-personal-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IS101 Personal Website Project — WordPress theme, Excel GPT plugin, and an offline preview. There are no Node dependencies; these scripts are thin wrappers over the Python tooling in build/.",
+  "scripts": {
+    "dev": "python3 build/devserver.py 8155",
+    "build": "python3 build/make_preview.py",
+    "stop": "lsof -nP -iTCP:8155 -sTCP:LISTEN -t | xargs -r kill",
+    "package": "rm -f build/roman-heuser.zip build/rh-excel-gpt.zip && (cd theme && zip -rq ../build/roman-heuser.zip roman-heuser -x '.*' -x '*/.DS_Store') && (cd chatbot && zip -rq ../build/rh-excel-gpt.zip rh-excel-gpt -x '.*' -x '*/.DS_Store') && ls -lh build/*.zip",
+    "check": "python3 build/phpcheck.py theme/roman-heuser/*.php theme/roman-heuser/inc/*.php chatbot/rh-excel-gpt/*.php && node --check theme/roman-heuser/assets/js/cinematic.js && node --check theme/roman-heuser/assets/js/theme.js && node --check chatbot/rh-excel-gpt/assets/rhxg.js && node --check preview/assets/blog-demo.js"
+  }
+}

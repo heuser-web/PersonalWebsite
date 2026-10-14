@@ -1,0 +1,64 @@
+@page { size: Letter; margin: 0.45in 0.55in; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111A2B; --body:#2B3648; --muted:#5C6B85;
+  --brass:#8A6A3F; --rule:#D6DBE6;
+}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:8.8pt; line-height:1.28; color:var(--body); background:#fff;
+}
+a{color:var(--ink);text-decoration:none}
+
+/* Header */
+.name{
+  font-family:Didot,"Bodoni 72",Georgia,serif;
+  font-size:23pt; letter-spacing:.055em; color:var(--ink);
+  line-height:1; text-transform:uppercase;
+}
+.tagline{
+  margin-top:4pt; font-size:7.4pt; font-weight:700; letter-spacing:.19em;
+  text-transform:uppercase; color:var(--brass);
+}
+.contact{
+  margin-top:5pt; font-size:8pt; color:var(--muted);
+  display:flex; flex-wrap:wrap; gap:4pt 9pt;
+}
+.contact span::after{content:"·";margin-left:9pt;color:var(--rule)}
+.contact span:last-child::after{content:""}
+.rule{height:1.4pt;background:var(--brass);margin:6.5pt 0 7.5pt}
+
+/* Sections */
+h2{
+  font-size:7.8pt; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ink); margin:0 0 4pt;
+  padding-bottom:2pt; border-bottom:.75pt solid var(--rule);
+}
+section{margin-bottom:6.4pt; break-inside:avoid}
+.summary{font-size:8.9pt;line-height:1.36;color:var(--body)}
+
+/* Entries */
+.entry{margin-bottom:5.4pt;break-inside:avoid}
+.entry:last-child{margin-bottom:0}
+.entry-head{display:flex;justify-content:space-between;align-items:baseline;gap:10pt}
+.role{font-size:9.6pt;font-weight:700;color:var(--ink)}
+.role em{font-style:normal;font-weight:500;color:var(--muted)}
+.when{font-size:7.6pt;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--brass);white-space:nowrap}
+.where{font-size:8.1pt;color:var(--muted);margin-top:1pt;font-style:italic}
+ul{list-style:none;margin-top:2.4pt}
+li{position:relative;padding-left:9pt;margin-bottom:1.3pt}
+li::before{content:"";position:absolute;left:1pt;top:4.2pt;width:2.6pt;height:2.6pt;border-radius:50%;background:var(--brass)}
+li strong{color:var(--ink)}
+p.para{margin-top:4pt}
+
+/* Skills */
+.skills{display:grid;grid-template-columns:100pt 1fr;gap:2.4pt 9pt;font-size:8.5pt}
+.skills dt{font-weight:700;color:var(--ink)}
+.skills dd{color:var(--body)}
+
+/* Education */
+.edu{display:flex;justify-content:space-between;align-items:baseline;gap:10pt}
+
+.foot{margin-top:7pt;padding-top:4pt;border-top:.75pt solid var(--rule);
+      font-size:7pt;color:var(--muted);letter-spacing:.06em}

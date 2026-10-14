@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="RH monogram">
+  <defs>
+    <linearGradient id="b2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C9A227"/><stop offset="45%" stop-color="#F2DBA0"/><stop offset="100%" stop-color="#C9A227"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="76" fill="#0A1426"/>
+  <rect x="48" y="48" width="416" height="416" rx="44" fill="none" stroke="url(#b2)" stroke-width="5"/>
+  <rect x="72" y="72" width="368" height="368" rx="26" fill="none" stroke="url(#b2)" stroke-width="1.5" opacity=".45"/>
+  <text x="256" y="342" text-anchor="middle" textLength="248" lengthAdjust="spacingAndGlyphs"
+        font-family="Didot, 'Bodoni 72', 'Playfair Display', Georgia, serif"
+        font-size="216" fill="url(#b2)">RH</text>
+</svg>

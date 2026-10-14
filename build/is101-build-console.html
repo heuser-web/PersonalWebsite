@@ -1,0 +1,594 @@
+<title>IS101 Build Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+
+<style>
+/* ============================================================
+   TOKENS — light is the base; dark redefines tokens only.
+   ============================================================ */
+:root{
+  --ground:      #FBFAF7;
+  --surface:     #FFFFFF;
+  --surface-sunk:#F3F1EC;
+  --ink:         #141C29;
+  --muted:       #5C6779;
+  --faint:       #8B94A3;
+  --line:        #E3E0D8;
+  --line-strong: #CFCBC0;
+
+  --brass:       #A87C15;
+  --brass-soft:  #F6EBCE;
+  --gate:        #A93F27;
+  --gate-soft:   #FAE7E1;
+  --done:        #2C7355;
+  --done-soft:   #E0F0E8;
+
+  --shadow:      0 1px 2px rgba(20,28,41,.05), 0 10px 26px -14px rgba(20,28,41,.28);
+  --radius:      12px;
+  --radius-sm:   7px;
+  --ease:        cubic-bezier(.2,.7,.2,1);
+
+  --font-display:"Fraunces","Iowan Old Style",Georgia,serif;
+  --font-ui:     "Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:   "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:      #101826;
+    --surface:     #16202F;
+    --surface-sunk:#1C2738;
+    --ink:         #EDF0F5;
+    --muted:       #96A2B5;
+    --faint:       #6E7B8F;
+    --line:        #263349;
+    --line-strong: #35455E;
+
+    --brass:       #E0BC63;
+    --brass-soft:  #2A2416;
+    --gate:        #E08163;
+    --gate-soft:   #2E1B15;
+    --done:        #5FBF95;
+    --done-soft:   #12281F;
+
+    --shadow:      0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:      #101826;
+  --surface:     #16202F;
+  --surface-sunk:#1C2738;
+  --ink:         #EDF0F5;
+  --muted:       #96A2B5;
+  --faint:       #6E7B8F;
+  --line:        #263349;
+  --line-strong: #35455E;
+
+  --brass:       #E0BC63;
+  --brass-soft:  #2A2416;
+  --gate:        #E08163;
+  --gate-soft:   #2E1B15;
+  --done:        #5FBF95;
+  --done-soft:   #12281F;
+
+  --shadow:      0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:600;line-height:1.15;text-wrap:balance}
+p{margin:0}
+a{color:var(--brass)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:4px}
+
+.wrap{width:100%;max-width:1180px;margin-inline:auto;padding-inline:clamp(1rem,4vw,2.5rem)}
+
+.eyebrow{
+  font-size:.66rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brass);font-family:var(--font-ui);
+}
+
+/* ============================================================
+   STICKY SCOREBAR — segments are weighted by real rubric points
+   ============================================================ */
+.bar{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--ground) 92%,transparent);
+  backdrop-filter:saturate(180%) blur(12px);
+  -webkit-backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.bar__inner{display:flex;align-items:center;gap:clamp(.9rem,3vw,2rem);padding-block:.85rem;flex-wrap:wrap}
+.score{display:flex;align-items:baseline;gap:.35rem;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.score__now{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.1rem);font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.score__of{font-size:.95rem;color:var(--faint);font-weight:500}
+.score__lbl{
+  font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);font-family:var(--font-ui);margin-left:.15rem;align-self:center;
+}
+
+.meter{display:flex;gap:3px;flex:1;min-width:220px;height:26px}
+.seg{
+  position:relative;background:var(--surface-sunk);border-radius:3px;overflow:hidden;
+  border:1px solid var(--line);
+}
+.seg__fill{
+  position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);
+  background:var(--brass);transition:transform .5s var(--ease);
+}
+.seg[data-full="1"] .seg__fill{background:var(--done)}
+.seg__tag{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:.04em;
+  color:var(--muted);mix-blend-mode:normal;pointer-events:none;
+}
+.bar__reset{
+  font:inherit;font-size:.72rem;font-weight:600;letter-spacing:.04em;
+  background:none;border:1px solid var(--line-strong);color:var(--muted);
+  padding:.42rem .85rem;border-radius:99px;cursor:pointer;
+  transition:border-color .25s var(--ease),color .25s var(--ease);
+}
+.bar__reset:hover{border-color:var(--gate);color:var(--gate)}
+
+/* ============================================================
+   MASTHEAD
+   ============================================================ */
+.mast{padding-block:clamp(2.4rem,6vw,4rem) clamp(1.4rem,3vw,2rem)}
+.mast h1{
+  font-size:clamp(2.1rem,1.4rem + 3.2vw,3.5rem);
+  letter-spacing:-.02em;margin-block:.5rem .6rem;
+}
+.mast p{color:var(--muted);max-width:60ch;font-size:1.05rem}
+.mast__meta{
+  display:flex;flex-wrap:wrap;gap:.5rem .5rem;margin-top:1.4rem;
+}
+.pill{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.34rem .75rem;border-radius:99px;border:1px solid var(--line);
+  background:var(--surface);font-size:.76rem;font-weight:500;color:var(--muted);
+}
+.pill b{color:var(--ink);font-weight:700;font-family:var(--font-mono);font-size:.78rem}
+
+/* ============================================================
+   GATE — failing any of these is a zero or a 50-point cut
+   ============================================================ */
+.gate{
+  border:1px solid var(--gate);border-left-width:4px;
+  background:var(--gate-soft);border-radius:var(--radius);
+  padding:clamp(1.1rem,3vw,1.6rem);margin-bottom:clamp(1.6rem,4vw,2.4rem);
+}
+.gate h2{font-size:1.15rem;color:var(--ink);margin-bottom:.3rem;font-family:var(--font-ui);font-weight:700}
+.gate > p{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+.gate .eyebrow{color:var(--gate)}
+.gate .row:hover{background:color-mix(in srgb,var(--gate) 7%,transparent)}
+.gate .row input:checked + .box{background:var(--gate);border-color:var(--gate)}
+
+/* ============================================================
+   CATEGORY CARDS
+   ============================================================ */
+.cats{display:grid;gap:clamp(1rem,2.5vw,1.4rem)}
+@media (min-width:900px){
+  .cats{grid-template-columns:repeat(2,1fr);grid-auto-flow:dense}
+  .cats > .span{grid-column:1 / -1}
+}
+
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
+}
+.card__head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  padding:1.1rem 1.25rem .85rem;border-bottom:1px solid var(--line);
+}
+.card__head h3{font-size:1.12rem;letter-spacing:-.01em}
+.card__head .sub{font-size:.78rem;color:var(--faint);margin-top:.2rem}
+.pts{
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:.82rem;font-weight:700;white-space:nowrap;
+  padding:.3rem .6rem;border-radius:99px;
+  background:var(--surface-sunk);color:var(--muted);border:1px solid var(--line);
+}
+.card[data-full="1"] .pts{background:var(--done-soft);color:var(--done);border-color:transparent}
+.card__body{padding:.5rem .5rem .8rem;display:flex;flex-direction:column;gap:1px}
+
+.grouplbl{
+  font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);padding:.85rem .75rem .35rem;
+}
+
+/* ---- checkable row ---- */
+.row{
+  display:flex;align-items:flex-start;gap:.7rem;
+  padding:.55rem .75rem;border-radius:var(--radius-sm);cursor:pointer;
+  transition:background .18s var(--ease);
+}
+.row:hover{background:var(--surface-sunk)}
+.row input{position:absolute;opacity:0;width:0;height:0}
+.box{
+  flex:0 0 18px;width:18px;height:18px;margin-top:.22rem;
+  border:1.5px solid var(--line-strong);border-radius:5px;background:var(--surface);
+  display:grid;place-items:center;transition:background .18s var(--ease),border-color .18s var(--ease);
+}
+.box svg{width:11px;height:11px;stroke:var(--surface);stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .18s var(--ease)}
+.row input:checked + .box{background:var(--done);border-color:var(--done)}
+.row input:checked + .box svg{opacity:1}
+.row input:focus-visible + .box{outline:2px solid var(--brass);outline-offset:2px}
+.row__txt{font-size:.9rem;line-height:1.5;color:var(--ink)}
+.row input:checked ~ .row__txt{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.row__txt em{font-style:normal;color:var(--brass);font-weight:600}
+.row__txt code{
+  font-family:var(--font-mono);font-size:.82em;background:var(--surface-sunk);
+  padding:.1em .35em;border-radius:4px;border:1px solid var(--line);
+}
+.you{
+  display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gate);border:1px solid var(--gate);border-radius:99px;padding:.02em .45em;
+  margin-left:.35rem;vertical-align:.08em;
+}
+
+/* ============================================================
+   BUILD ORDER — a real sequence, so it is really numbered
+   ============================================================ */
+.steps{counter-reset:s;display:grid;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.step{background:var(--surface);padding:1rem 1.2rem;display:grid;
+  grid-template-columns:auto 1fr;gap:.25rem 1rem;align-items:baseline}
+.step::before{
+  counter-increment:s;content:counter(s,decimal-leading-zero);
+  font-family:var(--font-mono);font-size:.78rem;font-weight:700;color:var(--brass);
+  grid-row:1 / span 2;align-self:start;padding-top:.15rem;
+}
+.step h4{margin:0;font-size:.97rem;font-weight:700;font-family:var(--font-ui);letter-spacing:-.005em}
+.step p{font-size:.85rem;color:var(--muted)}
+.step p code{font-family:var(--font-mono);font-size:.86em;color:var(--ink)}
+
+/* ============================================================
+   BLANKS PANEL
+   ============================================================ */
+.blanks{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.blanks table{width:100%;border-collapse:collapse;font-size:.87rem}
+.blanks th{
+  text-align:left;font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);padding:.85rem 1.1rem;border-bottom:1px solid var(--line);background:var(--surface-sunk);
+}
+.blanks td{padding:.7rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+.blanks tr:last-child td{border-bottom:0}
+.blanks td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.blanks code{font-family:var(--font-mono);font-size:.85em;color:var(--brass)}
+.tblwrap{overflow-x:auto}
+
+/* ============================================================
+   SECTIONS + FOOTER
+   ============================================================ */
+section{padding-block:clamp(1.8rem,4vw,2.8rem)}
+.sechead{margin-bottom:1.2rem}
+.sechead h2{font-size:clamp(1.35rem,1.1rem + 1.1vw,1.85rem);margin-top:.4rem;letter-spacing:-.015em}
+.sechead p{color:var(--muted);font-size:.92rem;margin-top:.4rem;max-width:66ch}
+
+.note{
+  border-left:3px solid var(--brass);background:var(--brass-soft);
+  padding:.9rem 1.1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:.88rem;color:var(--ink);margin-top:1.1rem;
+}
+.note strong{font-weight:700}
+
+footer{
+  border-top:1px solid var(--line);margin-top:clamp(2rem,5vw,3.5rem);
+  padding-block:2rem 3rem;color:var(--faint);font-size:.8rem;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+
+<div class="bar">
+  <div class="wrap bar__inner">
+    <div class="score">
+      <span class="score__now" id="scoreNow">0</span>
+      <span class="score__of">/ 180</span>
+      <span class="score__lbl">projected</span>
+    </div>
+    <div class="meter" id="meter" aria-hidden="true"></div>
+    <button class="bar__reset" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">IS101 &middot; Personal Website Project</p>
+    <h1>Build Console</h1>
+    <p>Every scored line of the rubric, in the order you should build it. Tick items as you finish them &mdash; your progress is saved in this browser, so you can keep this open on your phone while you work.</p>
+    <div class="mast__meta">
+      <span class="pill">Theme <b>Heuser</b> &middot; custom-built</span>
+      <span class="pill">Resumes <b>2</b> &middot; 1 page each</span>
+      <span class="pill">Reflection <b>191</b> words</span>
+      <span class="pill">Blog post <b>1,130</b> words</span>
+      <span class="pill">Chatbot topics <b>26</b></span>
+    </div>
+  </header>
+
+  <section aria-labelledby="gate-h">
+    <div class="gate">
+      <p class="eyebrow">Do these or the rest does not count</p>
+      <h2 id="gate-h">The gate</h2>
+      <p>These are not point-scoring lines. They are the conditions under which the other 180 points exist at all.</p>
+      <div data-group="gate">
+        <label class="row"><input type="checkbox" data-k="g1"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.4 4.6 9 10 3"/></svg></span><span class="row__txt">WordPress is <em>self-installed on your own host</em> &mdash; not Wix, Weebly, Squarespace, Shopify, WordPress.com or GoDaddy's builder. Anything else is a <em>zero</em>.</span></label>
+        <label class="row"><input type="checkbox" data-k="g2"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.4 4.6 9 10 3"/></svg></span><span class="row__txt">Hosting signed up by <em>September 2, 11:59pm</em> &mdash; otherwise a 50-point deduction.</span></label>
+        <label class="row"><input type="checkbox" data-k="g3"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.4 4.6 9 10 3"/></svg></span><span class="row__txt">Signup or receipt screenshot uploaded to Canvas.</span></label>
+        <label class="row"><input type="checkbox" data-k="g4"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.4 4.6 9 10 3"/></svg></span><span class="row__txt">If you used GreenGeeks, InMotion or Bluehost: proof of purchase emailed to your professor.</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="rub-h">
+    <div class="sechead">
+      <p class="eyebrow">180 points</p>
+      <h2 id="rub-h">The rubric, line by line</h2>
+      <p>The meter above is weighted by each category's real point value, so a filled segment is worth what the rubric says it is worth. Items marked <span class="you">you</span> are the ones nothing in your kit can finish for you.</p>
+    </div>
+
+    <div class="cats" id="cats"></div>
+
+    <div class="note">
+      <strong>Projected, not promised.</strong> The score above assumes even credit across the items in each category. It is a progress gauge for you, not a prediction of what your professor will award.
+    </div>
+  </section>
+
+  <section aria-labelledby="ord-h">
+    <div class="sechead">
+      <p class="eyebrow">Build order</p>
+      <h2 id="ord-h">Thirteen steps, in sequence</h2>
+      <p>The order matters. Permalinks before pages, pages before the menu, PDFs uploaded before the Resume page can point at them.</p>
+    </div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section aria-labelledby="bl-h">
+    <div class="sechead">
+      <p class="eyebrow">Before you publish</p>
+      <h2 id="bl-h">Blanks only you can fill</h2>
+      <p>Search your files for <code style="font-family:var(--font-mono);font-size:.85em">((</code> &mdash; every hit is deliberate, and every one has to be gone before you submit.</p>
+    </div>
+    <div class="blanks">
+      <div class="tblwrap">
+        <table>
+          <thead><tr><th>Where</th><th>What is missing</th></tr></thead>
+          <tbody id="blanks"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Then go run the prompts.</strong> The reflection on your Resume page describes three prompts. Open ChatGPT, actually run them against your resume, and adjust the refined version and the write-up to match what came back. Fifteen minutes, and the reflection becomes true instead of predicted.
+    </div>
+  </section>
+
+  <footer>
+    Companion to the build kit in <code style="font-family:var(--font-mono)">Personal Website Project intro to information systems/</code> &mdash; see <b>BUILD-GUIDE.md</b> for the full walkthrough and <b>FACTS-TO-VERIFY.md</b> for the five things that need your confirmation.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- rubric data: points are the real ones from the grading table ---- */
+  var CATS = [
+    { id:"logo", name:"Logo", pts:20, sub:"Name logo, exported as PNG", items:[
+      "A name logo exists using your name &mdash; <code>roman-heuser-logo-compact.png</code>",
+      "Exported as a <em>PNG</em> (all four variants already are)",
+      "Uploaded under <em>Customize &rarr; Site Identity &rarr; Logo</em>",
+      "Site icon set so the browser tab shows the RH mark"
+    ]},
+    { id:"design", name:"Professional Design", pts:30, sub:"Theme 15 &middot; Menu 8 &middot; Widgets 7", groups:[
+      { label:"Quality site with customized theme &mdash; 15", items:[
+        "Theme is <em>not</em> a &ldquo;Twenty&hellip;&rdquo; theme &mdash; you are running <em>Heuser</em>",
+        "Clearly customized: your colors, fonts, header, footer, layout",
+        "Reads correctly on an actual phone <span class=\"you\">you</span>",
+        "No broken images and no <code>((&hellip;))</code> markers anywhere live"
+      ]},
+      { label:"Custom menu in order &mdash; 8", items:[
+        "A custom menu built under <em>Appearance &rarr; Menus</em>",
+        "Assigned to the <em>Primary Menu</em> location",
+        "Order is exactly Home &middot; About Me &middot; Resume &middot; Gallery &middot; Blog",
+        "Any extra page sits <em>after</em> Blog"
+      ]},
+      { label:"Website-relevant widgets &mdash; 7", items:[
+        "No Search, Recent Posts, Archives, Categories or Meta widgets",
+        "Footer columns hold something relevant &mdash; Explore menu, contact details",
+        "No default WordPress furniture left showing"
+      ]}
+    ]},
+    { id:"pages", name:"5 Pages with Quality Content", pts:15, sub:"Home, About Me, Resume, Gallery, Blog", items:[
+      "<em>Home</em> &mdash; welcomes visitors and links to every other page",
+      "<em>About Me</em> &mdash; pasted from <code>about-me.html</code>",
+      "About Me carries <em>multiple images</em> with captions <span class=\"you\">you</span>",
+      "Hobbies paragraph written in your own words <span class=\"you\">you</span>",
+      "<em>Resume</em>, <em>Gallery</em> and <em>Blog</em> all published",
+      "Every page published, none left as a draft"
+    ]},
+    { id:"plugins", name:"3 Plug-Ins", pts:30, sub:"PDF embed &middot; Social &middot; Gallery", items:[
+      "PDF embed plugin active and rendering <em>both</em> resumes",
+      "Social media plugin active and linked to your real accounts <span class=\"you\">you</span>",
+      "Gallery plugin active and showing your photos",
+      "All three visibly doing something on the live site"
+    ]},
+    { id:"resume", name:"Alternate Resume + Analysis", pts:25, sub:"Two PDFs and the reflection", items:[
+      "<em>Original</em> resume embedded",
+      "<em>AI-refined</em> resume embedded directly below it",
+      "The refined one names a specific role &mdash; Associate Product Manager",
+      "You ran the prompts yourself and made the edits <span class=\"you\">you</span>",
+      "Reflection sits on the page as text, not inside a PDF",
+      "Reflection is 150&ndash;200 words (yours is 191)"
+    ]},
+    { id:"gpt", name:"Embedded GPT ChatBot", pts:30, sub:"Microsoft Excel &middot; from Lab #3", items:[
+      "Chatbot embedded on a page of your site",
+      "It answers Microsoft Excel questions",
+      "<code>YOUR_CUSTOM_GPT_URL_HERE</code> replaced &mdash; all 3 occurrences <span class=\"you\">you</span>",
+      "The GPT is the one you built in <em>Lab #3</em> <span class=\"you\">you</span>",
+      "The page is reachable from the menu"
+    ]},
+    { id:"blog", name:"Blog", pts:30, sub:"Post 14 &middot; Comments 8 &middot; Replies 8", groups:[
+      { label:"The post &mdash; 14", items:[
+        "Published as a <em>Post</em>, not a Page",
+        "Covers a hoax, scam or data manipulation",
+        "Explains the purpose, the mechanics, and how to spot it",
+        "Story is genuinely yours <span class=\"you\">you</span>",
+        "Default &ldquo;Hello world!&rdquo; post deleted"
+      ]},
+      { label:"Four comments &mdash; 8", items:[
+        "4 comments from 4 different real people <span class=\"you\">you</span>",
+        "All four approved and visible on the live post"
+      ]},
+      { label:"Four responses &mdash; 8", items:[
+        "You replied to each of the four",
+        "Replies are threaded under their comment",
+        "Replies show the <em>Author</em> badge (posted while logged in)",
+        "Each reply says something specific"
+      ]}
+    ]}
+  ];
+
+  var STEPS = [
+    ["Install WordPress yourself","cPanel &rarr; Softaculous or WordPress Toolkit. Leave the directory <code>blank</code> so the site lives at the root."],
+    ["Baseline settings","Permalinks to <code>Post name</code> <em>before</em> creating pages. Under Discussion, turn off &ldquo;must be registered to comment&rdquo; or your friends cannot comment."],
+    ["Upload the Heuser theme","Appearance &rarr; Themes &rarr; Add New &rarr; Upload <code>build/roman-heuser.zip</code>, then Activate."],
+    ["Logo and site icon","Customize &rarr; Site Identity. Use <code>roman-heuser-logo-compact.png</code>; the theme picks the light version for the hero and footer itself."],
+    ["Create the five pages","Titles exactly: Home, About Me, Resume, Gallery, Blog. Paste each content file into a <em>Custom HTML</em> block."],
+    ["Point WordPress at them","Settings &rarr; Reading &rarr; static page. Homepage = Home, Posts page = Blog."],
+    ["Build the custom menu","Appearance &rarr; Menus. Exact order, assigned to Primary Menu."],
+    ["Footer widgets","Navigation Menu widget in column 2, a Text widget with your contact details in column 3."],
+    ["Install the three plugins","PDF Embedder, a social icons plugin, and a gallery plugin &mdash; whichever your lab covered."],
+    ["Wire up the Resume page","Upload both PDFs to Media, copy their URLs, replace the four <code>((MEDIA URL))</code> markers."],
+    ["Publish the blog post","Then text four people the link, approve their comments, and reply to each while logged in."],
+    ["Add the Excel chatbot","Paste your Lab #3 GPT link into the widget, publish it as a page, put it after Blog in the menu."],
+    ["Final QA","Walk the rubric above, then open the live site on your phone and search it for <code>((</code>."]
+  ];
+
+  var BLANKS = [
+    ["Both resumes","<code>((GRAD YEAR))</code>, <code>((START))</code> dates, and <code>((GPA))</code> &mdash; include the GPA only if it is 3.3 or above, otherwise delete the line"],
+    ["About Me","Two photo uploads with captions, plus the &ldquo;Beyond the screen&rdquo; paragraph about what you do outside of building"],
+    ["Gallery","Three to five of your own photos, five captions, and your gallery plugin's shortcode"],
+    ["Resume page","Four <code>((MEDIA URL))</code> markers, filled in after you upload both PDFs"],
+    ["Chatbot","<code>YOUR_CUSTOM_GPT_URL_HERE</code> &mdash; all three occurrences"],
+    ["Facts to confirm","Your major, whether Tom and Serena Heuser are your parents, and whether the blog story is genuinely yours"]
+  ];
+
+  var KEY = "is101-build-console-v1";
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+
+  function save(){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode: session only */ }
+  }
+
+  var TICK = '<span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.4 4.6 9 10 3"/></svg></span>';
+
+  function rowHTML(key, text){
+    return '<label class="row"><input type="checkbox" data-k="' + key + '">' + TICK +
+           '<span class="row__txt">' + text + '</span></label>';
+  }
+
+  /* ---- build the category cards ---- */
+  var cats = document.getElementById("cats");
+  CATS.forEach(function(c){
+    var body = "", n = 0;
+    if (c.groups){
+      c.groups.forEach(function(g, gi){
+        body += '<p class="grouplbl">' + g.label + '</p>';
+        g.items.forEach(function(t, i){ body += rowHTML(c.id + "-" + gi + "-" + i, t); n++; });
+      });
+    } else {
+      c.items.forEach(function(t, i){ body += rowHTML(c.id + "-" + i, t); n++; });
+    }
+    var card = document.createElement("article");
+    card.className = "card" + (c.groups ? " span" : "");
+    card.setAttribute("data-cat", c.id);
+    card.setAttribute("data-n", String(n));
+    card.setAttribute("data-pts", String(c.pts));
+    card.innerHTML =
+      '<div class="card__head"><div><h3>' + c.name + '</h3><p class="sub">' + c.sub + '</p></div>' +
+      '<span class="pts"><span class="e">0</span>/' + c.pts + '</span></div>' +
+      '<div class="card__body">' + body + '</div>';
+    cats.appendChild(card);
+  });
+
+  /* ---- steps + blanks ---- */
+  document.getElementById("steps").innerHTML = STEPS.map(function(s){
+    return '<div class="step"><div><h4>' + s[0] + '</h4><p>' + s[1] + '</p></div></div>';
+  }).join("");
+
+  document.getElementById("blanks").innerHTML = BLANKS.map(function(b){
+    return "<tr><td>" + b[0] + "</td><td>" + b[1] + "</td></tr>";
+  }).join("");
+
+  /* ---- meter: one segment per category, flex-sized by its point weight ---- */
+  var meter = document.getElementById("meter");
+  CATS.forEach(function(c){
+    var seg = document.createElement("div");
+    seg.className = "seg";
+    seg.style.flex = c.pts + " 1 0";
+    seg.setAttribute("data-cat", c.id);
+    seg.title = c.name + " — " + c.pts + " points";
+    seg.innerHTML = '<span class="seg__fill"></span><span class="seg__tag">' + c.pts + '</span>';
+    meter.appendChild(seg);
+  });
+
+  /* ---- restore, then wire ---- */
+  var boxes = document.querySelectorAll('input[type="checkbox"]');
+  Array.prototype.forEach.call(boxes, function(b){
+    if (state[b.dataset.k]) b.checked = true;
+    b.addEventListener("change", function(){
+      if (b.checked) state[b.dataset.k] = 1; else delete state[b.dataset.k];
+      save(); recalc();
+    });
+  });
+
+  function recalc(){
+    var total = 0;
+    CATS.forEach(function(c){
+      var card = document.querySelector('.card[data-cat="' + c.id + '"]');
+      var inputs = card.querySelectorAll('input[type="checkbox"]');
+      var done = 0;
+      Array.prototype.forEach.call(inputs, function(i){ if (i.checked) done++; });
+      var frac = inputs.length ? done / inputs.length : 0;
+      var earned = Math.round(c.pts * frac);
+      total += earned;
+
+      card.querySelector(".pts .e").textContent = earned;
+      card.setAttribute("data-full", frac === 1 ? "1" : "0");
+
+      var seg = meter.querySelector('.seg[data-cat="' + c.id + '"]');
+      seg.querySelector(".seg__fill").style.transform = "scaleX(" + frac + ")";
+      seg.setAttribute("data-full", frac === 1 ? "1" : "0");
+    });
+    document.getElementById("scoreNow").textContent = total;
+  }
+
+  document.getElementById("reset").addEventListener("click", function(){
+    if (!window.confirm("Clear every checkbox on this page?")) return;
+    state = {}; save();
+    Array.prototype.forEach.call(boxes, function(b){ b.checked = false; });
+    recalc();
+  });
+
+  recalc();
+}());
+</script>

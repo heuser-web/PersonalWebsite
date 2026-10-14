@@ -1,0 +1,64 @@
+<!-- ============================================================
+     BLOG POST  —  paste into a "Custom HTML" block on a new POST
+     (Posts > Add New, not Pages). Title suggestion below.
+
+     TITLE:  The Restaurant With 400 Perfect Reviews and No Customers
+     ============================================================ -->
+
+<p class="rh-lede">I found it by accident, and only because I was building something that had to trust the data. The restaurant had a 4.9 average across more than four hundred reviews. It also had an empty dining room every single time I drove past it.</p>
+
+<h2>How I ran into it</h2>
+
+<p>Last year I was building GoMojo, an AI concierge that plans a night out in Las Vegas. The whole product rests on one assumption: that public review data tells you something true about whether a place is good. So I spent weeks with my head inside that data, and eventually I started noticing places where the numbers did not behave like numbers produced by real people.</p>
+
+<p>One restaurant stood out. Great score, huge review count, and a review history that made no sense. I have changed nothing about what I saw except the name of the place, because I am describing a pattern, not accusing a specific business.</p>
+
+<h2>What someone was trying to accomplish</h2>
+
+<p>The purpose was money, and the mechanism was ranking. On every major platform — Google, Yelp, TripAdvisor, the delivery apps — your position in a list is driven substantially by your star average and your review volume. Position drives clicks, clicks drive covers, and in a tourist city where most diners have never been to any of the options, that ranking <em>is</em> the reputation. Nobody is asking a local. They are asking a list.</p>
+
+<p>So the goal was not to trick any single person. It was to trick the sorting algorithm, and let the algorithm do the convincing. That is what makes review manipulation different from a classic scam: the victim is not handed a lie directly. The victim is handed a ranked list that has been quietly rearranged.</p>
+
+<h2>How it actually worked</h2>
+
+<p>Once I looked closely, the mechanics were not subtle.</p>
+
+<ul>
+  <li><strong>Clustered timing.</strong> Real reviews for a working restaurant dribble in — a few a week, more on weekends, a spike after a holiday. These arrived in bursts: forty-some reviews inside a few days, then near-silence for weeks, then another burst. That is a purchase order, not a customer base.</li>
+  <li><strong>Reviewer accounts with no history.</strong> A large share of the five-star accounts had reviewed between one and three businesses ever, had no profile photo, and in several cases had reviewed businesses in three different states in the same week.</li>
+  <li><strong>Template language.</strong> Real reviews are specific and a little unhinged. People name the dish, complain about parking, mention their server. These said things like "amazing food and great service, highly recommend!" over and over, with the nouns swapped. Short, positive, generic, and interchangeable.</li>
+  <li><strong>A missing middle.</strong> This was the clearest signal. Authentic businesses produce a J-shaped curve: mostly fives, a real tail of ones from people having a bad night, and a thin but present band of threes and fours. This place had a wall of fives, a handful of ones, and almost nothing in between. Bought reviews are always five stars, because nobody pays for a four.</li>
+  <li><strong>Incentives at the door.</strong> The other half of it is legal-ish and much more common: a sign or a receipt offering a free appetizer or a discount for a five-star review. That does not invent customers, but it filters them. Only the happy ones get asked, and they get asked at the exact moment they are happiest.</li>
+</ul>
+
+<p>Combine those and you get a number that is technically made of real submissions and still describes nothing true. That is what data manipulation usually looks like in practice. Not forged data — <em>selected</em> data.</p>
+
+<h2>Why it matters more than it sounds</h2>
+
+<p>It is easy to shrug at this. It is only dinner. But the same mechanism scales into places where it is not only dinner: product listings, contractors, landlords, health providers, financial advisors, and any marketplace where a stranger's rating stands in for a reputation you cannot check yourself. Every honest business in that list gets pushed down by exactly the amount the dishonest one gets pushed up. The cost is paid by the people who did the work.</p>
+
+<p>It also broke something for me personally. I was building a product whose entire promise was "trust me, this place is good." I had to stop treating review scores as a fact and start treating them as a claim.</p>
+
+<h2>How you can tell — five checks that take two minutes</h2>
+
+<p>You do not need software for this. You need to look at the shape of the data instead of the headline number.</p>
+
+<ol>
+  <li><strong>Read the three-star reviews first.</strong> They are the most honest writing on the internet. Nobody is paid to write a three. If a business with hundreds of reviews has almost no threes and fours, the distribution has been engineered.</li>
+  <li><strong>Sort by newest and look at the dates.</strong> Steady trickle, or bursts? Bursts with dead air between them mean the reviews arrived on a schedule someone set.</li>
+  <li><strong>Click three reviewer profiles.</strong> Real people have history — years of reviews, a mix of ratings, places clustered near where they live. An account with one review, no photo, and no history is not a person, it is an entry.</li>
+  <li><strong>Check whether they say anything.</strong> Specificity is expensive to fake at volume. Real reviews name a dish, a server, a wait time, a parking situation. If every review could be about any business, it probably was.</li>
+  <li><strong>Cross-check one platform against another.</strong> Manipulation is usually bought on one platform at a time. A 4.9 on one site and a 3.4 on another is not a mystery — it tells you which one was paid for.</li>
+</ol>
+
+<p>There is a sixth check that is really a mindset: ask who benefits from you believing the number. On a review page the answer is always the business, never the reader. That does not make every high rating fake. It just means the rating is advertising until you have a reason to believe otherwise.</p>
+
+<h2>What I did about it</h2>
+
+<p>I stopped letting raw star averages drive GoMojo's recommendations by themselves. The system now weighs consistency over time, looks at whether the reviews say anything substantive, and cross-references sources rather than trusting a single score. It is not perfect and it never will be. But there is a real difference between a product that repeats a number and a product that asks where the number came from.</p>
+
+<p>That is the habit I would pass on. Not cynicism — most reviews are real, and most businesses are honest. Just the small, cheap discipline of looking at the shape of the evidence before you let it decide something for you.</p>
+
+<hr>
+
+<p><em>Have you run into something like this — a review, an ad, a listing, a message that turned out to be engineered? Tell me about it in the comments. I read every one.</em></p>
