@@ -2,8 +2,8 @@
 /**
  * Home page template.
  *
- * Renders the cinematic hero plus the "explore the rest of the site" sections
- * the project brief asks a home page to provide. If a static page is assigned
+ * Renders the opening sequence, then The Drive: a scroll-driven night drive
+ * from Las Vegas to Reno that ends at links to every other page. If a static page is assigned
  * as the front page and it has body content, that content is printed too.
  *
  * @package roman-heuser
@@ -11,61 +11,8 @@
 
 get_header();
 
-$rh_hero_img = get_theme_mod( 'rh_hero_image' );
-if ( ! $rh_hero_img ) {
-	$rh_hero_img = rh_img( 'vegas-night.jpg' );  // bundled fallback
-}
 $rh_logo_id  = get_theme_mod( 'custom_logo' );
 
-/** The four interior destinations, in the order the project requires. */
-$rh_destinations = array(
-	array(
-		'title' => 'About Me',
-		'slug'  => 'about-me',
-		'kicker'=> 'Chapter 01',
-		'copy'  => 'Where I grew up, why I picked business, the four jobs that taught me more than any of it, and where this is going.',
-	),
-	array(
-		'title' => 'Resume',
-		'slug'  => 'resume',
-		'kicker'=> 'Chapter 02',
-		'copy'  => 'Two versions of the same resume — my original, and one I retooled for a product role using AI as an editor, not an author. The prompts are documented.',
-	),
-	array(
-		'title' => 'Gallery',
-		'slug'  => 'gallery',
-		'kicker'=> 'Chapter 03',
-		'copy'  => 'A Reno sunset, a treenet in the pines, and Dye is Life at the SAE house. All my own photographs.',
-	),
-	array(
-		'title' => 'Blog',
-		'slug'  => 'blog',
-		'kicker'=> 'Chapter 04',
-		'copy'  => 'One long look at a scam I watched work in real life, how it was built, and the questions that would have stopped it.',
-	),
-);
-
-/** The three ventures. Edit the copy here or move it to the page editor later. */
-$rh_ventures = array(
-	array(
-		'name'  => 'GoMojo',
-		'role'  => 'Founder',
-		'blurb' => 'A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, with venues, times and costs, planned by a seven-agent swarm.',
-		'facts' => array( '7-agent AI swarm', 'Installable PWA', 'Built for under $1K' ),
-	),
-	array(
-		'name'  => 'TagData',
-		'role'  => 'Frontend Design Lead',
-		'blurb' => 'A personal-data vault I was hired to redesign, with full authority over the frontend. Its share card hands over exactly the data you choose, and that data lives in the link, never on a server.',
-		'facts' => array( '$3.5M invested', 'Design-system lead', 'Next.js + .NET' ),
-	),
-	array(
-		'name'  => 'GoInvest',
-		'role'  => 'Builder',
-		'blurb' => 'A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper-traded and labeled educational, on purpose.',
-		'facts' => array( '8 investor personas', 'Every debate logged', 'Paper trading only' ),
-	),
-);
 ?>
 
 <?php
@@ -111,165 +58,16 @@ if ( get_theme_mod( 'rh_intro_on', true ) ) :
 <template id="rh-intro-template"></template>
 <?php endif; // rh_intro_on ?>
 
-<section class="rh-hero">
-	<canvas class="rh-fx rh-fx--interactive" id="rh-galaxy" role="img"
-		aria-label="<?php esc_attr_e( 'Interactive particle galaxy. Drag to rotate.', 'roman-heuser' ); ?>"></canvas>
-
-	<?php if ( $rh_hero_img ) : ?>
-		<img class="rh-hero__bg" src="<?php echo esc_url( $rh_hero_img ); ?>" alt="" aria-hidden="true" fetchpriority="high">
-	<?php endif; ?>
-
-	<div class="rh-edge">
-		<?php if ( rh_opt( 'rh_hero_eyebrow' ) ) : ?>
-			<p class="rh-hero__eyebrow"><?php echo esc_html( wp_strip_all_tags( rh_opt( 'rh_hero_eyebrow' ) ) ); ?></p>
-		<?php endif; ?>
-
-		<?php
-		if ( $rh_logo_id ) {
-			echo wp_get_attachment_image(
-				$rh_logo_id,
-				'full',
-				false,
-				array(
-					'class'         => 'rh-hero__logo',
-					'alt'           => esc_attr( get_bloginfo( 'name' ) ),
-					'fetchpriority' => 'high',
-				)
-			);
-		}
-		?>
-
-		<h1><?php echo wp_kses_post( rh_opt( 'rh_hero_title' ) ); ?></h1>
-		<p class="rh-hero__sub"><?php echo wp_kses_post( rh_opt( 'rh_hero_sub' ) ); ?></p>
-
-		<div class="rh-hero__cta">
-			<?php if ( rh_opt( 'rh_hero_cta1_txt' ) ) : ?>
-				<a class="rh-btn rh-btn--primary" href="<?php echo esc_url( rh_opt( 'rh_hero_cta1_url' ) ); ?>">
-					<?php echo esc_html( rh_opt( 'rh_hero_cta1_txt' ) ); ?>
-					<span class="rh-btn__arrow" aria-hidden="true">&rarr;</span>
-				</a>
-			<?php endif; ?>
-			<?php if ( rh_opt( 'rh_hero_cta2_txt' ) ) : ?>
-				<a class="rh-btn rh-btn--ghost" style="color:#F7F5EF" href="<?php echo esc_url( rh_opt( 'rh_hero_cta2_url' ) ); ?>">
-					<?php echo esc_html( rh_opt( 'rh_hero_cta2_txt' ) ); ?>
-				</a>
-			<?php endif; ?>
-		</div>
-	</div>
-
-	<a class="rh-hero__scroll" href="#rh-ventures"><?php esc_html_e( 'Scroll', 'roman-heuser' ); ?></a>
-</section>
-
-
-<!-- ============================ VENTURES ============================ -->
-<section class="rh-section rh-aurora-band" id="rh-ventures">
-	<div class="rh-edge">
-		<p class="rh-eyebrow rh-reveal"><?php esc_html_e( 'What I am building', 'roman-heuser' ); ?></p>
-		<h2 class="rh-reveal" style="max-width:20ch"><?php esc_html_e( 'Three products, one habit: ship it, then make it good.', 'roman-heuser' ); ?></h2>
-		<p class="rh-lede rh-reveal" style="margin-bottom:3rem">
-			<?php esc_html_e( 'I would rather have something running badly on a real server than something perfect in a document. Every project below started as a weekend idea and ended up as software other people actually use.', 'roman-heuser' ); ?>
-		</p>
-
-		<div class="rh-grid rh-grid--3">
-			<?php foreach ( $rh_ventures as $rh_v ) : ?>
-				<article class="rh-card rh-card--hover rh-reveal rh-glass rh-tilt">
-					<span class="rh-tilt__sheen" aria-hidden="true"></span>
-					<p class="rh-card__kicker"><?php echo esc_html( $rh_v['role'] ); ?></p>
-					<h3><?php echo esc_html( $rh_v['name'] ); ?></h3>
-					<p><?php echo esc_html( $rh_v['blurb'] ); ?></p>
-					<ul class="rh-chips">
-						<?php foreach ( $rh_v['facts'] as $rh_f ) : ?>
-							<li><?php echo esc_html( $rh_f ); ?></li>
-						<?php endforeach; ?>
-					</ul>
-				</article>
-			<?php endforeach; ?>
-		</div>
-	</div>
-</section>
-
-
-<!-- ============================ STATS ============================ -->
-<section class="rh-section rh-section--alt">
-	<div class="rh-edge">
-		<p class="rh-eyebrow rh-eyebrow--center rh-reveal" style="justify-content:center"><?php esc_html_e( 'By the numbers', 'roman-heuser' ); ?></p>
-		<div class="rh-stats rh-reveal">
-			<div class="rh-stat">
-				<div class="rh-stat__num">3</div>
-				<div class="rh-stat__label"><?php esc_html_e( 'Products shipped', 'roman-heuser' ); ?></div>
-			</div>
-			<div class="rh-stat">
-				<div class="rh-stat__num">&lt;<span>$1K</span></div>
-				<div class="rh-stat__label"><?php esc_html_e( 'Total build cost, GoMojo', 'roman-heuser' ); ?></div>
-			</div>
-			<div class="rh-stat">
-				<div class="rh-stat__num">15</div>
-				<div class="rh-stat__label"><?php esc_html_e( 'AI agents in production', 'roman-heuser' ); ?></div>
-			</div>
-			<div class="rh-stat">
-				<div class="rh-stat__num">6<span>s</span></div>
-				<div class="rh-stat__label"><?php esc_html_e( 'To plan a night out', 'roman-heuser' ); ?></div>
-			</div>
-		</div>
-	</div>
-</section>
-
-
-<!-- ========================= OFF THE CLOCK ========================= -->
 <?php
-$rh_life = array(
-	array( 'file' => 'life/reno-sunset.jpg', 'label' => 'Reno, after dark', 'alt' => __( 'Casino entrance chandeliers framing a pink and violet sunset over Reno', 'roman-heuser' ), 'pos' => '50% 82%', 'w' => 1200, 'h' => 900 ),
-	array( 'file' => 'life/treenet.jpg',     'label' => 'Treenet',          'alt' => __( 'Looking up through a woven rope treenet strung between pine trees', 'roman-heuser' ), 'pos' => '50% 35%', 'w' => 900, 'h' => 1200 ),
-	array( 'file' => 'life/dye-is-life.jpg', 'label' => 'Dye is Life',      'alt' => __( 'A crowded backyard party at the Sigma Alpha Epsilon house', 'roman-heuser' ), 'pos' => '50% 40%', 'w' => 1200, 'h' => 900 ),
-);
-$rh_gallery_url = rh_page_url_by_title( 'Gallery' );
+/*
+ * THE DRIVE. One HTML file (parts/drive.html) is the single source for this
+ * markup; the offline preview reads the same file. All copy is real text, so
+ * the page reads correctly with scripts off. Objects: assets/js/drive-world.js.
+ * Scroll, camera and input: assets/js/drive.js.
+ */
+// Light lettering on purpose: the stage is always dark.
+echo rh_drive_markup( get_theme_mod( 'rh_logo_dark' ) ? get_theme_mod( 'rh_logo_dark' ) : rh_img( 'logo-hero-light.png' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every token is escaped inside.
 ?>
-<section class="rh-section">
-	<div class="rh-edge">
-		<p class="rh-eyebrow rh-reveal"><?php esc_html_e( 'Off the clock', 'roman-heuser' ); ?></p>
-		<div class="rh-section__head rh-reveal">
-			<h2><?php esc_html_e( 'Reno sunsets, treenets, and the SAE house.', 'roman-heuser' ); ?></h2>
-			<a class="rh-link" href="<?php echo esc_url( $rh_gallery_url ); ?>">
-				<?php esc_html_e( 'See the gallery', 'roman-heuser' ); ?>
-				<span class="rh-btn__arrow" aria-hidden="true">&rarr;</span>
-			</a>
-		</div>
-		<div class="rh-life rh-reveal">
-			<?php foreach ( $rh_life as $rh_p ) : ?>
-				<a class="rh-life__tile" href="<?php echo esc_url( $rh_gallery_url ); ?>">
-					<img src="<?php echo esc_url( rh_img( $rh_p['file'] ) ); ?>" alt="<?php echo esc_attr( $rh_p['alt'] ); ?>"
-						width="<?php echo (int) $rh_p['w']; ?>" height="<?php echo (int) $rh_p['h']; ?>" loading="lazy" style="object-position:<?php echo esc_attr( $rh_p['pos'] ); ?>">
-					<span><?php echo esc_html( $rh_p['label'] ); ?></span>
-				</a>
-			<?php endforeach; ?>
-		</div>
-	</div>
-</section>
-
-
-<!-- ============================ EXPLORE ============================ -->
-<section class="rh-section">
-	<div class="rh-edge">
-		<p class="rh-eyebrow rh-reveal"><?php esc_html_e( 'Start anywhere', 'roman-heuser' ); ?></p>
-		<h2 class="rh-reveal" style="margin-bottom:2.5rem"><?php esc_html_e( 'The rest of the site', 'roman-heuser' ); ?></h2>
-
-		<div class="rh-grid rh-grid--2">
-			<?php foreach ( $rh_destinations as $rh_d ) : ?>
-				<?php $rh_url = rh_page_url_by_title( $rh_d['title'] ); ?>
-				<a class="rh-card rh-reveal rh-glass rh-tilt" href="<?php echo esc_url( $rh_url ); ?>">
-					<span class="rh-tilt__sheen" aria-hidden="true"></span>
-					<p class="rh-card__kicker"><?php echo esc_html( $rh_d['kicker'] ); ?></p>
-					<h3><?php echo esc_html( $rh_d['title'] ); ?></h3>
-					<p><?php echo esc_html( $rh_d['copy'] ); ?></p>
-					<span class="rh-card__foot">
-						<?php esc_html_e( 'Open', 'roman-heuser' ); ?>
-						<span class="rh-btn__arrow" aria-hidden="true">&rarr;</span>
-					</span>
-				</a>
-			<?php endforeach; ?>
-		</div>
-	</div>
-</section>
 
 
 <!-- ================= OPTIONAL PAGE BODY (if one is set) ================= -->

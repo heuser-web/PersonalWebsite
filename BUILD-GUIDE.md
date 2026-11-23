@@ -427,3 +427,16 @@ blocks the content, every required page is one click from the hero, the menu
 order is untouched, mobile is unaffected, and turning it off is deleting two
 files. If your professor prefers restraint, delete `cinematic.css` and
 `cinematic.js` from the theme folder and everything reverts.
+
+---
+
+## Updating an existing install to The Drive (theme 2.0)
+
+1. WordPress admin → *Appearance → Themes → Add New → Upload Theme*
+2. Choose `build/roman-heuser.zip` → **Install Now** → **Replace active with uploaded**
+   (first install: **Activate**)
+3. If your host or a plugin caches pages, clear the cache
+4. Make sure pages titled exactly **About Me, Resume, Gallery, Blog, Excel Helper**
+   are published. The five doors at the end of the drive find them by title
+5. Open the site in a private window, scroll it top to bottom, then do it on your phone
+

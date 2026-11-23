@@ -13,6 +13,18 @@ OUT  = ROOT / "preview"
 NAV = [("Home","index.html"),("About Me","about-me.html"),("Resume","resume.html"),
        ("Gallery","gallery.html"),("Blog","blog.html"),("Excel Helper","excel-helper.html")]
 
+def sync():
+    """Copy theme assets into preview/assets so the two can never drift apart."""
+    import shutil
+    t, d = ROOT / "theme" / "roman-heuser", OUT / "assets"
+    (d / "vendor").mkdir(parents=True, exist_ok=True)
+    for src, dst in [("style.css", "style.css"), ("assets/css/cinematic.css", "cinematic.css"), ("assets/css/drive.css", "drive.css"),
+                     ("assets/js/theme.js", "theme.js"), ("assets/js/cinematic.js", "cinematic.js"), ("assets/js/drive.js", "drive.js"),
+                     ("assets/js/drive-world.js", "drive-world.js"), ("assets/js/vendor/three.rh.min.js", "vendor/three.rh.min.js")]:
+        if not (d / dst).exists() or (t / src).read_bytes() != (d / dst).read_bytes():
+            shutil.copy(t / src, d / dst)
+sync()
+
 def A(name):
     """Asset URL with a content-time stamp, so a browser never serves a stale copy
     of CSS/JS after a rebuild (heuristic caching can hold files for days)."""
@@ -21,7 +33,7 @@ def A(name):
 
 GFONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
           '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-          '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400'
+          '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400'
           '&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">')
 
 def nav(cur):
@@ -30,6 +42,8 @@ def nav(cur):
         cls = ' class="current-menu-item"' if href == cur else ""
         items.append(f'<li{cls}><a href="{href}">{html.escape(label)}</a></li>')
     return "\n".join(items)
+
+RANGE = {"about-me.html":"1,7.3","resume.html":"2.9,4.3","gallery.html":"5,7.2","blog.html":"3.9,5.2","excel-helper.html":"0.9,2.1"}
 
 def chrome(title, cur, body):
     return f"""<!DOCTYPE html>
@@ -41,9 +55,10 @@ def chrome(title, cur, body):
 {GFONTS}
 <link rel="stylesheet" href="{A('style.css')}">
 <link rel="stylesheet" href="{A('cinematic.css')}">
+<link rel="stylesheet" href="{A('drive.css')}">
 <link rel="icon" href="assets/logo.png">
 </head>
-<body class="no-js">
+<body class="no-js rd-on{' rd-home' if cur == 'index.html' else ''}" data-rd-range="{RANGE.get(cur, '1,4')}">
 <a class="skip-link screen-reader-text" href="#rh-main">Skip to content</a>
 
 <header class="rh-header" id="rh-header">
@@ -99,6 +114,9 @@ def chrome(title, cur, body):
 </footer>
 <script src="{A('theme.js')}"></script>
 <script src="{A('cinematic.js')}"></script>
+<script src="{A('vendor/three.rh.min.js')}"></script>
+<script src="{A('drive-world.js')}"></script>
+<script src="{A('drive.js')}"></script>
 <script src="{A('blog-demo.js')}"></script>
 </body>
 </html>
@@ -160,57 +178,18 @@ life = "\n".join(
     f'width="{w}" height="{h}" loading="lazy" style="object-position:{pos}"><span>{label}</span></a>'
     for f, label, alt, pos, w, h in PHOTOS)
 
-home = INTRO + f"""<section class="rh-hero">
-  <canvas class="rh-fx rh-fx--interactive" id="rh-galaxy" role="img" aria-label="Interactive particle galaxy. Drag to rotate."></canvas>
-  <img class="rh-hero__bg" src="assets/vegas-night.jpg" alt="" aria-hidden="true">
-  <div class="rh-edge">
-    <p class="rh-hero__eyebrow">Reno, Nevada · From Las Vegas</p>
-    <img class="rh-hero__logo" src="assets/logo-light.png" alt="Roman Heuser">
-    <h1>I build things that <em>ship</em>.</h1>
-    <p class="rh-hero__sub">Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.</p>
-    <div class="rh-hero__cta">
-      <a class="rh-btn rh-btn--primary" href="about-me.html">Read my story <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
-      <a class="rh-btn rh-btn--ghost" style="color:#F7F5EF" href="resume.html">View my resume</a>
-    </div>
-  </div>
-  <a class="rh-hero__scroll" href="#rh-ventures">Scroll</a>
-</section>
-
-<section class="rh-section rh-aurora-band" id="rh-ventures">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">What I am building</p>
-    <h2 class="rh-reveal" style="max-width:20ch">Three products, one habit: ship it, then make it good.</h2>
-    <p class="rh-lede rh-reveal" style="margin-bottom:3rem">I would rather have something running badly on a real server than something perfect in a document. Every project below started as a weekend idea and ended up as software other people actually use.</p>
-    <div class="rh-grid rh-grid--3">{vcards}</div>
-  </div>
-</section>
-
-<section class="rh-section rh-section--alt">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-eyebrow--center rh-reveal" style="justify-content:center">By the numbers</p>
-    <div class="rh-stats rh-reveal">{scards}</div>
-  </div>
-</section>
-
-<section class="rh-section">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">Off the clock</p>
-    <div class="rh-section__head rh-reveal">
-      <h2>Reno sunsets, treenets, and the SAE house.</h2>
-      <a class="rh-link" href="gallery.html">See the gallery <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
-    </div>
-    <div class="rh-life rh-reveal">{life}</div>
-  </div>
-</section>
-
-<section class="rh-section rh-section--alt">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">Start anywhere</p>
-    <h2 class="rh-reveal" style="margin-bottom:2.5rem">The rest of the site</h2>
-    <div class="rh-grid rh-grid--2">{dcards}</div>
-  </div>
-</section>
-"""
+# The Drive: same file the theme reads (theme/roman-heuser/parts/drive.html).
+drive = (ROOT / "theme" / "roman-heuser" / "parts" / "drive.html").read_text()
+for k, v in {
+    "eyebrow": "Reno, Nevada · From Las Vegas", "title": "I build things that <em>ship</em>.",
+    "sub": "Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.",
+    "cta1_txt": "Read my story", "cta1_url": "about-me.html", "cta2_txt": "View my resume", "cta2_url": "resume.html",
+    "logo": "assets/logo-light.png"}.items():
+    drive = drive.replace("{{" + k + "}}", v)
+drive = re.sub(r"\{\{img:([^}]+)\}\}", lambda m: "assets/" + m.group(1).replace("life/", "gallery/"), drive)
+drive = re.sub(r"\{\{url:([^}]+)\}\}", lambda m: dict(NAV)[m.group(1)], drive)
+assert "{{" not in drive, "unfilled token in parts/drive.html"
+home = INTRO + drive
 
 # ---------------- INTERIOR PAGES ----------------
 def article(body):

@@ -14,7 +14,7 @@
 	<?php wp_head(); ?>
 </head>
 
-<body <?php body_class(); ?>>
+<body <?php body_class(); ?> data-rd-range="<?php echo esc_attr( rh_drive_range() ); ?>">
 <?php wp_body_open(); ?>
 
 <a class="skip-link screen-reader-text" href="#rh-main"><?php esc_html_e( 'Skip to content', 'roman-heuser' ); ?></a>

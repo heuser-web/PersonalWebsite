@@ -33,6 +33,7 @@ professor's rubric, with the file in this kit that covers it.
 - [ ] Site is readable on a phone → test it on your actual phone
 - [ ] No broken images, no placeholder text, no `((...))` markers left anywhere
 - [ ] Opening sequence plays, and **Skip** works — a grader must never be trapped in it
+- [ ] The Drive scrolls top to bottom, and **Skip the drive** jumps to the five page links
 - [ ] Header logo is readable in **dark mode** too (switch your phone to dark mode and look)
 - [ ] Every required page is reachable within one click of the hero
 

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'RH_VERSION', '1.0.0' );
+define( 'RH_VERSION', '2.0.0' );
 
 /* -------------------------------------------------------------------------
  * 1. Theme setup
@@ -70,7 +70,7 @@ function rh_assets() {
 	// stack in the CSS, so the site still reads correctly if fonts are blocked.
 	wp_enqueue_style(
 		'rh-fonts',
-		'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap',
+		'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap',
 		array(),
 		null
 	);
@@ -86,6 +86,17 @@ function rh_assets() {
 	 */
 	wp_enqueue_style( 'rh-cinematic', get_template_directory_uri() . '/assets/css/cinematic.css', array( 'rh-style' ), RH_VERSION );
 	wp_enqueue_script( 'rh-cinematic', get_template_directory_uri() . '/assets/js/cinematic.js', array(), RH_VERSION, true );
+
+	/*
+	 * The Drive — the scroll-driven world. Also additive: without the rd-on body
+	 * class (rh_js_class, below) drive.js exits at once and drive.css matches
+	 * nothing. three.rh.min.js is a trimmed Three.js r170 build (MIT).
+	 */
+	$rh_js = get_template_directory_uri() . '/assets/js/';
+	wp_enqueue_style( 'rh-drive', get_template_directory_uri() . '/assets/css/drive.css', array( 'rh-cinematic' ), RH_VERSION );
+	wp_enqueue_script( 'rh-three', $rh_js . 'vendor/three.rh.min.js', array(), '0.170.0', true );
+	wp_enqueue_script( 'rh-drive-world', $rh_js . 'drive-world.js', array( 'rh-three' ), RH_VERSION, true );
+	wp_enqueue_script( 'rh-drive', $rh_js . 'drive.js', array( 'rh-drive-world', 'rh-cinematic' ), RH_VERSION, true );
 
 	// The terminal beat's printed line is editable in the Customizer.
 	wp_localize_script(
@@ -103,9 +114,73 @@ add_action( 'wp_enqueue_scripts', 'rh_assets' );
 /** Add a `js` class so reveal animations only hide content when JS can show it again. */
 function rh_js_class( $classes ) {
 	$classes[] = 'no-js';
+	$classes[] = 'rd-on';
+	if ( is_front_page() ) {
+		$classes[] = 'rd-home';
+	}
 	return $classes;
 }
 add_filter( 'body_class', 'rh_js_class' );
+
+/** Which stretch of road runs behind an inner page, as "from,to" scene numbers. */
+function rh_drive_range() {
+	$map = array(
+		'about-me'     => '1,7.3',
+		'resume'       => '2.9,4.3',
+		'gallery'      => '5,7.2',
+		'blog'         => '3.9,5.2',
+		'excel-helper' => '0.9,2.1',
+	);
+	if ( is_page() ) {
+		$slug = get_post_field( 'post_name', get_queried_object_id() );
+		if ( isset( $map[ $slug ] ) ) {
+			return $map[ $slug ];
+		}
+	}
+	if ( is_home() || is_single() || is_archive() ) {
+		return $map['blog'];
+	}
+	return '1,4';
+}
+
+/** The Drive markup with its tokens filled in. Every value is escaped here. */
+function rh_drive_markup( $logo_url ) {
+	$file = get_template_directory() . '/parts/drive.html';
+	if ( ! is_readable( $file ) ) {
+		return '';
+	}
+	$html = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme file.
+
+	$hero = get_theme_mod( 'rh_hero_image' );
+	$html = strtr(
+		$html,
+		array(
+			'{{eyebrow}}'  => esc_html( wp_strip_all_tags( rh_opt( 'rh_hero_eyebrow' ) ) ),
+			'{{title}}'    => wp_kses_post( rh_opt( 'rh_hero_title' ) ),
+			'{{sub}}'      => wp_kses_post( rh_opt( 'rh_hero_sub' ) ),
+			'{{cta1_txt}}' => esc_html( rh_opt( 'rh_hero_cta1_txt' ) ),
+			'{{cta1_url}}' => esc_url( rh_opt( 'rh_hero_cta1_url' ) ),
+			'{{cta2_txt}}' => esc_html( rh_opt( 'rh_hero_cta2_txt' ) ),
+			'{{cta2_url}}' => esc_url( rh_opt( 'rh_hero_cta2_url' ) ),
+			'{{logo}}'     => esc_url( $logo_url ),
+			'{{img:vegas-night.jpg}}' => esc_url( $hero ? $hero : rh_img( 'vegas-night.jpg' ) ),
+		)
+	);
+	$html = preg_replace_callback(
+		'/\{\{img:([a-z0-9\/._-]+)\}\}/i',
+		function ( $m ) {
+			return esc_url( rh_img( $m[1] ) );
+		},
+		$html
+	);
+	return preg_replace_callback(
+		'/\{\{url:([^}]+)\}\}/',
+		function ( $m ) {
+			return esc_url( rh_page_url_by_title( $m[1] ) );
+		},
+		$html
+	);
+}
 
 /* -------------------------------------------------------------------------
  * 3. Widget areas

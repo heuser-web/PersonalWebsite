@@ -178,3 +178,24 @@ build on your laptop.
 **https://claude.ai/code/artifact/85763023-51fc-446e-936a-7c32f99b5adf**
 
 A local copy is at `build/is101-build-console.html`.
+
+---
+
+## The Drive (theme 2.0)
+
+The home page is one scroll-driven night drive from Las Vegas to Reno, and the
+same road runs behind every other page.
+
+| File | What it is |
+|---|---|
+| `theme/roman-heuser/parts/drive.html` | All the copy. Edit words here; WordPress and the preview both read it |
+| `theme/roman-heuser/assets/js/drive-world.js` | Every object: car, city, signs, treenet, house, canopy |
+| `theme/roman-heuser/assets/js/drive.js` | Scroll, camera moves, hold actions, bass, color pick |
+| `theme/roman-heuser/assets/css/drive.css` | Layout and type over the 3D |
+| `theme/roman-heuser/assets/js/vendor/three.rh.min.js` | Trimmed Three.js r170 (MIT license alongside) |
+
+- `npm run dev` then open `/preview/index.html`. Add `?intro=off` to skip the intro.
+- `npm run check:motion` scrolls the whole home page in real Chrome and fails if
+  anything ever stops moving.
+- Remove the `rd-on` body class (`rh_js_class` in `functions.php`) to turn it all off.
+

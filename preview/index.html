@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home — Roman Heuser</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=1795461169">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=1795464684">
 <link rel="stylesheet" href="assets/cinematic.css?v=1795461169">
+<link rel="stylesheet" href="assets/drive.css?v=1795465293">
 <link rel="icon" href="assets/logo.png">
 </head>
-<body class="no-js">
+<body class="no-js rd-on rd-home" data-rd-range="1,4">
 <a class="skip-link screen-reader-text" href="#rh-main">Skip to content</a>
 
 <header class="rh-header" id="rh-header">
@@ -77,87 +78,175 @@
   <button class="rh-intro__skip" type="button">Skip</button>
 </div>
 <template id="rh-intro-template"></template>
-<section class="rh-hero">
-  <canvas class="rh-fx rh-fx--interactive" id="rh-galaxy" role="img" aria-label="Interactive particle galaxy. Drag to rotate."></canvas>
-  <img class="rh-hero__bg" src="assets/vegas-night.jpg" alt="" aria-hidden="true">
-  <div class="rh-edge">
-    <p class="rh-hero__eyebrow">Reno, Nevada · From Las Vegas</p>
-    <img class="rh-hero__logo" src="assets/logo-light.png" alt="Roman Heuser">
-    <h1>I build things that <em>ship</em>.</h1>
-    <p class="rh-hero__sub">Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.</p>
-    <div class="rh-hero__cta">
-      <a class="rh-btn rh-btn--primary" href="about-me.html">Read my story <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
-      <a class="rh-btn rh-btn--ghost" style="color:#F7F5EF" href="resume.html">View my resume</a>
+<div class="rd" id="rd" aria-label="The drive from Las Vegas to Reno">
+
+  <div class="rd__stage" aria-hidden="true">
+    <div class="rd__poster" style="background-image:url('assets/vegas-night.jpg')"></div>
+    <figure class="rd-flood"><img src="assets/gallery/reno-sunset.jpg" alt="" width="1200" height="900" loading="lazy"></figure>
+    <div class="rd__veil"></div>
+  </div>
+
+  <div class="rd__ui">
+    <nav class="rd-rail" aria-label="Stops on the drive">
+      <a href="#rd-vegas"><span>Las Vegas</span></a>
+      <a href="#rd-home"><span>Home</span></a>
+      <a href="#rd-jobs"><span>The jobs</span></a>
+      <a href="#rd-signs"><span>Three signs</span></a>
+      <a href="#rd-bass"><span>The desert</span></a>
+      <a href="#rd-treenet"><span>Treenet</span></a>
+      <a href="#rd-sae"><span>SAE</span></a>
+      <a href="#rd-reno"><span>Reno</span></a>
+      <a href="#rd-doors"><span>Where to next</span></a>
+    </nav>
+    <button class="rd-hold" type="button" tabindex="-1"><span class="rd-hold__ring" aria-hidden="true"></span><span class="rd-hold__t">Hold to start</span></button>
+    <div class="rd-hud">
+      <span class="rd-hud__mile" aria-hidden="true">Mile <b class="rd-hud__mi">000</b></span>
+      <span class="rd-hud__place" aria-hidden="true">Las Vegas</span>
+      <span class="rd-hud__bar" aria-hidden="true"><i></i></span>
+      <button class="rd-sound" type="button" aria-pressed="false" aria-label="Toggle the bass"><i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i><span class="rd-sound__t">Bass off</span></button>
+      <a class="rd-skip" href="#rd-doors">Skip the drive</a>
     </div>
   </div>
-  <a class="rh-hero__scroll" href="#rh-ventures">Scroll</a>
-</section>
 
-<section class="rh-section rh-aurora-band" id="rh-ventures">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">What I am building</p>
-    <h2 class="rh-reveal" style="max-width:20ch">Three products, one habit: ship it, then make it good.</h2>
-    <p class="rh-lede rh-reveal" style="margin-bottom:3rem">I would rather have something running badly on a real server than something perfect in a document. Every project below started as a weekend idea and ended up as software other people actually use.</p>
-    <div class="rh-grid rh-grid--3"><article class="rh-card rh-card--hover rh-reveal rh-glass rh-tilt"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Founder</p><h3>GoMojo</h3><p>A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, with venues, times and costs, planned by a seven-agent swarm.</p>
-  <ul class="rh-chips"><li>7-agent AI swarm</li><li>Installable PWA</li><li>Built for under $1K</li></ul>
-</article>
-<article class="rh-card rh-card--hover rh-reveal rh-glass rh-tilt"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Frontend Design Lead</p><h3>TagData</h3><p>A personal-data vault I was hired to redesign, with full authority over the frontend. Its share card hands over exactly the data you choose, and that data lives in the link, never on a server.</p>
-  <ul class="rh-chips"><li>$3.5M invested</li><li>Design-system lead</li><li>Next.js + .NET</li></ul>
-</article>
-<article class="rh-card rh-card--hover rh-reveal rh-glass rh-tilt"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Builder</p><h3>GoInvest</h3><p>A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper-traded and labeled educational, on purpose.</p>
-  <ul class="rh-chips"><li>8 investor personas</li><li>Every debate logged</li><li>Paper trading only</li></ul>
-</article></div>
-  </div>
-</section>
-
-<section class="rh-section rh-section--alt">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-eyebrow--center rh-reveal" style="justify-content:center">By the numbers</p>
-    <div class="rh-stats rh-reveal"><div class="rh-stat"><div class="rh-stat__num">3</div><div class="rh-stat__label">Products shipped</div></div>
-<div class="rh-stat"><div class="rh-stat__num">&lt;<span>$1K</span></div><div class="rh-stat__label">Total build cost, GoMojo</div></div>
-<div class="rh-stat"><div class="rh-stat__num">15</div><div class="rh-stat__label">AI agents in production</div></div>
-<div class="rh-stat"><div class="rh-stat__num">6<span>s</span></div><div class="rh-stat__label">To plan a night out</div></div></div>
-  </div>
-</section>
-
-<section class="rh-section">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">Off the clock</p>
-    <div class="rh-section__head rh-reveal">
-      <h2>Reno sunsets, treenets, and the SAE house.</h2>
-      <a class="rh-link" href="gallery.html">See the gallery <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
+  <section class="rd-scene" id="rd-vegas" data-scene="vegas">
+    <div class="rd-hero">
+      <p class="rd-eyebrow">Reno, Nevada · From Las Vegas</p>
+      <img class="rd-hero__logo" src="assets/logo-light.png" alt="Roman Heuser" width="2400" height="600" fetchpriority="high">
+      <h1>I build things that <em>ship</em>.</h1>
+      <p class="rd-hero__sub">Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.</p>
+      <div class="rd-hero__cta">
+        <a class="rh-btn rh-btn--primary" href="about-me.html">Read my story <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="rh-btn rh-btn--ghost" href="resume.html">View my resume</a>
+      </div>
+      <p class="rd-hint">Scroll to drive</p>
     </div>
-    <div class="rh-life rh-reveal"><a class="rh-life__tile" href="gallery.html"><img src="assets/gallery/reno-sunset.jpg" alt="Casino entrance chandeliers framing a pink and violet sunset over the mountains and the Reno skyline" width="2000" height="1500" loading="lazy" style="object-position:50% 82%"><span>Reno, after dark</span></a>
-<a class="rh-life__tile" href="gallery.html"><img src="assets/gallery/treenet.jpg" alt="Looking up through a woven rope treenet at someone climbing into it between pine trees" width="1500" height="2000" loading="lazy" style="object-position:50% 35%"><span>Treenet</span></a>
-<a class="rh-life__tile" href="gallery.html"><img src="assets/gallery/dye-is-life.jpg" alt="A crowded backyard party at the Sigma Alpha Epsilon house, with people watching from the roof" width="2000" height="1500" loading="lazy" style="object-position:50% 40%"><span>Dye is Life</span></a></div>
-  </div>
-</section>
+  </section>
 
-<section class="rh-section rh-section--alt">
-  <div class="rh-edge">
-    <p class="rh-eyebrow rh-reveal">Start anywhere</p>
-    <h2 class="rh-reveal" style="margin-bottom:2.5rem">The rest of the site</h2>
-    <div class="rh-grid rh-grid--2"><a class="rh-card rh-reveal rh-glass rh-tilt" href="about-me.html"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Chapter 01</p><h3>About Me</h3><p>Where I grew up, why I picked business, the four jobs that taught me more than any of it, and where this is going.</p>
-  <span class="rh-card__foot">Open <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></span>
-</a>
-<a class="rh-card rh-reveal rh-glass rh-tilt" href="resume.html"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Chapter 02</p><h3>Resume</h3><p>Two versions of the same resume — my original, and one I retooled for a product role using AI as an editor, not an author. The prompts are documented.</p>
-  <span class="rh-card__foot">Open <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></span>
-</a>
-<a class="rh-card rh-reveal rh-glass rh-tilt" href="gallery.html"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Chapter 03</p><h3>Gallery</h3><p>A Reno sunset, a treenet in the pines, and Dye is Life at the SAE house. All my own photographs.</p>
-  <span class="rh-card__foot">Open <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></span>
-</a>
-<a class="rh-card rh-reveal rh-glass rh-tilt" href="blog.html"><span class="rh-tilt__sheen" aria-hidden="true"></span>
-  <p class="rh-card__kicker">Chapter 04</p><h3>Blog</h3><p>One long look at a scam I watched work in real life, how it was built, and the questions that would have stopped it.</p>
-  <span class="rh-card__foot">Open <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></span>
-</a></div>
-  </div>
-</section>
+  <section class="rd-scene rd-scene--right" id="rd-home" data-scene="home">
+    <div class="rd-card">
+      <p class="rd-eyebrow">Where I am from</p>
+      <h2>Las Vegas. The real one, <em>not the Strip.</em></h2>
+      <p>My parents, Tom and Serena Heuser, have lived here twenty-seven years and run a two-person real estate practice in Summerlin called The Heuser Team.</p>
+    </div>
+    <div class="rd-card">
+      <p class="rd-big"><span data-count="976">976+</span></p>
+      <p class="rd-big__l">closed transactions</p>
+      <p>Every client got the same two people, from the first call to the closing table. Do the work in front of the customer, do it honestly, and let the record speak. That is the standard I hold my own projects to.</p>
+    </div>
+  </section>
+
+  <section class="rd-scene" id="rd-jobs" data-scene="jobs">
+    <div class="rd-card">
+      <p class="rd-eyebrow">Before the software</p>
+      <h2>Four jobs that taught me <em>more than any of it.</em></h2>
+      <p>Service work is where you learn that the customer does not care how hard the thing was to build.</p>
+    </div>
+    <div class="rd-card">
+      <h3>Pressure washing, self-employed</h3>
+      <p>Driveways, walkways and back patios for houses about to be inspected and sold. I find the work, quote it, do it, and get paid for it. Showing up when you said you would is most of the product.</p>
+      <p class="rd-try">Hold and drag on the driveway. Clean it yourself.</p>
+    </div>
+    <div class="rd-card">
+      <ul class="rd-list">
+        <li><b>Nevada Premier Valet</b> Right now. Someone&rsquo;s most expensive object, in the dark, in a hurry.</li>
+        <li><b>Maggiano&rsquo;s Little Italy</b> Nine months, through the end of 2025. Reading a table in three seconds.</li>
+        <li><b>Lee Canyon</b> A summer on the grill. Everything is a queue, and everything has a bottleneck.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="rd-scene rd-scene--signs" id="rd-signs" data-scene="signs">
+    <div class="rd-pin">
+      <div class="rd-signs">
+        <div class="rd-signs__head">
+          <p class="rd-eyebrow">What I am building</p>
+          <h2>Three products, one habit: <em>ship it, then make it good.</em></h2>
+          <p class="rd-try">Pick a sign. Its color lights the rest of the drive.</p>
+        </div>
+        <div class="rd-picks">
+          <button class="rd-pick" type="button" data-pick="gomojo" aria-pressed="false"><small>Founder</small><b>GoMojo</b><span>A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, planned by a seven-agent swarm. Built for under $1K.</span></button>
+          <button class="rd-pick" type="button" data-pick="tagdata" aria-pressed="false"><small>Frontend Design Lead</small><b>TagData</b><span>A personal-data vault I was hired to redesign, with full authority over the frontend. $3.5M invested. Your share card hands over exactly the data you choose.</span></button>
+          <button class="rd-pick" type="button" data-pick="goinvest" aria-pressed="false"><small>Builder</small><b>GoInvest</b><span>A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper trading only, on purpose.</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rd-scene rd-scene--right" id="rd-bass" data-scene="bass">
+    <div class="rd-card">
+      <p class="rd-eyebrow">US-95 North</p>
+      <h2>Nothing out here <em>but the numbers.</em></h2>
+      <dl class="rd-stats">
+        <div><dt>Products shipped</dt><dd>3</dd></div>
+        <div><dt>To build GoMojo</dt><dd>&lt;$1K</dd></div>
+        <div><dt>AI agents built</dt><dd>15</dd></div>
+        <div><dt>To plan a night out</dt><dd>6s</dd></div>
+      </dl>
+    </div>
+    <div class="rd-card">
+      <h2>Then the <em>subs</em> come up.</h2>
+      <p>Carbon Mazda CX-30. Red interior. Subwoofers in the back. Four hundred miles of open road is not a commute, it is a listening session.</p>
+      <p class="rd-try">Hold to bump. It makes sound.</p>
+    </div>
+  </section>
+
+  <section class="rd-scene" id="rd-treenet" data-scene="treenet">
+    <div class="rd-card">
+      <p class="rd-eyebrow">Off the clock</p>
+      <h2>I make <em>treenets.</em></h2>
+      <p>Woven rope platforms rigged high between trees, so the whole campsite is underneath you. Knots, load, anchor points, and an honest test the first time someone climbs on.</p>
+      <p class="rd-try">Hold to bounce it.</p>
+    </div>
+    <figure class="rd-inset rd-inset--tall">
+      <span class="rd-inset__f"><img src="assets/gallery/treenet.jpg" alt="Looking up through a woven rope treenet at someone climbing into it between pine trees" width="900" height="1200" loading="lazy"></span>
+      <figcaption>Rigging one in the pines</figcaption>
+    </figure>
+  </section>
+
+  <section class="rd-scene rd-scene--right" id="rd-sae" data-scene="sae">
+    <div class="rd-card">
+      <p class="rd-eyebrow">Sigma Alpha Epsilon</p>
+      <h2>I am a <em>brother of SAE.</em></h2>
+      <p>Moving to a city where you know nobody is a lot easier when a house full of people has already decided you are one of them.</p>
+      <p class="rd-try">Hold to toss the die.</p>
+    </div>
+    <figure class="rd-inset">
+      <span class="rd-inset__f"><img src="assets/gallery/dye-is-life.jpg" alt="A crowded backyard party at the Sigma Alpha Epsilon house, with people watching from the roof" width="1200" height="900" loading="lazy"></span>
+      <figcaption>Dye is Life, at the house</figcaption>
+    </figure>
+  </section>
+
+  <section class="rd-scene" id="rd-reno" data-scene="reno">
+    <div class="rd-card">
+      <p class="rd-eyebrow">End of the road</p>
+      <h2>I live in <em>Reno</em> now.</h2>
+      <p>Business freshman at the University of Nevada, Reno. Vegas taught me how to build for tourists. Reno is teaching me how to build for a place people live.</p>
+    </div>
+    <div class="rd-card">
+      <h2>So the drive ends the way <em>my shifts do.</em></h2>
+      <p>I park cars for a living right now. Under the lights, engine still warm, handing over the keys.</p>
+      <p class="rd-try">Hold to hand them over.</p>
+    </div>
+    <p class="rd-cap">Reno, after dark. <span>My own photograph, from under the lights.</span></p>
+  </section>
+
+  <section class="rd-scene rd-scene--finale" id="rd-finale" data-scene="finale">
+    <div class="rd-pin">
+      <div class="rd-end">
+        <h2 class="screen-reader-text">Roman Heuser. Where to next?</h2>
+        <p class="rd-eyebrow rd-eyebrow--c" aria-hidden="true">Where to next</p>
+        <nav class="rd-doors" aria-label="The rest of the site">
+          <a class="rd-door" href="about-me.html"><small>01</small><b>About Me</b><span>The long version of this drive</span></a>
+          <a class="rd-door" href="resume.html"><small>02</small><b>Resume</b><span>Two versions, prompts included</span></a>
+          <a class="rd-door" href="gallery.html"><small>03</small><b>Gallery</b><span>All my own photographs</span></a>
+          <a class="rd-door" href="blog.html"><small>04</small><b>Blog</b><span>A scam I watched work</span></a>
+          <a class="rd-door" href="excel-helper.html"><small>05</small><b>Excel Helper</b><span>Ask my Excel GPT</span></a>
+        </nav>
+      </div>
+    </div>
+    <span class="rd-anchor" id="rd-doors"></span>
+  </section>
+</div>
 
 </main>
 
@@ -193,7 +282,10 @@
   </div>
 </footer>
 <script src="assets/theme.js?v=1787814213"></script>
-<script src="assets/cinematic.js?v=1795461913"></script>
+<script src="assets/cinematic.js?v=1795464684"></script>
+<script src="assets/vendor/three.rh.min.js?v=1795464684"></script>
+<script src="assets/drive-world.js?v=1795465148"></script>
+<script src="assets/drive.js?v=1795465293"></script>
 <script src="assets/blog-demo.js?v=1787874675"></script>
 </body>
 </html>

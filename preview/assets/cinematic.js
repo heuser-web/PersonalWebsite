@@ -185,6 +185,7 @@
      reload in a tab that had already seen it showed nothing.) */
   function cameFromInsideSite() {
     if (/[?&]intro=play\b/.test(window.location.search)) return false;
+    if (/[?&]intro=off\b/.test(window.location.search)) return true;
     var type = '';
     try { type = window.performance.getEntriesByType('navigation')[0].type; } catch (e) {}
     if (type === 'reload') return false;

@@ -13,7 +13,6 @@ the site is factually yours.
 
 | What | Where | Why it matters |
 |---|---|---|
-| "I am a **brother** of SAE" | About Me, Gallery caption 3 | You said you are part of Sigma Alpha Epsilon. If you are a new member / pledge rather than initiated, say "member" instead |
 | The treenet photo came off **Meta smart glasses**, not your phone | Gallery 02, About Me, home | If a friend shot it, it is still fine to use — just make sure they are OK with it, because the rubric grades the photos as yours |
 | **Dye is Life** shows ~150 identifiable people, bare chests, and red cups at a pong table | Gallery 03, home | Your professor, and anyone you send the link to later, will see it. It is your call; if you would rather keep the gallery work-safe, swap it for another of your own photos |
 | Two images you sent are **not** on the site: the ΣΑΕ letters graphic and the code-on-a-monitor picture | — | Both look downloaded rather than taken by you, and the gallery is graded on being your own photos. The party photo already shows the SAE flag and banner on the house |
@@ -24,9 +23,8 @@ the site is factually yours.
 
 | # | What the site says | Where | Why I said it | Action |
 |---|---|---|---|---|
-| 2 | **Tom and Serena Heuser are your parents** | About Me, opening section | Your repo has The Heuser Team (Tom & Serena, Las Vegas real estate) and you share a surname. I wrote "my parents" | **Confirm the relationship.** If they are not your parents, rewrite that paragraph |
 | 4 | **You personally found manipulated review data while building GoMojo** | Blog post | You built a recommender on review data, so it is plausible — but I wrote it as a first-person experience | **Confirm this actually happened to you.** If not, see the note below |
-| 5 | **"15 AI agents in production"** | Home page stat | 7 GoMojo agents + 8 GoInvest personas | Confirm the math still holds |
+| 5 | **"15 AI agents built"** | Home page, desert scene | 7 GoMojo agents + 8 GoInvest personas. Softened from "in production" on 2026-11-23 | Confirm the math still holds |
 
 ### About #4 — the blog post
 
@@ -121,6 +119,8 @@ files and re-render if you would rather not.
 
 ## 🟢 Verified from your own files — no action needed
 
+- *Confirmed by Roman 2026-11-23:* brother of SAE; Tom and Serena are his parents;
+  drives a carbon Mazda CX-30 with red interior and subwoofers
 - Roman Heuser · Las Vegas, NV · heuser@romanattitudeofgratitude.com · tagdata.co
 - **GoMojo** — AI concierge, Romey, 7-agent swarm, ~6-second plans, Hidden Gems,
   Midway Meetup, happy hours, events, 3-tier membership (free / $5 Local /

@@ -250,3 +250,35 @@ DECLINED = user decided not to pursue
 **Suggested improvement:** For any "make it like this video" request: (1) get frames, not just the caption; (2) list the mechanics separately from the look, because mechanics transfer and the look should not be copied; (3) map each mechanic to the user's own material; (4) check budget and tool availability before proposing an asset pipeline.
 
 **Principle:** A reference is only useful at the level of detail you actually observed. Separate the transferable mechanic from the borrowed style, and confirm the plan's inputs exist before proposing it.
+
+### Observation 16: Scroll-driven 3D reads as designed when line density is solved in screen space
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Built a nine-scene scroll-driven WebGL home page in one day, all geometry in code, engraved-line look.
+
+**Skill:** 3d-web-experience
+**Type:** open-source
+**Phase/Area:** Scroll-Driven 3D; Model Pipeline
+
+**Issue:** The skill covers libraries and GLB pipelines but nothing for a no-assets build, which is what a same-day deadline with zero art budget needs. What worked: (1) one continuous world on a road curve with a distance parameter, camera keyframes that are either car-relative or anchored to a place, and monotone scroll-to-distance easing so the subject slows at stops; (2) CSS sticky for pinning instead of a scroll library, so native scroll is never hijacked; (3) an engraving shader whose hatch density is chosen from fwidth() in octaves and cross-faded, which fixed both coarse bands up close and moire far away in one change; (4) a single point cloud with several "home" positions, reused as galaxy, city lights, sky and title; (5) always-on motion from three sources (scroll, idle, pointer), then asserted by a script that hashes frames at 41 scroll stops.
+
+**Suggested improvement:** Add a "no-asset scroll world" pattern with those five parts and the screen-space hatch snippet. Add a verification step: real-time browser, motion on, frame-hash at idle and between stops, plus hold/keyboard/touch/reduced-motion checks.
+
+**Principle:** A strict rendering rule (tone = line thickness at constant screen density) makes simple geometry look authored. Put the art direction in the shader, not the models.
+
+### Observation 17: Own-element clip-path can stop IntersectionObserver from ever firing
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Caption cards revealed with clip-path never appeared, and no error was logged.
+
+**Skill:** New skill candidate: web-motion-gotchas (or frontend-design)
+**Type:** open-source
+**Phase/Area:** Scroll reveals
+
+**Issue:** Cards started at clip-path: inset(0 100% 0 0) and waited for IntersectionObserver to add the reveal class. They never became visible; changing the start to 94% (leaving a sliver) fixed it. Two more traps hit in the same build: a transform-based centering (translate: -50%) was overwritten by the reveal's own translate, and classList.toggle(name, undefined) toggles instead of removing. Separately, WordPress Playground CLI (npm) ran the theme in a real WordPress on a machine with no PHP, closing a verification gap that had been noted as open.
+
+**Suggested improvement:** Never start an observed element fully clipped; observe a wrapper or leave a sliver. Check reveal transforms against existing transforms. Coerce the second argument of toggle(). For WordPress themes without local PHP, use wp-playground server with a mount and a blueprint before shipping.
+
+**Principle:** An observer waiting on visibility must not be given an element that its own start state makes invisible.
