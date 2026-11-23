@@ -41,7 +41,7 @@
 
   <div class="xlbot__foot">
     <span>Answers below are built in. For anything deeper, open the full GPT.</span>
-    <a class="xlbot__cta" href="YOUR_CUSTOM_GPT_URL_HERE" target="_blank" rel="noopener noreferrer">
+    <a class="xlbot__cta" href="YOUR_CUSTOM_GPT_URL_HERE" target="_blank" rel="noopener noreferrer" hidden>
       Open Excel Helper GPT <span aria-hidden="true">↗</span>
     </a>
   </div>
@@ -125,6 +125,7 @@
   background:var(--xb-deep);color:var(--xb-onDeep);text-decoration:none;font-weight:600;font-size:.78rem;
   transition:background .25s;
 }
+.xlbot .xlbot__cta[hidden]{display:none}
 .xlbot__cta:hover{background:var(--xb-green);color:#fff}
 @media (max-width:520px){ .xlbot__msg{max-width:94%} }
 </style>
@@ -216,6 +217,7 @@
 
   var FALLBACK =
     "I do not have a built-in answer for that one — my on-page knowledge covers the core Excel topics: lookups (VLOOKUP, XLOOKUP, INDEX/MATCH), PivotTables, IF and IFS, SUMIF/COUNTIF, absolute references, conditional formatting, charts, dates, text functions, tables, filtering, error messages and shortcuts.\n\nFor anything beyond that — macros, VBA, Power Pivot, or a specific formula you are debugging — open the full Excel Helper GPT using the button below. Paste your formula in and it will walk through it line by line.";
+  if (!/^https?:/.test(GPT_URL)) FALLBACK = FALLBACK.split("\n\n")[0] + "\n\nTry rewording it with the function or feature name, or tap one of the suggestions below.";
 
   var GREETING =
     "Hi — I am <b>Excel Helper</b>, the Custom GPT built for this site.\n\nAsk me about formulas, PivotTables, charts, cleaning data, or the error message you are staring at. Tap a suggestion below or type your own question.";
@@ -229,7 +231,11 @@
   if (!log || !form) return;
 
   // Wire the real Custom GPT URL into the CTA + fallback text.
-  Array.prototype.forEach.call(document.querySelectorAll('.xlbot__cta'), function(a){ a.href = GPT_URL; });
+  // Until the real address is pasted in above, hide the button rather than send
+  // visitors to a page that does not exist.
+  var HAS_GPT = /^https?:\/\//.test(GPT_URL);
+  Array.prototype.forEach.call(document.querySelectorAll('.xlbot__cta'), function(a){ if (HAS_GPT) { a.href = GPT_URL; a.hidden = false; } });
+  if (!HAS_GPT) { var footNote = document.querySelector('.xlbot__foot span'); if (footNote) footNote.textContent = 'Answers are built in and cover the Excel topics people ask about most.'; }
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -238,7 +244,9 @@
     d.className = 'xlbot__msg xlbot__msg--' + who;
     d.innerHTML = html;
     log.appendChild(d);
-    log.scrollTop = log.scrollHeight;
+    // Long answers start at the question, not at their last line.
+    var top = who === 'bot' && d.previousElementSibling ? d.previousElementSibling : d;
+    log.scrollTop = who === 'bot' ? top.offsetTop - log.offsetTop - 12 : log.scrollHeight;
     return d;
   }
 
@@ -258,12 +266,13 @@
     KB.forEach(function(item){
       var score = 0;
       item.k.forEach(function(key){
-        if (s.indexOf(' ' + key) !== -1 || s.indexOf(key) !== -1) {
+        // Word starts only, so "update" does not match "date".
+        if (s.indexOf(' ' + key) !== -1) {
           score += key.length + 2;
         } else {
           // partial credit when every word of a multi-word key appears
           var parts = key.split(' ');
-          if (parts.length > 1 && parts.every(function(p){ return s.indexOf(p) !== -1; })) score += key.length;
+          if (parts.length > 1 && parts.every(function(p){ return s.indexOf(' ' + p) !== -1; })) score += key.length;
         }
       });
       if (score > bestScore) { bestScore = score; best = item; }

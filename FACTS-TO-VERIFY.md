@@ -9,13 +9,35 @@ the site is factually yours.
 
 ---
 
+## 🟡 New with the photos (Nov 2026) — 2 minutes to check
+
+| What | Where | Why it matters |
+|---|---|---|
+| The treenet photo came off **Meta smart glasses**, not your phone | Gallery 02, About Me, home | If a friend shot it, it is still fine to use — just make sure they are OK with it, because the rubric grades the photos as yours |
+| **Dye is Life** shows ~150 identifiable people, bare chests, and red cups at a pong table | Gallery 03, home | Your professor, and anyone you send the link to later, will see it. It is your call; if you would rather keep the gallery work-safe, swap it for another of your own photos |
+| Two images you sent are **not** on the site: the ΣΑΕ letters graphic and the code-on-a-monitor picture | — | Both look downloaded rather than taken by you, and the gallery is graded on being your own photos. The party photo already shows the SAE flag and banner on the house |
+
+---
+
+## 🟡 New on 2026-11-23 — LifeSwitch and your other projects
+
+| What the site says | Where | Check |
+|---|---|---|
+| You are **co-founder** of LifeSwitch; your co-founder is a UNR student who had the idea. They are **not named** | Home, About | Right? Add the name only if they agree |
+| Every LifeSwitch feature and number is taken from its **live public site** (2026-11-23) and nothing else | Home, About | Re-check if that site changes |
+| The **link** to LifeSwitch is the Render address | Home card 1, About | Swap it when you buy the domain |
+| Thirteen Reno businesses are listed as **redesign concepts, not official sites** | Home, About | Remove any owner who would not want to be named |
+| GoGlobal, LifeStyle, the SAE site, The Heuser Team site and the Roblox kit are described from their own READMEs | Home, About | Read each line once |
+| **Both resumes still list the older vault job.** The pages no longer do, so decide whether the resumes should match | Resume | Your call; I did not change your employment history |
+
+---
+
 ## 🔴 Must fix — the site says something I guessed
 
 | # | What the site says | Where | Why I said it | Action |
 |---|---|---|---|---|
-| 2 | **Tom and Serena Heuser are your parents** | About Me, opening section | Your repo has The Heuser Team (Tom & Serena, Las Vegas real estate) and you share a surname. I wrote "my parents" | **Confirm the relationship.** If they are not your parents, rewrite that paragraph |
 | 4 | **You personally found manipulated review data while building GoMojo** | Blog post | You built a recommender on review data, so it is plausible — but I wrote it as a first-person experience | **Confirm this actually happened to you.** If not, see the note below |
-| 5 | **"15 AI agents in production"** | Home page stat | 7 GoMojo agents + 8 GoInvest personas | Confirm the math still holds |
+| 5 | **"15 AI agents built"** | Home page, desert scene | 7 GoMojo agents + 8 GoInvest personas. Softened from "in production" on 2026-11-23 | Confirm the math still holds |
 
 ### About #4 — the blog post
 
@@ -45,9 +67,9 @@ correct anything wrong before you publish, since they are on both PDFs.
 | Job | What I wrote | Check |
 |---|---|---|
 | Nevada Premier Valet | Valet Attendant &middot; Aug 2026 – Present | You said you started last week |
-| Pressure washing | Owner &amp; Operator &middot; `((2025))` – Present, self-employed | **When did you actually start?** |
-| Lee Canyon | Grill Cook &middot; Summer `((2026))` | You said burgers, so I wrote grill. Which summer? |
-| Maggiano's Little Italy | **Restaurant Team Member** &middot; `((2025))` – Dec 2025 | **You did not say your title.** Server, busser, host and line cook all read differently to an employer — put the real one in |
+| Pressure washing | Owner &amp; Operator &middot; Present, self-employed (no start year shown) | **When did you actually start?** |
+| Lee Canyon | Grill Cook &middot; One summer (no year shown) | You said burgers, so I wrote grill. Which summer? |
+| Maggiano's Little Italy | **Restaurant Team Member** &middot; 9 months, to Dec 2025 | **You did not say your title.** Server, busser, host and line cook all read differently to an employer — put the real one in |
 
 I also assumed **B.S. Business Administration, expected 2030** (freshman + four
 years). If you are in a named concentration — Finance, Marketing, Supply Chain —
@@ -55,17 +77,15 @@ say so; it is more specific and reads better than plain "Business."
 
 ---
 
-## 🟡 Blanks I left for you — search for `((` and fill them in
+## 🟡 Blanks I left for you — search for `((` in content/, and `DATE` in resume/
 
 | Where | What is missing |
 |---|---|
-| Both resumes | `((2030))` — confirm your expected graduation year |
+| Both resumes | Expected graduation year. The PDFs now say "Fall 2026 – Present" instead of a printed blank |
 | Both resumes | `((GPA))` — **include only if 3.3 or above, otherwise delete the line** |
-| Both resumes | `((START))` dates for GoMojo, GoInvest and TagData; `((2025))` for the pressure washing and Maggiano's start |
+| Both resumes | Start dates. Unknown ones are left off so visitors never see a raw `((START))`; each spot is marked with a `<!-- DATE ... -->` comment |
 | Both resumes | Your **TagData job title** — I used "Frontend Design Lead". Change it to whatever your offer letter or LinkedIn says |
-| About Me | Two `((UPLOAD: photo))` markers + captions |
-| About Me | The "Beyond the screen" paragraph — hobbies, sports, music, travel. **I would not invent this** |
-| Gallery | Five photo titles and one-line captions |
+| About Me | Two `((MEDIA URL: ...))` image markers — upload `gallery/reno-sunset.jpg` and `gallery/treenet.jpg`, paste their URLs |
 | Gallery | Your gallery plugin shortcode |
 | Resume page | Four `((MEDIA URL))` markers, after you upload the PDFs |
 | Chatbot | `YOUR_CUSTOM_GPT_URL_HERE` — **all 3 occurrences** |
@@ -82,7 +102,7 @@ python3 build/render.py pdf "file://$PWD/resume/resume-ai-refined.html" "$PWD/re
 
 ## 🟠 The background images are AI-generated
 
-`assets-generated/` holds three images I generated for this build — the Vegas
+`assets-generated/` holds five AI-generated images — the two Drive plates, the old Vegas
 night hero, an abstract mesh for page headers, and a nebula. They are site
 chrome, the same category as artwork bundled with any theme.
 
@@ -112,6 +132,8 @@ files and re-render if you would rather not.
 
 ## 🟢 Verified from your own files — no action needed
 
+- *Confirmed by Roman 2026-11-23:* brother of SAE; Tom and Serena are his parents;
+  drives a carbon Mazda CX-30 with red interior and subwoofers
 - Roman Heuser · Las Vegas, NV · heuser@romanattitudeofgratitude.com · tagdata.co
 - **GoMojo** — AI concierge, Romey, 7-agent swarm, ~6-second plans, Hidden Gems,
   Midway Meetup, happy hours, events, 3-tier membership (free / $5 Local /

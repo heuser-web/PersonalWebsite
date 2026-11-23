@@ -1,0 +1,283 @@
+/* ==========================================================================
+   HEUSER — THE DRIVE
+   Layout and type over the 3D road. Everything keys off body.rd-on, so
+   removing that one class returns the site to the plain theme.
+   ========================================================================== */
+body.rd-on{
+  color-scheme:dark;
+  --rd-accent:#C9A227;
+  --rh-bg:#070D1B; --rh-bg-alt:#0C1629; --rh-bg-invert:#060B17; --rh-text:#EAEEF7; --rh-text-muted:#A9B5CC; --rh-text-invert:#F7F5EF;
+  --rh-accent:#E3C35C; --rh-accent-quiet:#D9B64A; --rh-line:rgba(242,219,160,.17); --rh-card:#0F1B33;
+  --rh-shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --rh-glass-bg:rgba(13,24,45,.72); --rh-glass-brd:rgba(242,219,160,.18); --rh-glass-hi:rgba(242,219,160,.2);
+  --rd-panel:rgba(6,11,23,.82); --rd-hair:rgba(242,219,160,.26);
+  --rd-lines:repeating-linear-gradient(0deg,rgba(6,11,23,.92) 0 2px,rgba(6,11,23,0) 2px 5px);
+}
+:root[style*="--rd-accent"] body.rd-on{--rd-accent:inherit}
+.rd-on .rh-brand .rh-brand__light{display:none}
+.rd-on .rh-brand .rh-brand__dark{display:block}
+
+/* ---------------------------------------------------------------- header */
+.rd-home .rh-header{background:linear-gradient(180deg,rgba(5,9,18,.97),rgba(5,9,18,.8) 55%,rgba(5,9,18,0));backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0}
+/* Once cards start passing underneath, solid behind the links and soft only below
+   them, so card text never shows through the menu. */
+.rd-home .rh-header::before{content:"";position:absolute;z-index:-1;inset:0 0 -1.1rem;pointer-events:none;opacity:0;transition:opacity .3s;background:linear-gradient(180deg,#050912 calc(100% - 1.5rem),rgba(5,9,18,0))}
+.rd-home .rh-header.is-stuck::before{opacity:1}
+/* Same gutters on every page, so the logo and menu hold still between pages. */
+.rd-on .rh-header__inner{max-width:none;padding-inline:clamp(1.1rem,5vw,5.5rem)}
+.rd-home #rh-main{padding-top:0}
+
+/* ----------------------------------------------------------------- stage */
+.rd{position:relative;overflow-x:clip;background:#050912;color:var(--rh-text-invert)}
+/* Each layer is sticky inside a track exactly as tall as the drive, so it leaves with
+   the drive instead of sitting on top of the footer. */
+.rd__track{position:absolute;inset:0;z-index:0;pointer-events:none}
+.rd__track--ui{z-index:3}
+.rd__stage,.rd__ui{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.rd__ui{overflow:visible}
+.rd-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:no-preference){.rd-canvas{animation:rd-lights .7s ease both}}
+@keyframes rd-lights{from{opacity:0}}
+/* Behind the canvas and gone only once the canvas has faded in, so there is no black gap. */
+.rd__poster{position:absolute;z-index:-1;inset:0;background-size:cover;background-position:center;opacity:.5}
+.rd-gl .rd__poster{visibility:hidden;transition:visibility 0s 1s}
+.rd__veil{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 46%,rgba(5,9,18,0) 55%,rgba(5,9,18,.62) 100%),linear-gradient(180deg,rgba(5,9,18,.3) 0%,rgba(5,9,18,0) 18%,rgba(5,9,18,0) 76%,rgba(5,9,18,.72) 100%)}
+.rd-scene{position:relative;z-index:2;pointer-events:none;padding-inline:clamp(1.1rem,5vw,5.5rem);min-height:300vh;min-height:300svh;display:flow-root}
+#rd-vegas{min-height:250svh}#rd-jobs,#rd-bass,#rd-reno{min-height:400svh}#rd-home,#rd-treenet,#rd-sae{min-height:310svh}#rd-finale{min-height:300svh}
+.rd-scene > *{pointer-events:auto}
+.rd-pin{position:sticky;top:0;height:100vh;height:100svh;pointer-events:none!important}
+
+/* ------------------------------------------------------------------ type */
+.rd h1,.rd h2,.rd h3{color:var(--rh-text-invert)}
+.rd em{font-style:italic;color:color-mix(in srgb,var(--rd-accent) 62%,#F7E7BD)}
+.rd-eyebrow{display:flex;align-items:center;gap:.8rem;margin:0 0 1rem;font-size:.7rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--rd-accent) 55%,#F2DBA0)}
+.rd-eyebrow::after{content:"";height:1px;width:4.5rem;background:currentColor;opacity:.5}
+.rd-eyebrow--c{justify-content:center}.rd-eyebrow--c::before{content:"";height:1px;width:4.5rem;background:currentColor;opacity:.5}
+.rd-try{display:inline-flex;align-items:center;gap:.6rem;margin:.2rem 0 0;font-size:.82rem;font-weight:600;color:color-mix(in srgb,var(--rd-accent) 65%,#F7E7BD)}
+.rd-try::before{content:"";width:.6rem;height:.6rem;border-radius:50%;border:1.5px solid currentColor;animation:rd-ping 1.67s ease-out infinite}
+@keyframes rd-ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}70%,100%{box-shadow:0 0 0 .6rem transparent}}
+ 
+.rd-anchor{position:absolute;left:0;bottom:0;width:1px;height:100vh;height:100svh;pointer-events:none!important}
+/* one card per beat: these line the copy up with the camera keyframes in drive.js */
+#rd-home .rd-card{margin-top:98svh}#rd-home .rd-card + .rd-card{margin-top:104svh}
+#rd-jobs .rd-card{margin-top:70svh}#rd-jobs .rd-card + .rd-card{margin-top:90svh}
+#rd-bass .rd-card{margin-top:104svh}#rd-bass .rd-card + .rd-card{margin-top:136svh}
+#rd-treenet .rd-card,#rd-sae .rd-card{margin-top:112svh}
+#rd-lifeswitch{min-height:600svh}#rd-lifeswitch .rd-card{margin-top:108svh}#rd-lifeswitch .rd-card + .rd-card{margin-top:78svh}
+#rd-builds{min-height:400svh}#rd-builds .rd-card{margin-top:84svh}#rd-builds .rd-card + .rd-card{margin-top:88svh}
+.rd-fine{font-size:.84rem!important;line-height:1.5;color:rgba(234,238,247,.72)!important;border-top:1px solid var(--rd-hair);padding-top:.8rem}
+.rd-card .rd-fine:last-child{margin-top:1rem}
+.rd-chips{font-size:.94rem;line-height:1.85;color:rgba(234,238,247,.9)!important}.rd-chips i{font-style:normal;color:var(--rd-accent);margin:0 .25em}
+.rd-card .rh-btn{margin-top:.2rem}.rd-card .rh-btn--primary{background:var(--rd-accent);border-color:var(--rd-accent)}
+#rd-reno .rd-card{margin-top:76svh}#rd-reno .rd-card + .rd-card{margin-top:132svh}
+
+/* hero */
+.rd-hero{width:min(34rem,44vw);min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:6.5rem 0 5rem}
+.rd-hero{position:relative}.rd-hero::before{content:"";position:absolute;z-index:-1;left:-6vw;top:0;bottom:0;width:64vw;pointer-events:none;background:linear-gradient(90deg,rgba(5,9,18,.88),rgba(5,9,18,.62) 45%,rgba(5,9,18,0));-webkit-mask:linear-gradient(#000 55%,transparent);mask:linear-gradient(#000 55%,transparent)}
+.rd-hero__logo{width:min(26rem,100%);height:auto;margin:0 0 1.5rem}
+.rd-hero h1{font-size:clamp(2.6rem,1.5rem + 3.5vw,4.6rem);margin-bottom:.35em;text-shadow:0 2px 30px rgba(5,9,18,.9)}
+.rd-hero__sub{color:rgba(247,245,239,.88);font-size:clamp(1rem,.95rem + .3vw,1.16rem);line-height:1.6;margin-bottom:1.7rem;text-shadow:0 1px 16px rgba(5,9,18,.95)}
+.rd-hero__cta{display:flex;flex-wrap:wrap;gap:.8rem}
+.rd-hero .rh-btn--ghost{color:#F7F5EF;background:rgba(5,9,18,.45)}
+.rd-hero .rh-btn--primary{background:var(--rd-accent);border-color:var(--rd-accent)}
+.rd-hint{margin:2.4rem 0 0;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,245,239,.66);display:flex;gap:.9rem;align-items:center}
+.rd-hint::before{content:"";width:1px;height:34px;background:linear-gradient(var(--rd-accent),transparent);animation:rh-drop 2.4s var(--rh-ease) infinite}
+
+/* caption cards */
+.rd-card{position:relative;width:min(27.5rem,100%);margin-top:78vh;margin-top:78svh;padding:clamp(1.3rem,2vw,1.9rem);background:var(--rd-panel);border:1px solid var(--rd-hair);border-radius:4px}
+.rd-card::before{content:"";position:absolute;inset:5px;border:1px solid rgba(242,219,160,.1);border-radius:2px;pointer-events:none}
+.rd-card::after{content:"";position:absolute;left:-1px;top:-1px;width:3.2rem;height:3px;background:var(--rd-accent)}
+.rd-card + .rd-card{margin-top:62vh;margin-top:62svh}
+.rd-card h2{font-size:clamp(1.7rem,1.2rem + 1.5vw,2.5rem);margin-bottom:.5em}
+.rd-card h3{font-size:1.45rem;margin-bottom:.5em}
+.rd-card p{color:rgba(234,238,247,.86)}.rd-card p:last-child{margin-bottom:0}
+.rd-card .rd-eyebrow{color:color-mix(in srgb,var(--rd-accent) 55%,#F2DBA0)}.rd-card .rd-try{color:color-mix(in srgb,var(--rd-accent) 65%,#F7E7BD)}
+.rd-scene--right .rd-card,.rd-scene--right .rd-inset{margin-left:auto}
+.rd-big{font-family:var(--rh-font-display);font-size:clamp(3.6rem,2.4rem + 4vw,6rem);line-height:1;margin:0!important;color:#F7E7BD!important;font-variant-numeric:tabular-nums}
+.rd-big__l{margin:.35rem 0 1.1rem!important;font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.rd-list{list-style:none;margin:0;padding:0;display:grid;gap:1.05rem}
+.rd-list li{margin:0;color:rgba(234,238,247,.82);font-size:.96rem;line-height:1.5}
+.rd-list b{display:block;font-family:var(--rh-font-display);font-weight:400;font-size:1.24rem;color:#F7E7BD}
+.rd-stats{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem 1rem;margin:0}
+.rd-stats div{display:flex;flex-direction:column-reverse;border-top:1px solid var(--rd-hair);padding-top:.7rem}
+.rd-stats dd{margin:0;font-family:var(--rh-font-display);font-size:2.3rem;line-height:1.05;color:#F7E7BD}
+.rd-stats dt{font-size:.78rem;color:rgba(234,238,247,.74);margin-top:.15rem}
+
+/* photo panels that develop from engraving into color */
+.rd-inset{width:min(25rem,86vw);margin:46svh 0 0;transform:translate3d(0,calc(var(--p,0)*-60px),0) rotate(calc(var(--p,0)*2.2deg))}
+.rd-inset--tall{width:min(20rem,74vw)}
+.rd-inset__f,.rh-gallery__item a{position:relative;display:block;overflow:hidden}
+.rd-inset__f{border:1px solid var(--rd-hair);padding:7px;background:var(--rd-panel)}
+.rd-inset img{width:100%;display:block}
+.rd-inset img,.rd-on .rh-gallery__item img,.rd-on .rh-article figure img{filter:grayscale(calc(1 - var(--dev,1))) sepia(calc((1 - var(--dev,1))*.75)) contrast(calc(1.5 - var(--dev,1)*.5))}
+.rd-inset__f::after,.rd-on .rh-gallery__item a::after{content:"";position:absolute;inset:0;background:var(--rd-lines);opacity:calc(1 - var(--dev,1));pointer-events:none}
+.rd-inset figcaption{text-align:left;font-size:.74rem;letter-spacing:.08em;color:rgba(247,245,239,.86);margin-top:.6rem;text-shadow:0 1px 10px #050912}
+
+/* three signs */
+.rd-scene--signs{min-height:340svh}
+.rd-signs{position:absolute;left:0;right:0;bottom:4.6rem;display:grid;gap:1.1rem;pointer-events:none}
+.rd-signs::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-3rem;bottom:-9rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.78) 30%,rgba(5,9,18,.78) 70%,rgba(5,9,18,0))}
+.rd-signs__head{max-width:34rem}.rd-signs__head h2{font-size:clamp(1.6rem,1.1rem + 1.5vw,2.4rem);margin-bottom:.35em;text-shadow:0 2px 24px #050912}
+.rd-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;pointer-events:auto}
+.rd-pick{--c:#C9A227;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--rd-panel);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:4px;padding:1rem 1.15rem 1.1rem;display:flex;flex-direction:column;justify-content:flex-start;transition:transform .35s var(--rh-ease),background .35s,box-shadow .35s}
+.rd-pick[data-pick=gomojo]{--c:#FF6FAE}.rd-pick[data-pick=lifeswitch]{--c:#E9CB86}.rd-pick[data-pick=goinvest]{--c:#6BE79A}
+.rd-pick small{display:block;font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c)}
+.rd-pick b{display:block;font-family:var(--rh-font-display);font-weight:400;font-size:1.55rem;line-height:1.2;margin:.15rem 0 .35rem;color:#fff}
+.rd-pick span{display:block;font-size:.88rem;line-height:1.5;color:rgba(234,238,247,.82)}
+.rd-pick:hover{transform:translateY(-4px)}
+.rd-pick[aria-pressed=true]{background:color-mix(in srgb,var(--c) 16%,#060B17);border-color:var(--c);box-shadow:0 0 34px -8px var(--c)}
+.rd-canpick{cursor:pointer}
+
+/* Reno */
+.rd-flood{position:absolute;inset:0;margin:0;visibility:hidden;clip-path:circle(calc(var(--f,0)*125%) at 60% 60%)}
+.rd-flood img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;transform:scale(calc(1.14 - var(--f,0)*.14))}
+/* Rides on the photo it describes, fading in as the photo fills the screen. */
+.rd-flood .rd-cap{position:absolute;left:clamp(1.1rem,5vw,5.5rem);bottom:5.6rem;margin:0;text-align:left;color:var(--rh-text-invert);opacity:calc((var(--f,0) - .7)*4)}
+.rd-inset--plain{display:none}
+.rd-cap{width:max-content;max-width:calc(100% - 2.2rem);padding:.7rem 1rem;background:var(--rd-panel);border-left:3px solid var(--rd-accent);font-family:var(--rh-font-display);font-size:1.25rem}
+.rd-cap span{display:block;font-family:var(--rh-font-body);font-size:.82rem;color:rgba(234,238,247,.78)}
+
+/* finale */
+.rd-end::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-4rem;bottom:-6rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.86) 26%)}
+.rd-end .rd-eyebrow{white-space:nowrap;text-shadow:0 0 14px #050912,0 1px 4px #050912}
+.rd-gl .rd-end{opacity:0;translate:0 24px;transition:opacity .7s,translate .8s var(--rh-ease)}.rd-gl.rd-endon .rd-end,.rd-end:focus-within{opacity:1;translate:0 0}
+.rd-gl:not(.rd-endon) .rd-doors{pointer-events:none}
+.rd-end{position:absolute;left:0;right:0;bottom:5rem}
+.rd-doors{display:grid;grid-template-columns:repeat(5,1fr);gap:.8rem;pointer-events:auto}
+.rd-door{display:block;padding:1rem 1.05rem 1.1rem;text-decoration:none;color:#fff;background:var(--rd-panel);border:1px solid var(--rd-hair);border-radius:4px;transition:transform .4s var(--rh-ease),border-color .3s,background .3s}
+.rd-door small{font-size:.72rem;color:var(--rd-accent);font-variant-numeric:tabular-nums}
+.rd-door b{display:block;font-family:var(--rh-font-display);font-weight:400;font-size:1.3rem}
+.rd-door span{display:block;font-size:.82rem;line-height:1.4;color:rgba(234,238,247,.76)}
+.rd-door:hover,.rd-door:focus-visible{transform:translateY(-5px);border-color:var(--rd-accent);color:#fff;background:color-mix(in srgb,var(--rd-accent) 12%,#060B17)}
+
+/* -------------------------------------------------------------------- UI */
+.rd__ui::before{content:"";position:absolute;left:0;right:0;bottom:0;height:5.4rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.95) 58%)}
+.rd-hud{position:absolute;left:clamp(1.1rem,5vw,5.5rem);right:clamp(1.1rem,5vw,5.5rem);bottom:1.15rem;display:flex;align-items:center;gap:1.1rem;font-size:.76rem;color:rgba(247,245,239,.78);text-shadow:0 1px 8px #050912}
+.rd-hud > *{flex:none}.rd-hud button,.rd-hud a{pointer-events:auto}
+.rd-hud__mile b{font-family:var(--rh-font-display);font-weight:400;font-size:1.35rem;color:#F7E7BD;font-variant-numeric:tabular-nums;margin-left:.2rem}
+.rd-hud__place{min-width:7.2rem}
+.rd-hud__bar{flex:1!important;height:1px;background:rgba(247,245,239,.2);position:relative}
+.rd-hud__bar i{position:absolute;inset:-1px 0;background:var(--rd-accent);transform-origin:0 50%;transform:scaleX(0)}
+.rd-sound{display:inline-flex;align-items:flex-end;gap:3px;height:34px;padding:0 .9rem;border:1px solid var(--rd-hair);border-radius:99px;background:var(--rd-panel);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+.rd-sound i{width:3px;height:6px;margin-bottom:11px;background:currentColor;transform-origin:50% 100%}
+.rd-sound__t{align-self:center;margin-left:.45rem}
+.rd-sound[aria-pressed=true]{border-color:var(--rd-accent);color:#fff}
+.rd-sound[aria-pressed=true] i{animation:rd-eq .833s ease-in-out infinite alternate}.rd-sound i:nth-child(2){animation-delay:-.3s!important}.rd-sound i:nth-child(3){animation-delay:-.55s!important}
+@keyframes rd-eq{from{transform:scaleY(.6)}to{transform:scaleY(2.2)}}
+.rd-skip{color:inherit;font-weight:600}
+.rd-skip:hover{color:var(--rd-accent)}
+.rd-rail{position:absolute;right:clamp(.6rem,1.6vw,1.6rem);top:50%;translate:0 -50%;display:grid;gap:.2rem}
+.rd-rail a{pointer-events:auto;display:flex;align-items:center;justify-content:flex-end;gap:.6rem;height:26px;min-width:26px;text-decoration:none;color:#fff;font-size:.74rem}
+.rd-rail a::after{content:"";width:8px;height:8px;margin-right:9px;border-radius:50%;border:1px solid rgba(247,245,239,.7);transition:transform .3s,background .3s}
+.rd-rail span{opacity:0;translate:6px 0;transition:opacity .25s,translate .25s;background:var(--rd-panel);padding:.1rem .5rem;border-radius:3px;pointer-events:none}
+.rd-rail a:hover span,.rd-rail a:focus-visible span{opacity:1;translate:0 0}
+.rd-rail a[aria-current]::after{background:var(--rd-accent);border-color:var(--rd-accent);transform:scale(1.35)}
+.rd-hold{position:absolute;left:0;top:0;width:88px;height:88px;border-radius:50%;border:1px solid var(--rd-hair);background:rgba(6,11,23,.62);color:#fff;font:600 .7rem/1.25 var(--rh-font-body);display:grid;place-items:center;text-align:center;padding:.7rem;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;user-select:none;-webkit-user-select:none;touch-action:none}
+.rd-hold.is-on{opacity:1;visibility:visible}.rd-hold.is-off{opacity:0}
+.rd-hold:not(.is-set){opacity:0!important}
+.rd-hold.is-off{pointer-events:none!important}
+.rd-hold__ring{position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(var(--rd-accent) calc(var(--h,0)*360deg),rgba(247,245,239,.14) 0);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))}
+.rd-hold:focus-visible{outline:2px solid var(--rd-accent);outline-offset:8px;border-radius:50%}
+.rd-holding{cursor:grabbing;user-select:none;-webkit-user-select:none}
+@media (pointer:coarse){.rd-hold{left:auto;right:1.1rem;top:auto;bottom:4.2rem;width:78px;height:78px;pointer-events:auto;background:rgba(6,11,23,.82)}}
+.rd-hold[hidden],.rd-nogl .rd-hold,.rd-nogl .rd-sound,.rd-nogl .rd-flood,.rd-nogl .rd-card .rd-try{display:none}
+/* In the gutter beside the mileage, clear of the cards and buttons above it. */
+.rd-home .rh-replay{width:34px;height:34px;bottom:1.15rem;left:calc((clamp(1.1rem,5vw,5.5rem) - 34px)/2)}
+.rd-home .rhxg:not(.is-open){bottom:4.2rem}
+
+/* --------------------------------------------------------------- reveals */
+.rd-rv{opacity:0;transition:opacity .8s var(--rh-ease),translate .9s var(--rh-ease),clip-path .9s var(--rh-ease);translate:0 34px}
+.rd-rv.rd-in{opacity:1;translate:0 0}
+.rd-card.rd-rv{clip-path:inset(0 94% 0 0);translate:-26px 0}
+/* Not 100%: a fully clipped box never intersects, so it would never reveal. */
+.rd-scene--right .rd-card.rd-rv{clip-path:inset(0 0 0 94%);translate:26px 0}
+.rd-card.rd-rv.rd-in,.rd-scene--right .rd-card.rd-rv.rd-in{clip-path:inset(-2px -2px -2px -2px);translate:0 0}
+.rd-door.rd-rv:nth-child(2){transition-delay:.07s}.rd-door.rd-rv:nth-child(3){transition-delay:.14s}.rd-door.rd-rv:nth-child(4){transition-delay:.21s}.rd-door.rd-rv:nth-child(5){transition-delay:.28s}
+
+/* .alignwide centres itself with translate, so its reveal has to keep that. */
+.alignwide.rd-rv{translate:-50% 34px}.alignwide.rd-rv.rd-in{translate:-50% 0}
+
+/* ----------------------------------------------------- every other page */
+.rd-canvas--fixed{position:fixed;z-index:-1;inset:0;width:100vw;height:100vh;height:100lvh}
+.rd-on:not(.rd-home) .rh-pagehead{background:radial-gradient(70% 90% at 18% 62%,rgba(5,9,18,.86),rgba(5,9,18,.5) 48%,rgba(5,9,18,0) 78%),linear-gradient(180deg,rgba(5,9,18,.5),rgba(5,9,18,0) 60%);padding-block:clamp(6rem,17vw,12rem) clamp(3rem,8vw,6rem)}
+.rd-on .rh-pagehead--art::before,.rd-on .rh-pagehead::after{display:none}
+.rd-on .rh-pagehead p{color:rgba(247,245,239,.9)}
+.rd-on .rh-pagehead h1,.rd-on .rh-pagehead p{text-shadow:0 2px 26px #050912,0 1px 5px #050912}
+.rd-on:not(.rd-home) .rh-section,.rd-on .rh-section--alt{background:none}
+.rd-on:not(.rd-home) .rh-article{position:relative;max-width:calc(var(--rh-max-read) + 6rem);padding:clamp(1.4rem,4vw,3rem);background:rgba(6,11,23,.86);border:1px solid var(--rd-hair);border-radius:6px}
+.rd-on:not(.rd-home) .rh-article > .alignwide{width:min(1040px,92vw)}
+.rd-on .rh-footer{position:relative;background:#050912;margin-top:0}
+.rd-on:not(.rd-home) .rh-footer{margin-top:var(--rh-section)}
+.rd-on .rh-gallery__item{transition:translate .9s var(--rh-ease),opacity .8s}
+
+@media (max-width:1000px){.rd-hud__place{display:none}.rd-rail{display:none}.rd-hero{width:min(34rem,56vw)}
+  .rd-doors{grid-template-columns:repeat(6,1fr)}.rd-door{grid-column:span 2}.rd-door:nth-child(n+4){grid-column:span 3}}
+@media (max-width:760px){
+  .rd-hero{width:100%;justify-content:flex-end;padding:5rem 0 4.6rem}.rd-hero__cta{padding-right:6rem}
+  .rd-hero__logo,.rd-hero .rd-eyebrow{display:none}
+  .rd-signs::before{display:none}
+  .rd-hero h1{font-size:2.5rem}.rd-hero__sub{font-size:1rem;margin-bottom:1.2rem}.rd-hint{display:none}
+  .rd__veil{background:linear-gradient(180deg,rgba(5,9,18,.3) 0%,rgba(5,9,18,0) 20%,rgba(5,9,18,0) 44%,rgba(5,9,18,.86) 84%)}
+  .rd-hero::before{display:none}
+  .rd-card{padding:1.2rem 1.2rem 1.3rem;background:rgba(6,11,23,.88)}
+  .rd-signs{position:static;padding-top:84svh}.rd-scene--signs .rd-pin{position:static;height:auto}.rd-picks{grid-template-columns:1fr;gap:.8rem}
+  .rd-signs__head{background:rgba(6,11,23,.88);border:1px solid var(--rd-hair);border-radius:4px;padding:1.2rem;pointer-events:auto;margin-bottom:34svh}
+  .rd-end{bottom:4rem}.rd-doors{grid-template-columns:1fr 1fr;gap:.6rem}.rd-door,.rd-door:nth-child(n+4){grid-column:auto;padding:.7rem .85rem}.rd-door:last-child{grid-column:1/-1}.rd-door span{display:none}.rd-door b{font-size:1.15rem}
+  .rd-hud{gap:.8rem;bottom:.9rem}.rd-inset{margin-top:60svh}
+  .rd-home .rh-replay{display:none}
+  .rd-end .rd-eyebrow::before,.rd-end .rd-eyebrow::after{width:2rem}
+  .rd-flood .rd-cap{bottom:9.6rem;font-size:1.1rem}
+  .rd-home:has(.rhxg) .rd-hold{bottom:8.4rem}
+}
+@media (max-width:360px){.rd-hud{gap:.55rem}.rd-hud__bar{display:none}.rd-sound{margin-left:auto;padding:0 .7rem}}
+/* A phone on its side: no room for the logo or a pinned panel, so let them scroll. */
+@media (max-height:500px) and (min-width:560px){
+  .rd-home .rh-replay,.rd-hero__logo,.rd-hero .rd-eyebrow,.rd-hint{display:none}
+  .rd-hero{width:min(30rem,54vw);padding:4.4rem 0 4rem}.rd-hero h1{font-size:2.2rem}.rd-hero__sub{font-size:.92rem;line-height:1.5;margin-bottom:1rem}.rd-hero .rh-btn{padding:.6rem 1.1rem;font-size:.82rem}
+  .rd-scene--signs .rd-pin{position:static;height:auto}.rd-signs{position:static;padding-top:70svh}.rd-signs::before{display:none}.rd-signs__head{background:var(--rd-panel);border:1px solid var(--rd-hair);border-radius:4px;padding:1rem 1.2rem;margin-bottom:40svh;pointer-events:auto}
+  .rd-end{bottom:4.3rem}.rd-doors{grid-template-columns:repeat(5,1fr);gap:.5rem}.rd-door,.rd-door:nth-child(n+4){grid-column:auto;padding:.5rem .7rem}.rd-door span{display:none}.rd-door b{font-size:1rem}
+  .rd-card{padding:1rem 1.2rem}.rd-card h2{font-size:1.5rem}.rd-card p{font-size:.92rem;line-height:1.5}
+}
+/* No WebGL or no scripts: there is no drive to scroll through, so close the gaps it
+   needed and read as a normal page. */
+.rd-nogl .rd-scene,.no-js .rd-scene{min-height:0!important;padding-block:clamp(2.5rem,7vh,5rem)}
+.rd-nogl #rd-vegas,.no-js #rd-vegas{padding-block:0}
+.rd-nogl .rd .rd-card,.no-js .rd .rd-card,.rd-nogl .rd-inset,.no-js .rd-inset{margin-top:0!important}
+.rd-nogl .rd .rd-card + .rd-card,.no-js .rd .rd-card + .rd-card,.rd-nogl .rd .rd-card + .rd-inset,.no-js .rd .rd-card + .rd-inset{margin-top:1.5rem!important}
+.rd-nogl .rd-inset--plain,.no-js .rd-inset--plain{display:block;margin-top:1.5rem!important}
+.rd-nogl .rd-pin,.no-js .rd-pin{position:static;height:auto}
+.rd-nogl .rd-signs,.no-js .rd-signs,.rd-nogl .rd-end,.no-js .rd-end{position:relative;bottom:auto;padding-top:0}
+.rd-nogl .rd-signs__head,.no-js .rd-signs__head{margin-bottom:0}
+.rd-nogl .rd-signs::before,.no-js .rd-signs::before,.rd-nogl .rd-end::before,.no-js .rd-end::before{display:none}
+.rd-nogl .rd-rail,.no-js .rd-rail,.rd-nogl .rd-hud,.no-js .rd-hud,.no-js .rd-hold,.no-js .rd-card .rd-try,.rd-nogl .rd__ui::before,.no-js .rd__ui::before,.rd-nogl .rd-hint,.no-js .rd-hint,.rd-nogl .rd-signs .rd-try,.no-js .rd-signs .rd-try{display:none}
+.rd-nogl .rd__poster,.no-js .rd__poster{opacity:.32}
+.rd-nogl .rd-anchor,.no-js .rd-anchor{bottom:auto;top:0;height:1px}
+@media (max-height:640px) and (min-width:761px){.rd-hero__logo{width:15rem;margin-bottom:.7rem}.rd-hint{display:none}.rd-pick span{font-size:.8rem;line-height:1.4}}
+
+/* --------------------------------------------- page-to-page transitions */
+@media (prefers-reduced-motion:no-preference){
+  /* The opt-in itself (@view-transition) is inline in <head>: browsers check it before
+     this file has applied, and every transition was being cancelled. The header keeps
+     its own layer so the menu stays put while the page changes under it. */
+  .rh-header{view-transition-name:rh-header}
+  ::view-transition-group(rh-header){z-index:1}
+  ::view-transition-old(root){animation:rd-vt-out .35s var(--rh-ease,ease) both}
+  ::view-transition-new(root){animation:rd-vt-in .6s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes rd-vt-out{to{filter:brightness(.15)}}
+  @keyframes rd-vt-in{from{clip-path:circle(2% at 50% 74%);filter:brightness(2.2)}to{clip-path:circle(140% at 50% 74%);filter:none}}
+}
+@media (prefers-reduced-motion:reduce){
+  .rd-rv,.rd-card.rd-rv{opacity:1!important;translate:none!important;clip-path:none!important;transition:none!important}
+  .rd-try::before,.rd-hint::before,.rd-sound i{animation:none!important}
+  .rd-inset{transform:none}
+  .rd-inset--plain{display:block}.rd-flood{display:none}
+  .rd-card .rd-try,.rd-sound{display:none}   /* nothing to hold when nothing moves */
+  .rd-pick,.rd-door{transition:none}
+}
+@media print{.rd-canvas,.rd__track,.rd-hero::before,.rd-signs::before,.rd-end::before,.rd-hero__logo,.rd-hint,.rd-try,.rd-inset__f::after{display:none!important}.rd-hero{min-height:0!important;padding:0!important}.rd-inset img,.rd-on .rh-article figure img,.rd-on .rh-gallery__item img{filter:none!important}.rd-on .rh-chips li{background:#fff!important;color:#111!important;border-color:#bbb!important}.rd-rv{opacity:1!important;translate:none!important;clip-path:none!important}.rd-scene,.rd-pin{min-height:0!important;height:auto!important}.rd .rd-card,.rd-inset{margin-top:1rem!important}.rd-signs,.rd-end,.rd-pin{position:static!important}
+  body.rd-on{--rh-bg:#fff;--rh-text:#111;--rh-text-muted:#333;--rh-text-invert:#111;--rh-card:#fff;color-scheme:light}.rd-on:not(.rd-home) .rh-article,.rd,.rd-card,.rd-pick,.rd-door{background:#fff!important;border-color:#bbb}.rd-on .rh-pagehead{background:#fff!important;padding-block:1rem!important}.rd-on .rh-pagehead :is(h1,p){color:#111!important;text-shadow:none!important}.rd :is(h1,h2,h3,p,li,dt,dd,b,span,em,a,small){color:#111!important;text-shadow:none!important}}
+
+/* Cards over lit signs need a ground of their own. */
+#rd-lifeswitch .rd-card,#rd-builds .rd-card{background:rgba(6,11,23,.93)}
+@supports (backdrop-filter:blur(1px)){.rd-card{backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1)}}
+@media (max-width:760px){#rd-lifeswitch{min-height:760svh}#rd-builds{min-height:480svh}}

@@ -16,17 +16,14 @@ $rh_email  = rh_opt( 'rh_contact_email' );
 
 			<div>
 				<?php
-				$rh_logo_id = get_theme_mod( 'custom_logo' );
-				if ( $rh_logo_id ) {
-					echo wp_get_attachment_image(
-						$rh_logo_id,
-						'full',
-						false,
-						array(
-							'class'   => 'rh-footer__logo',
-							'alt'     => esc_attr( get_bloginfo( 'name' ) ),
-							'loading' => 'lazy',
-						)
+				// The uploaded logo has dark lettering and the footer is always dark,
+				// so it uses the light-lettered twin, same as the header.
+				if ( has_custom_logo() ) {
+					$rh_logo_light = get_theme_mod( 'rh_logo_dark' ) ? get_theme_mod( 'rh_logo_dark' ) : rh_img( 'logo-hero-light.png' );
+					printf(
+						'<img class="rh-footer__logo" src="%1$s" alt="%2$s" width="2400" height="600" loading="lazy">',
+						esc_url( $rh_logo_light ),
+						esc_attr( get_bloginfo( 'name' ) )
 					);
 				} else {
 					printf( '<h2 style="font-family:var(--rh-font-display);font-size:1.6rem;letter-spacing:.05em;color:var(--rh-text-invert);text-transform:none">%s</h2>', esc_html( get_bloginfo( 'name' ) ) );
@@ -78,7 +75,7 @@ $rh_email  = rh_opt( 'rh_contact_email' );
 						<?php if ( $rh_email ) : ?>
 							<li><a href="mailto:<?php echo esc_attr( antispambot( $rh_email ) ); ?>"><?php echo esc_html( antispambot( $rh_email ) ); ?></a></li>
 						<?php endif; ?>
-						<li><?php esc_html_e( 'Las Vegas, Nevada', 'roman-heuser' ); ?></li>
+						<li><?php esc_html_e( 'Reno, Nevada', 'roman-heuser' ); ?></li>
 						<li><?php esc_html_e( 'University of Nevada, Reno', 'roman-heuser' ); ?></li>
 					</ul>
 				<?php endif; ?>

@@ -17,9 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 function rh_customizer_fields() {
 	return array(
 		// Hero.
-		'rh_hero_eyebrow'  => array( 'default' => 'Las Vegas · University of Nevada, Reno', 'label' => 'Hero eyebrow', 'type' => 'text', 'section' => 'rh_hero' ),
+		'rh_hero_eyebrow'  => array( 'default' => 'Reno, Nevada · From Las Vegas', 'label' => 'Hero eyebrow', 'type' => 'text', 'section' => 'rh_hero' ),
 		'rh_hero_title'    => array( 'default' => 'I build things that <em>ship</em>.', 'label' => 'Hero headline (HTML allowed — wrap a word in &lt;em&gt; for the brass italic)', 'type' => 'textarea', 'section' => 'rh_hero' ),
-		'rh_hero_sub'      => array( 'default' => 'Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.', 'label' => 'Hero subtitle', 'type' => 'textarea', 'section' => 'rh_hero' ),
+		'rh_hero_sub'      => array( 'default' => 'Co-founder of LifeSwitch. Founder of GoMojo and GoInvest. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.', 'label' => 'Hero subtitle', 'type' => 'textarea', 'section' => 'rh_hero' ),
 		'rh_hero_cta1_txt' => array( 'default' => 'Read my story', 'label' => 'Primary button label', 'type' => 'text', 'section' => 'rh_hero' ),
 		'rh_hero_cta1_url' => array( 'default' => '/about-me/', 'label' => 'Primary button link', 'type' => 'url', 'section' => 'rh_hero' ),
 		'rh_hero_cta2_txt' => array( 'default' => 'View my resume', 'label' => 'Secondary button label', 'type' => 'text', 'section' => 'rh_hero' ),
@@ -106,6 +106,40 @@ function rh_customize_register( $wp_customize ) {
 				'label'       => __( 'Hero background image', 'roman-heuser' ),
 				'description' => __( 'Wide photo, 2000px or more. It sits behind a dark wash so any photo stays readable.', 'roman-heuser' ),
 				'section'     => 'rh_hero',
+			)
+		)
+	);
+
+	// Opening sequence on/off. On by default; untick it to go straight to the hero.
+	$wp_customize->add_setting(
+		'rh_intro_on',
+		array(
+			'default'           => true,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+		)
+	);
+	$wp_customize->add_control(
+		'rh_intro_on',
+		array(
+			'label'       => __( 'Play the opening sequence on the home page', 'roman-heuser' ),
+			'description' => __( 'Plays when the home page is opened or reloaded (not when a visitor clicks Home from another page), never under reduced motion, and can always be skipped.', 'roman-heuser' ),
+			'section'     => 'rh_intro',
+			'type'        => 'checkbox',
+			'priority'    => 1,
+		)
+	);
+
+	// Header logo for the dark palette.
+	$wp_customize->add_setting( 'rh_logo_dark', array( 'sanitize_callback' => 'esc_url_raw' ) );
+	$wp_customize->add_control(
+		new WP_Customize_Image_Control(
+			$wp_customize,
+			'rh_logo_dark',
+			array(
+				'label'       => __( 'Header logo — dark mode', 'roman-heuser' ),
+				'description' => __( 'Shown instead of the Site Identity logo when the visitor uses dark mode. Leave empty to use the bundled light-lettered logo.', 'roman-heuser' ),
+				'section'     => 'title_tagline',
+				'priority'    => 9,
 			)
 		)
 	);

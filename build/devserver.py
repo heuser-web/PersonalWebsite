@@ -154,6 +154,11 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *a):
         pass  # keep the console quiet
 
+    def end_headers(self):
+        # Without this the browser may reuse old CSS/JS after a rebuild.
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def _json(self, obj, code=200):
         payload = json.dumps(obj).encode()
         self.send_response(code)

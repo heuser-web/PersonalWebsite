@@ -1,6 +1,8 @@
 <!-- ============================================================
      ABOUT ME  —  paste into a single "Custom HTML" block
-     Replace every  ((...))  marker with your own detail/image.
+     The two ((MEDIA URL: ...)) markers are image addresses: upload
+     gallery/reno-sunset.jpg and gallery/treenet.jpg to Media, then
+     paste each file's URL over its marker.
      ============================================================ -->
 
 <p class="rh-lede">I grew up in Las Vegas watching two people sell houses for a living, and what I actually learned from them had nothing to do with real estate. It was this: do the work in front of the customer, do it honestly, and let the record speak. I have been trying to build software the same way ever since.</p>
@@ -11,20 +13,39 @@
 
 <p>That is the standard I measure my own projects against. If I put something on the internet with my name on it, I want to be the person who answers the email when it breaks.</p>
 
-<figure class="wp-block-image size-large">
-  <img src="((UPLOAD: a photo of you, or of Las Vegas/Summerlin))" alt="Roman Heuser in Las Vegas">
-  <figcaption>((Caption — where this was taken))</figcaption>
-</figure>
-
 <h2>Where I am now</h2>
 
-<p>I am a <strong>business freshman at the University of Nevada, Reno</strong>. I picked Reno on purpose. It is far enough from Las Vegas that I had to build a life rather than inherit one, and it is a real city with a real downtown, a university core of roughly 24,000 students, and a business community small enough that a person can actually get a meeting. Vegas taught me how to build for tourists. Reno is teaching me how to build for a place people live.</p>
+<p>I live in Reno now. I am a <strong>business freshman at the University of Nevada, Reno</strong>, and I picked it on purpose. It is far enough from Las Vegas that I had to build a life rather than inherit one, and it is a real city with a real downtown, a university core of roughly 24,000 students, and a business community small enough that a person can actually get a meeting. Vegas taught me how to build for tourists. Reno is teaching me how to build for a place people live.</p>
+
+<figure class="wp-block-image size-large alignwide">
+  <img src="((MEDIA URL: reno-sunset.jpg))" alt="Casino entrance chandeliers framing a pink and violet sunset over the mountains and the Reno skyline" width="2000" height="1500" loading="lazy">
+  <figcaption>Reno, after dark. The sunsets here are the thing I did not expect to love most.</figcaption>
+</figure>
 
 <p>Business is the right major for me because it sits exactly where I already spend my time — between the technology and the reason anyone would pay for it. I am not interested in code as a puzzle. I am interested in the moment when someone uses a thing I built and it saves them an hour, and in whether that hour is worth paying for.</p>
 
 <h2>What I build</h2>
 
-<p>Three products, and all of them are live. Two I started myself. The third is a company that hired me to redesign what its users actually see.</p>
+<p>Three products come first: LifeSwitch, GoMojo and GoInvest. Then a longer list of sites and apps I have built for other people, for fun, or to see if I could.</p>
+
+<h3>LifeSwitch &mdash; everything you own, and who it goes to</h3>
+
+<p>Nobody knows what you own except you. The deed is with the county. The policy is with a broker whose firm has since been bought. Three accounts sit at institutions nobody remembers you opened, and the only index to any of it is in your head. So almost every estate gets reconstructed afterward, by people who are grieving, working from a filing cabinet and a password they are guessing at.</p>
+
+<p><strong>LifeSwitch is the same work, done in advance.</strong> It is a private vault for your documents, accounts and belongings, and I am its co-founder. My co-founder, also a student here at the University of Nevada, Reno, had the idea and kept it alive. I design it, build it and ship it.</p>
+
+<p>Most tools in this space are a nicer file cabinet. You upload a PDF and hope. LifeSwitch turns that around: the thing it stores is the <em>record</em>, not the file. A policy knows its number, its carrier and its beneficiary. A house knows who it goes to. There are forty-five kinds of record across eight areas of life, and because the vault understands what is inside it, it can add things up, warn you before something lapses, and hand an executor a schedule of assets instead of a shoebox.</p>
+
+<ul>
+  <li><strong>Snap and seal.</strong> Point your phone at anything you own: a ring, a painting, the car. LifeSwitch fingerprints the exact photo and gives it a number nobody can guess. Change a single byte and it no longer matches.</li>
+  <li><strong>Who gets what.</strong> Your whole estate on one page, with a name beside every asset, down to the percent.</li>
+  <li><strong>Share by scan.</strong> A QR card that shows only what you choose, like allergies for a paramedic or an employer for a landlord. The details travel inside the code itself, so a shared card is never stored on our servers.</li>
+  <li><strong>The Switch.</strong> You decide how often you check in, how long you can say no, and who holds the keys. Your plan is sealed under a key cut in three, and any two open it. No one can open it alone.</li>
+</ul>
+
+<p>Two promises matter more to me than any feature. LifeSwitch never holds or moves your money, and we do not sell your vault, profile it, or use it to train AI models, ours or anyone else&rsquo;s. We are also careful about what we claim: the release half of the Switch stays off until a legal review is complete, and a LifeSwitch plan records your wishes but is not a will. If you are asking people to trust two college students with the most private document they own, honesty has to be a feature.</p>
+
+<p>The stack is Next.js 15, React 19, Tailwind and MongoDB, in one codebase with one deploy. It is live now: <a href="https://lifeswitch-bsvx.onrender.com" target="_blank" rel="noopener">see LifeSwitch</a>.</p>
 
 <h3>GoMojo — an AI concierge for Las Vegas</h3>
 
@@ -34,19 +55,22 @@
 
 <p>The part I am proudest of is not the AI. It is that I built the whole platform — app, agents, partner system, QR co-branded landing pages, multi-city architecture — for under a thousand dollars, total. That number is the reason the free tier can stay genuinely free and the paid tier can stay at five dollars. Low costs are not a bragging right. They are a design constraint that keeps you honest.</p>
 
-<h3>TagData &mdash; the redesign I was brought in to lead</h3>
-
-<p>TagData is a personal data vault. It holds the records that define you across eight life domains &mdash; health, employment, finance, insurance, vehicle, property, education &mdash; and its centerpiece is the TagData ID: a QR share card that hands over exactly the slice you choose and nothing more. The shared data lives inside the link itself, so it never touches a server. That is not a privacy policy you have to trust. It is a design that makes the promise structurally true.</p>
-
-<p>I did not start TagData. I was <strong>hired to recreate its frontend, and given full authority over the redesign</strong> &mdash; at a company with <strong>$3.5 million invested</strong> behind it. That is a lot of rope to hand someone, and it is the work I am proudest of so far. Not because the code was hard, but because every screen had to answer to one design language instead of accumulating into a pile of one-off pages.</p>
-
-<p>What that looked like day to day: a token-driven design system where every color, size and easing resolves to a single source of truth; a dark mode built as its own palette rather than an inverted copy of the light one; and the discipline to make the share card degrade gracefully when a payload exceeds what a scannable QR code can physically hold. Constraints like that are where the real design decisions live.</p>
-
 <h3>GoInvest — eight investors who disagree with each other</h3>
 
 <p>GoInvest is a multi-agent research sandbox. Eight AI personas modeled on real investing philosophies — macro momentum, technical discipline, pure quant, risk parity, growth-at-a-reasonable-price, a biotech policy specialist, a drug-delivery briefer, and a forensic short-seller whose whole job is to attack the thesis — debate a single stock, vote, and size a position. Every debate, trade and outcome is logged so the record can be checked later.</p>
 
 <p>Two rules are hard-coded and non-negotiable: it trades on paper only, and every user-facing screen says it is educational and not investment advice. Building something that touches money taught me more about restraint than about finance. The interesting engineering was not making the agents smart. It was making sure a confident agent could not do damage.</p>
+
+<h3>And the rest of the garage</h3>
+
+<ul>
+  <li><strong>LifeStyle</strong> &mdash; a digital closet. Photograph every piece you own, show off your closet, then sell, trade or lend what is in it, using the app&rsquo;s own currency.</li>
+  <li><strong>GoGlobal</strong> &mdash; a travel concierge for America&rsquo;s iconic destinations.</li>
+  <li><strong>Sigma Alpha Epsilon chapter site</strong> &mdash; a public site for rush and philanthropy, a members area behind a login, and an admin panel the exec board can run without touching code. Members-only information is protected in the database, not just hidden on the screen.</li>
+  <li><strong>The Heuser Team</strong> &mdash; a new website for my parents&rsquo; real estate practice in Las Vegas.</li>
+  <li><strong>Roblox NPC Kit</strong> &mdash; a starter kit that lets characters in a Roblox game talk through Claude, with a small proxy so the key never reaches a player.</li>
+  <li><strong>Reno, redrawn</strong> &mdash; redesign concepts for thirteen local businesses: Nick&rsquo;s Automotive, Nevada Tire Service, Roy Foster&rsquo;s Automotive, Greg&rsquo;s Garage, The Auto Clinic, North Valley Automotive, Speedy Burritos, Suri&rsquo;s Mediterranean, World Star Cutz, BJ&rsquo;s Hair Shop, Master Service Plumbing, OMNI Cards and Anime Kingdom. These are concepts made for owner review, not the businesses&rsquo; official sites.</li>
+</ul>
 
 <h2>Where I have actually worked</h2>
 
@@ -94,18 +118,22 @@
 
 <h2>Where this is going</h2>
 
-<p>Short term, I am expanding GoMojo into Reno and Sparks so it works in the city I now live in, and continuing the frontend work at TagData. Long term, I want to work on products where the technology is genuinely hard and the customer is a normal person — the intersection where most software gets one of the two badly wrong.</p>
+<p>Short term, I am expanding GoMojo into Reno and Sparks so it works in the city I now live in, and growing LifeSwitch. Long term, I want to work on products where the technology is genuinely hard and the customer is a normal person — the intersection where most software gets one of the two badly wrong.</p>
 
 <p>I am interested in product management, solutions engineering, and founding roles. If you are hiring for something where someone has to understand the system <em>and</em> explain it to a customer, that is the job I have been practicing for.</p>
 
 <h2>Beyond the screen</h2>
 
-<p>((Write two or three sentences here about what you do when you are not building — sports, music, hiking around Reno, travel, cooking, gaming, whatever is true. Employers read this part. It is the one section a resume cannot cover, so make it specific and real rather than a list of adjectives.))</p>
+<p><strong>Sigma Alpha Epsilon.</strong> I am a brother of SAE. Moving to a city where you know nobody is a lot easier when a house full of people has already decided you are one of them. I also love a good party, and Dye is Life at the house, which is in my <a href="/gallery/">gallery</a>, is what that looks like.</p>
+
+<p><strong>Treenets and camping.</strong> I make treenets: woven rope platforms rigged high between trees, so the whole campsite is underneath you. Then I take them camping with friends. It is the most hands-on thing I do. Knots, load, anchor points, and an honest test the first time someone climbs on.</p>
 
 <figure class="wp-block-image size-large">
-  <img src="((UPLOAD: a photo of a hobby or somewhere you have traveled))" alt="((Describe the photo))">
-  <figcaption>((Caption))</figcaption>
+  <img src="((MEDIA URL: treenet.jpg))" alt="Looking up through a woven rope treenet at someone climbing into it between pine trees under a bright blue sky" width="1500" height="2000" loading="lazy">
+  <figcaption>Rigging a treenet in the pines.</figcaption>
 </figure>
+
+<p><strong>Web design.</strong> I love the craft of it: type, spacing, color, and the half-second of motion that makes an interface feel considered instead of assembled. This site is the evidence: a custom theme and logo, built from scratch rather than from a template.</p>
 
 <h2>Say hello</h2>
 

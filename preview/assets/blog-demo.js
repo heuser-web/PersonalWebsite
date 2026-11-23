@@ -13,6 +13,8 @@
 
   var KEY = 'rh-blog-demo-v1';
   var AUTHOR = 'Roman Heuser';
+  // Add ?demo to the address for the builder's tools: rubric tally and Approve.
+  var DEMO = /[?&]demo\b/.test(window.location.search);
 
   var SEED = [
     { id: 1, parent: 0, name: 'Marcus Webb', when: 'August 24, 2026', approved: true, author: false,
@@ -73,8 +75,8 @@
             '</div>' +
           '</footer>' +
           (c.approved ? '' :
-            '<p class="comment-awaiting-moderation"><em>Your comment is awaiting moderation.</em> ' +
-            '<button type="button" class="rh-approve" data-approve="' + c.id + '">Approve it</button></p>') +
+            '<p class="comment-awaiting-moderation"><em>Thanks. Your comment is awaiting moderation.</em>' +
+            (DEMO ? ' <button type="button" class="rh-approve" data-approve="' + c.id + '">Approve it</button>' : '') + '</p>') +
           '<div class="comment-content"><p>' + esc(c.text).replace(/\n+/g, '</p><p>') + '</p></div>' +
           '<div class="reply"><button type="button" class="comment-reply-link" data-reply="' + c.id +
             '" data-name="' + esc(c.name) + '">Reply</button></div>' +
@@ -99,15 +101,14 @@
 
     root.innerHTML =
       '<div class="rh-demoflag">' +
-        '<b>Live preview</b> — this comment thread really works: post one, reply to it, approve it. ' +
-        'It is saved in this browser only. On the real site WordPress does all of this for you.' +
+        '<b>Sample thread</b> — these comments are examples. Anything you post here is saved in this browser only.' +
         ' <button type="button" class="rh-reset" id="rh-demo-reset">Reset thread</button>' +
       '</div>' +
       '<div class="rh-comments">' +
         '<p class="rh-eyebrow">' + approved + ' response' + (approved === 1 ? '' : 's') + '</p>' +
-        '<p class="rh-tally' + (top >= 4 && replies >= 4 ? ' is-ok' : '') + '">' +
+        (!DEMO ? '' : '<p class="rh-tally' + (top >= 4 && replies >= 4 ? ' is-ok' : '') + '">' +
           'Rubric check: <b>' + top + '</b> of 4 comments &middot; <b>' + replies + '</b> of 4 author replies' +
-        '</p>' +
+        '</p>') +
         '<ol class="comment-list">' + build(0) + '</ol>' +
         '<div class="comment-respond" id="rh-respond">' +
           '<h3 class="comment-reply-title">Join the conversation' +
@@ -117,9 +118,9 @@
             'Your email is never published.</p>' +
           '<form class="comment-form rh-commentform" id="rh-demo-form">' +
             '<p class="comment-form-author"><label for="d-author">Name <span class="req">*</span></label>' +
-              '<input id="d-author" required maxlength="60"></p>' +
+              '<input id="d-author" type="text" required maxlength="60" autocomplete="name"></p>' +
             '<p class="comment-form-email"><label for="d-email">Email <span class="req">*</span></label>' +
-              '<input id="d-email" type="email" required>' +
+              '<input id="d-email" type="email" required autocomplete="email">' +
               '<span class="rh-formhint">Not published. Used for your avatar.</span></p>' +
             '<p class="comment-form-comment"><label for="d-comment">Your comment</label>' +
               '<textarea id="d-comment" rows="5" required placeholder="What did this make you think of?"></textarea></p>' +
@@ -149,7 +150,8 @@
         respond.querySelector('.comment-reply-title').firstChild.nodeValue =
           'Replying to ' + b.getAttribute('data-name');
         cancel.hidden = false;
-        document.getElementById('d-comment').focus();
+        document.getElementById('d-comment').focus({ preventScroll: true });
+        respond.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
     });
 
@@ -181,8 +183,9 @@
       var text = document.getElementById('d-comment').value.trim();
       if (!name || !text) return;
       var isAuthor = name.toLowerCase() === AUTHOR.toLowerCase();
+      var id = state.next++;
       state.items.push({
-        id: state.next++, parent: replyTo, name: name, author: isAuthor,
+        id: id, parent: replyTo, name: name, author: isAuthor,
         when: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         // Author replies post live; visitor comments land in moderation, like WP.
         approved: isAuthor,
@@ -190,7 +193,8 @@
       });
       replyTo = 0;
       save(); render();
-      var last = root.querySelector('.rh-pending') || root.querySelector('.comment-list');
+      // The one just posted, not the oldest one still waiting.
+      var last = document.getElementById('comment-' + id);
       if (last) last.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
   }

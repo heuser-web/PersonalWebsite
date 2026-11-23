@@ -12,7 +12,8 @@
  *
  * Hard rules, because this runs before the visitor sees anything:
  *   - reduced motion  -> the intro never mounts at all
- *   - once per tab    -> sessionStorage, with a replay button
+ *   - not on every hop -> plays on open/reload, skipped when arriving from a
+ *                        link inside the site; replay button always available
  *   - always escapes  -> skip button, Escape key, and a failsafe timer that
  *                        tears the overlay down even if a phase throws
  *   - scroll restored -> unlocked in one place that every exit path calls
@@ -21,7 +22,6 @@
   'use strict';
 
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var SEEN_KEY = 'rh-intro-seen';
 
   function on(el, ev, fn, opt) { if (el) el.addEventListener(ev, fn, opt || false); }
 
@@ -178,13 +178,51 @@
     END:   14400
   };
 
+  /* The intro plays on every fresh open and every reload of the home page. It is
+     skipped only when the visitor arrives by clicking a link within the site, or
+     by Back/Forward, so a visitor browsing around is not made to sit through it
+     each time they hit "Home". (It used to be "once per tab", which meant a
+     reload in a tab that had already seen it showed nothing.) */
+  function cameFromInsideSite() {
+    if (/[?&]intro=play\b/.test(window.location.search)) return false;
+    if (/[?&]intro=off\b/.test(window.location.search)) return true;
+    var type = '';
+    try { type = window.performance.getEntriesByType('navigation')[0].type; } catch (e) {}
+    if (type === 'reload') return false;
+    if (type === 'back_forward') return true;
+    var ref = document.referrer;
+    return !!ref && window.location.origin !== 'null' && ref.indexOf(window.location.origin + '/') === 0;
+  }
+
+  /* The button that plays the sequence again. It reloads rather than rewinding:
+     every beat is a one-shot CSS animation, so a fresh page is the clean reset. */
+  function mountReplay() {
+    if (reduced || document.querySelector('.rh-replay')) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'rh-replay';
+    b.title = 'Replay intro';
+    b.setAttribute('aria-label', 'Replay the opening sequence');
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<path d="M4 4v6h6" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M4.6 14.5a8 8 0 1 0 1.2-7.9L4 10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    on(b, 'click', function () {
+      // The sequence hands off to the hero, so it has to land at the top.
+      try { window.history.scrollRestoration = 'manual'; } catch (e) {}
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, 0);
+      if (/[?&]intro=/.test(window.location.search)) { window.location.replace(window.location.pathname + '?intro=play'); return; }
+      if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.location.reload();
+    });
+    document.body.appendChild(b);
+  }
+
   function Intro() {
     var el = document.getElementById('rh-intro');
     if (!el) return;
 
-    var seen = false;
-    try { seen = window.sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { seen = false; }
-    if (reduced || seen) { el.parentNode && el.parentNode.removeChild(el); mountReplay(); return; }
+    if (reduced || cameFromInsideSite()) { el.parentNode && el.parentNode.removeChild(el); mountReplay(); return; }
 
     var warp   = Hyperspace(el.querySelector('.rh-intro__warp'));
     var flash  = el.querySelector('.rh-intro__flash');
@@ -198,16 +236,17 @@
     var timers = [], done = false, bootRaf = 0;
     function later(fn, ms) { timers.push(window.setTimeout(fn, ms)); }
 
-    function finish() {
+    function finish(slow) {
       if (done) return;
       done = true;
       for (var i = 0; i < timers.length; i++) window.clearTimeout(timers[i]);
       timers.length = 0;
       if (bootRaf) window.cancelAnimationFrame(bootRaf);
-      try { window.sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
       if (warp) warp.stop();
       el.classList.add('is-leaving');
-      document.body.classList.remove('rh-intro-open');
+      // Skipped by scrolling: stay locked until the fade is over, or the rest of
+      // that same swipe lands on the page and throws the visitor past the hero.
+      window.setTimeout(function () { document.body.classList.remove('rh-intro-open'); }, slow === true ? 900 : 0);
       window.setTimeout(function () {
         if (el.parentNode) el.parentNode.removeChild(el);
         mountReplay();
@@ -216,7 +255,10 @@
     }
 
     function onKey(e) {
-      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') finish();
+      // Space would also page down, and Enter would also press whatever has focus.
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); }
+      // Skip is the only control up here; Tab must not wander into the covered page.
+      if (e.key === 'Tab') { e.preventDefault(); if (skip) skip.focus(); }
     }
 
     var scrub = null;
@@ -255,6 +297,7 @@
       }
 
       document.body.classList.add('rh-intro-open');
+      try { window.history.scrollRestoration = 'auto'; } catch (e) {}
       if (warp) warp.start();
       if (prog) prog.classList.add('is-on');
 
@@ -290,10 +333,18 @@
       later(finish, T.END);
       later(finish, T.END + 4000);          // failsafe
 
-      on(skip, 'click', finish);
+      on(skip, 'click', function () { finish(); });
       document.addEventListener('keydown', onKey);
-      on(el, 'wheel', finish, { passive: true });
+      // A resting trackpad emits stray wheel events, so only a real scroll skips:
+      // not in the first 1.5s, and only after a decent amount of travel.
+      var wheelSum = 0, wheelFrom = performance.now() + 1500;
+      on(el, 'wheel', function (e) {
+        if (performance.now() < wheelFrom) return;
+        wheelSum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
+        if (wheelSum > 240) finish(true);
+      }, { passive: true });
     } catch (err) {
+      if (window.console && console.warn) console.warn('[intro] failed, skipping:', err);
       finish();
     }
 
@@ -314,7 +365,7 @@
     if (!canvas || reduced) return;
     var gl;
     try {
-      gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false })
+      gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true })
         || canvas.getContext('experimental-webgl');
     } catch (e) { return; }
     if (!gl) return;
@@ -413,7 +464,10 @@
     var uDpr  = gl.getUniformLocation(prog, 'uDpr');
 
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);           // additive glow
+    // Additive glow. Alpha accumulates on its own (ONE, ONE) so the buffer is
+    // premultiplied; otherwise each point's alpha is applied three times over
+    // and the galaxy all but disappears.
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
     gl.disable(gl.DEPTH_TEST);
 
     /* --- camera --- */
@@ -440,7 +494,7 @@
 
     function view() {
       var cp = Math.cos(pitch), sp = Math.sin(pitch), cy = Math.cos(yaw), sy = Math.sin(yaw);
-      var d = 5.4;
+      var d = 4.3;                                  // close enough that the arms clear the text
       // camera position on a sphere, looking at the origin
       var ex = d * cp * sy, ey = d * sp, ez = d * cp * cy;
       var zx = ex / d, zy = ey / d, zz = ez / d;                       // forward

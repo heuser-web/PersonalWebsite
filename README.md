@@ -60,9 +60,9 @@ A custom theme called **Heuser**. Not a "Twenty" theme, not a stock download.
 **Cinematic layer** (`assets/css/cinematic.css` + `assets/js/cinematic.js`) —
 additive, and removable by deleting those two files:
 
-- **Opening sequence** — a ~14s cold open: terminal boot, hyperspace punch,
+- **Opening sequence** *(on by default, Customizer toggle)* — a ~14s cold open: terminal boot, hyperspace punch,
   RGB-split name reveal with anamorphic flare, three kinetic statement cards,
-  sign-off. Skippable, once per tab, never mounts under reduced motion, failsafe
+  sign-off. Skippable, plays on open/reload (skipped when arriving from a link inside the site), never mounts under reduced motion, failsafe
   teardown, progress hairline. Every line editable in the Customizer. Freeze any
   moment with `?intro=9600`.
 - **WebGL particle galaxy** — ~2,800 points in a barred spiral behind the hero,
@@ -71,7 +71,7 @@ additive, and removable by deleting those two files:
 - **Glass surfaces** — real `backdrop-filter` cards over a gradient aurora, so
   there is something for them to actually refract.
 - **3D tilt** — cursor-driven rotate + specular sheen, disabled on touch and
-  under reduced motion.
+  under reduced motion. Applied to the home page cards.
 
 - Every color, size and easing resolves to a design token at the top of `style.css`
 - Dark mode is a **separate palette**, not a tinted inversion
@@ -140,7 +140,8 @@ outreach texts for four people and the reply pattern that earns full marks.
 
 ## Do these three things and nothing else is blocking
 
-1. **Add your photos** — About Me needs a few, Gallery needs 3–5. They must be yours.
+1. ~~Add your photos~~ — done: three of yours are in `gallery/`, captioned on the
+   Gallery page and placed on About Me and the home page. Upload them in Step 9c.
 2. **Paste your Lab #3 GPT link** into `chatbot/excel-gpt-chatbot.html` (replace all 3 occurrences).
 3. **Read FACTS-TO-VERIFY.md** — five things I inferred, including whether Tom and
    Serena Heuser are your parents and whether the blog story is genuinely yours.
@@ -177,3 +178,24 @@ build on your laptop.
 **https://claude.ai/code/artifact/85763023-51fc-446e-936a-7c32f99b5adf**
 
 A local copy is at `build/is101-build-console.html`.
+
+---
+
+## The Drive (theme 2.0)
+
+The home page is one scroll-driven night drive from Las Vegas to Reno, and the
+same road runs behind every other page.
+
+| File | What it is |
+|---|---|
+| `theme/roman-heuser/parts/drive.html` | All the copy. Edit words here; WordPress and the preview both read it |
+| `theme/roman-heuser/assets/js/drive-world.js` | Every object: car, city, signs, treenet, house, canopy |
+| `theme/roman-heuser/assets/js/drive.js` | Scroll, camera moves, hold actions, bass, color pick |
+| `theme/roman-heuser/assets/css/drive.css` | Layout and type over the 3D |
+| `theme/roman-heuser/assets/js/vendor/three.rh.min.js` | Trimmed Three.js r170 (MIT license alongside) |
+
+- `npm run dev` then open `/preview/index.html`. Add `?intro=off` to skip the intro.
+- `npm run check:motion` scrolls the whole home page in real Chrome and fails if
+  anything ever stops moving.
+- Remove the `rd-on` body class (`rh_js_class` in `functions.php`) to turn it all off.
+

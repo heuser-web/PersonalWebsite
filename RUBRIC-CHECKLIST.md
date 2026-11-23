@@ -32,7 +32,9 @@ professor's rubric, with the file in this kit that covers it.
 - [ ] Colors, fonts, header, footer and layout are yours
 - [ ] Site is readable on a phone → test it on your actual phone
 - [ ] No broken images, no placeholder text, no `((...))` markers left anywhere
-- [ ] Opening crawl plays, and **Skip intro** works — a grader must never be trapped in it
+- [ ] Opening sequence plays, and **Skip** works — a grader must never be trapped in it
+- [ ] The Drive scrolls top to bottom, and **Skip the drive** jumps to the five page links
+- [ ] Header logo is readable in **dark mode** too (switch your phone to dark mode and look)
 - [ ] Every required page is reachable within one click of the hero
 
 ### Custom menu in order — 8 pts
@@ -55,7 +57,7 @@ professor's rubric, with the file in this kit that covers it.
 - [ ] **About Me** — where you are from, school, major, work, skills, career interests, hobbies, goals → `content/about-me.html`
 - [ ] About Me contains **multiple images** with captions ← *you must upload these*
 - [ ] **Resume** — both PDFs + the reflection → `content/resume.html`
-- [ ] **Gallery** — 3 to 5 of **your own** photos → `content/gallery.html`
+- [ ] **Gallery** — 3 to 5 of **your own** photos → `content/gallery.html` (3 are ready in `gallery/`)
 - [ ] **Blog** — the post → `content/blog-post.html`
 - [ ] All five pages are **published**, not drafts
 - [ ] Section headers and bullets used so no page is a wall of text

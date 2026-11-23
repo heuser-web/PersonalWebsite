@@ -55,6 +55,7 @@
 .rh-intro[hidden]{display:none}
 .rh-intro.is-leaving{opacity:0;pointer-events:none}
 body.rh-intro-open{overflow:hidden}
+.rh-intro{touch-action:none;overscroll-behavior:contain}
 
 .rh-intro__warp{position:absolute;inset:0;width:100%;height:100%;display:block}
 
@@ -128,11 +129,14 @@ body.rh-intro-open{overflow:hidden}
   font-size:clamp(2.1rem,.9rem + 6.4vw,6.4rem);
   line-height:.98;letter-spacing:.02em;text-transform:uppercase;
   color:#F6F3EC;
+  /* One line for the whole beat. The wide opening spacing used to push it onto
+     two lines, then it snapped back to one as the letters closed up. */
+  white-space:nowrap;max-width:none;--rh-name-ls:.24em;
 }
 .rh-beat--name.is-on{animation:rh-name 2.05s cubic-bezier(.16,.8,.2,1) forwards}
 @keyframes rh-name{
-  0%  {opacity:0;filter:blur(22px);letter-spacing:.42em;transform:scale(1.10)}
-  32% {opacity:1;filter:blur(3px);letter-spacing:.10em;transform:scale(1.015)}
+  0%  {opacity:0;filter:blur(22px);letter-spacing:var(--rh-name-ls);transform:scale(1.10)}
+  32% {opacity:1;filter:blur(3px);letter-spacing:calc(var(--rh-name-ls)*.4);transform:scale(1.015)}
   52% {opacity:1;filter:blur(0);letter-spacing:.02em;transform:scale(1)}
   80% {opacity:1;filter:blur(0);transform:scale(1)}
   /* It has to clear the stage before the first statement card lands. */
@@ -230,7 +234,8 @@ body.rh-intro-open{overflow:hidden}
 
 /* Replay control that lives on the page after the sequence finishes */
 .rh-replay{
-  position:fixed;right:1rem;bottom:1rem;z-index:60;
+  /* Left, because the Excel chatbot launcher owns the bottom-right corner. */
+  position:fixed;left:1rem;bottom:1rem;z-index:60;
   width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
   background:var(--rh-glass-bg);border:1px solid var(--rh-glass-brd);
   backdrop-filter:blur(var(--rh-glass-blur)) saturate(160%);
@@ -241,8 +246,9 @@ body.rh-intro-open{overflow:hidden}
 .rh-replay:hover{transform:translateY(-2px);color:var(--rh-accent-quiet)}
 .rh-replay svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
 
+@media (max-width:900px){ .rh-beat--name{--rh-name-ls:.16em} }
 @media (max-width:640px){
-  .rh-beat--name{font-size:clamp(1.9rem,1.1rem + 7.4vw,3.3rem)}
+  .rh-beat--name{font-size:min(8.6vw,3.3rem);--rh-name-ls:.1em}
   .rh-beat--card .rh-card__lead{font-size:clamp(1.5rem,1rem + 5.6vw,2.6rem)}
   .rh-beat--card .rh-card__sub{letter-spacing:.2em}
   .rh-beat--sign .rh-sign__tag{letter-spacing:.28em}
@@ -298,12 +304,21 @@ body.rh-intro-open{overflow:hidden}
    a photo. A particle field behind that vignette is invisible, so when the
    galaxy mounts, JS adds .rh-hero--fx and we restack: canvas above the photo,
    a lighter scrim above the canvas, content above everything. */
-.rh-hero--fx .rh-fx{z-index:0}
+.rh-hero--fx .rh-fx{
+  z-index:0;
+  /* Dim the points behind the headline and subtitle, full strength around them. */
+  --rh-fx-mask:radial-gradient(40% 24% at 50% 63%, rgba(0,0,0,.22) 0%, rgba(0,0,0,.3) 62%, #000 100%);
+  -webkit-mask-image:var(--rh-fx-mask);mask-image:var(--rh-fx-mask);
+}
+@media (max-width:640px){
+  /* The text fills the width here, so clear a full band instead of an ellipse. */
+  .rh-hero--fx .rh-fx{--rh-fx-mask:linear-gradient(180deg,#000 0%,#000 32%,rgba(0,0,0,.24) 44%,rgba(0,0,0,.24) 70%,#000 82%)}
+}
 .rh-hero--fx::after{
   z-index:1;pointer-events:none;
   background:
-    radial-gradient(62% 48% at 50% 46%, rgba(5,8,15,.62) 0%, rgba(5,8,15,.34) 62%, rgba(5,8,15,0) 100%),
-    linear-gradient(180deg, rgba(8,14,26,.72) 0%, rgba(8,14,26,.10) 34%, rgba(8,14,26,.16) 62%, rgba(8,14,26,.82) 100%);
+    radial-gradient(52% 46% at 50% 52%, rgba(5,8,15,.46) 0%, rgba(5,8,15,.24) 60%, rgba(5,8,15,0) 100%),
+    linear-gradient(180deg, rgba(8,14,26,.60) 0%, rgba(8,14,26,.06) 34%, rgba(8,14,26,.10) 66%, rgba(8,14,26,.78) 100%);
 }
 .rh-hero--fx > .rh-edge{position:relative;z-index:2}
 .rh-hero--fx .rh-hero__scroll{z-index:2}
@@ -327,13 +342,12 @@ body.rh-intro-open{overflow:hidden}
 }
 .rh-aurora-band::before{
   content:"";position:absolute;inset:-40%;z-index:-1;pointer-events:none;
+  /* Restrained on purpose: a single brass glow — enough texture for the
+     glass cards to read, never enough to compete with the content. */
   background:
-    radial-gradient(40% 46% at 14% 26%, color-mix(in srgb,var(--rh-accent) 62%,transparent) 0%, transparent 62%),
-    radial-gradient(38% 44% at 84% 66%, color-mix(in srgb,#4A7BE0 52%,transparent) 0%, transparent 64%),
-    radial-gradient(50% 40% at 54% 6%,  color-mix(in srgb,#E86A4A 34%,transparent) 0%, transparent 58%),
-    radial-gradient(44% 48% at 70% 18%, color-mix(in srgb,var(--rh-brass-lite) 46%,transparent) 0%, transparent 60%);
-  filter:blur(38px);opacity:.55;
-  animation:rh-drift 24s ease-in-out infinite alternate;
+    radial-gradient(42% 46% at 16% 24%, color-mix(in srgb,var(--rh-accent) 40%,transparent) 0%, transparent 64%);
+  filter:blur(48px);opacity:.32;
+  animation:rh-drift 32s ease-in-out infinite alternate;
 }
 @keyframes rh-drift{
   from{transform:translate3d(-2%,-1%,0) scale(1)}

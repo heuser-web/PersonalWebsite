@@ -39,7 +39,9 @@
     d.className = 'rhxg__msg rhxg__msg--' + who;
     d.innerHTML = html;
     log.appendChild(d);
-    log.scrollTop = log.scrollHeight;
+    // Long answers start at the question, not at their last line.
+    var top = who === 'bot' && d.previousElementSibling ? d.previousElementSibling : d;
+    log.scrollTop = who === 'bot' ? top.offsetTop - log.offsetTop - 12 : log.scrollHeight;
     return d;
   }
 

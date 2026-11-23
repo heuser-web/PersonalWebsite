@@ -1,22 +1,32 @@
-# Drop your gallery photos here
+# Gallery photos
 
-The Gallery page needs **3 to 5 photographs, and they must be your own** — the
-assignment calls out copyright directly, so no stock and nothing off Google.
+Three of your own photos, ready to upload:
 
-Put the files in this folder, then:
+| File | Size | Used on |
+|---|---|---|
+| `reno-sunset.jpg` | 2000×1500 | Gallery 01, About Me ("Where I am now"), home |
+| `treenet.jpg` | 1500×2000 | Gallery 02, About Me ("Beyond the screen"), home |
+| `dye-is-life.jpg` | 2000×1500 | Gallery 03, home |
 
-1. **Media → Add New** in WordPress and upload them.
-2. Build the gallery in your gallery plugin (Modula, Envira, FooGallery…).
-3. Copy the shortcode into the Gallery page, replacing
-   `((GALLERY SHORTCODE GOES HERE))` in `content/gallery.html`.
-4. Write the five one-line captions in that same file.
+**These copies are already prepared.** They are resized to a 2000px long edge,
+saved at ~80% JPEG quality (0.7–1.1 MB each instead of 2–6 MB), and **stripped of
+all metadata, including the GPS location** your phone embeds in every photo.
+Upload these, not the originals from your camera roll.
 
-**Before uploading:** resize anything over ~2500px wide and re-save as JPG at
-about 80% quality. Straight-off-the-phone photos are often 5–8 MB each, which
-makes the page slow and can hit your host's upload limit.
+Upload order for the gallery plugin matches the numbered captions in
+`content/gallery.html`: sunset, treenet, Dye is Life.
 
-macOS can do it without any extra software:
+The theme also bundles 1200px copies in `theme/roman-heuser/assets/img/life/`
+for the home page's "Off the clock" strip.
+
+## Adding a fourth or fifth photo
+
+The rubric allows 3 to 5. For each new one, from this folder:
 
 ```bash
-sips -Z 2000 *.jpg          # cap the long edge at 2000px, in place
+sips -Z 2000 -s format jpeg -s formatOptions 80 ~/Downloads/new.jpg --out new-photo.jpg
 ```
+
+`sips` does **not** remove GPS data. Before uploading, open the copy in Preview →
+Tools → Show Inspector → (i) → GPS tab → **Remove Location Info**, or ask Claude
+to run the metadata strip on it.
