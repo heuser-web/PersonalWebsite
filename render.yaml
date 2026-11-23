@@ -1,0 +1,26 @@
+# Render Blueprint — heuser-web/PersonalWebsite, branch render-deploy.
+#
+# Phase A: a free static demo built from preview/. It is a DEMO ONLY — the
+# graded IS101 site must be the self-hosted WordPress install (Phase B).
+#
+# Only dist/ is published, and dist/ is assembled from an explicit allow-list
+# by deploy/build_static.sh. The repo root is never served.
+services:
+  - type: web
+    runtime: static
+    name: roman-heuser-demo
+    repo: https://github.com/heuser-web/PersonalWebsite
+    branch: render-deploy
+    autoDeploy: true
+    buildCommand: bash deploy/build_static.sh
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex
