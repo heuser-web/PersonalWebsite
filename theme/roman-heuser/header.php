@@ -24,8 +24,30 @@
 
 		<a class="rh-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 			<?php
+			/*
+			 * Not the_custom_logo(): it prints its own <a>, which would nest a
+			 * link inside this one. Print the image, plus a light-lettered twin
+			 * that style.css swaps in on the dark palette.
+			 */
 			if ( has_custom_logo() ) {
-				the_custom_logo();
+				echo wp_get_attachment_image(
+					get_theme_mod( 'custom_logo' ),
+					'full',
+					false,
+					array(
+						'class' => 'custom-logo rh-brand__light',
+						'alt'   => esc_attr( get_bloginfo( 'name' ) ),
+					)
+				);
+				$rh_logo_dark = get_theme_mod( 'rh_logo_dark' );
+				if ( ! $rh_logo_dark ) {
+					$rh_logo_dark = rh_img( 'logo-header-light.png' );
+				}
+				printf(
+					'<img class="custom-logo rh-brand__dark" src="%1$s" alt="%2$s" width="2400" height="600">',
+					esc_url( $rh_logo_dark ),
+					esc_attr( get_bloginfo( 'name' ) )
+				);
 			} else {
 				?>
 				<span>

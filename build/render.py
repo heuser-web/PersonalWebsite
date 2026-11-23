@@ -48,7 +48,7 @@ def run(args, timeout=20, out=None):
             pass
         shutil.rmtree(prof, ignore_errors=True)
 
-def shot(url, out, w, h, scale=2, wait=2500, transparent=False, motion=False, gpu=False):
+def shot(url, out, w, h, scale=2, wait=2500, transparent=False, motion=False, gpu=False, scheme=None):
     """motion=True drops the reduced-motion emulation so animations actually run;
     `wait` then doubles as the virtual-time budget, i.e. where on the timeline
     the frame is captured."""
@@ -56,6 +56,9 @@ def shot(url, out, w, h, scale=2, wait=2500, transparent=False, motion=False, gp
     if not motion:
         extra = extra + REDUCED
     extra = extra + (SWGL if gpu else NOGPU)
+    # Force a colour scheme instead of inheriting the OS setting (0 = dark, 1 = light).
+    if scheme in ("light", "dark"):
+        extra = extra + [f"--blink-settings=preferredColorScheme={1 if scheme == 'light' else 0}"]
     return run(extra + [f"--force-device-scale-factor={scale}", f"--window-size={w},{h}",
                 f"--virtual-time-budget={wait}", f"--screenshot={out}", url], out=out)
 
@@ -69,11 +72,13 @@ if __name__ == "__main__":
         _, _, url, out, w, h, *rest = sys.argv
         sc = rest[0] if rest else "2"
         flags = set(rest[1:])
-        # "motion" enables animation; "@<ms>" picks the moment on the timeline.
+        # "motion" enables animation; "@<ms>" picks the moment on the timeline;
+        # "light" / "dark" force the colour scheme.
         at = next((int(f[1:]) for f in flags if f.startswith("@")), 2500)
         rc = shot(url, out, w, h, sc,
                   transparent=("transparent" in flags),
-                  motion=("motion" in flags), gpu=("gpu" in flags), wait=at)
+                  motion=("motion" in flags), gpu=("gpu" in flags), wait=at,
+                  scheme=("light" if "light" in flags else "dark" if "dark" in flags else None))
     else:
         _, _, url, out = sys.argv[:4]
         rc = pdf(url, out)

@@ -60,9 +60,9 @@ A custom theme called **Heuser**. Not a "Twenty" theme, not a stock download.
 **Cinematic layer** (`assets/css/cinematic.css` + `assets/js/cinematic.js`) —
 additive, and removable by deleting those two files:
 
-- **Opening sequence** — a ~14s cold open: terminal boot, hyperspace punch,
+- **Opening sequence** *(on by default, Customizer toggle)* — a ~14s cold open: terminal boot, hyperspace punch,
   RGB-split name reveal with anamorphic flare, three kinetic statement cards,
-  sign-off. Skippable, once per tab, never mounts under reduced motion, failsafe
+  sign-off. Skippable, plays on open/reload (skipped when arriving from a link inside the site), never mounts under reduced motion, failsafe
   teardown, progress hairline. Every line editable in the Customizer. Freeze any
   moment with `?intro=9600`.
 - **WebGL particle galaxy** — ~2,800 points in a barred spiral behind the hero,
@@ -71,7 +71,7 @@ additive, and removable by deleting those two files:
 - **Glass surfaces** — real `backdrop-filter` cards over a gradient aurora, so
   there is something for them to actually refract.
 - **3D tilt** — cursor-driven rotate + specular sheen, disabled on touch and
-  under reduced motion.
+  under reduced motion. Applied to the home page cards.
 
 - Every color, size and easing resolves to a design token at the top of `style.css`
 - Dark mode is a **separate palette**, not a tinted inversion
@@ -140,7 +140,8 @@ outreach texts for four people and the reply pattern that earns full marks.
 
 ## Do these three things and nothing else is blocking
 
-1. **Add your photos** — About Me needs a few, Gallery needs 3–5. They must be yours.
+1. ~~Add your photos~~ — done: three of yours are in `gallery/`, captioned on the
+   Gallery page and placed on About Me and the home page. Upload them in Step 9c.
 2. **Paste your Lab #3 GPT link** into `chatbot/excel-gpt-chatbot.html` (replace all 3 occurrences).
 3. **Read FACTS-TO-VERIFY.md** — five things I inferred, including whether Tom and
    Serena Heuser are your parents and whether the blog story is genuinely yours.

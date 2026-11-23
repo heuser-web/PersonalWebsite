@@ -35,7 +35,7 @@ $rh_destinations = array(
 		'title' => 'Gallery',
 		'slug'  => 'gallery',
 		'kicker'=> 'Chapter 03',
-		'copy'  => 'Photographs from the places, people and late nights behind the work. All my own images.',
+		'copy'  => 'A Reno sunset, a treenet in the pines, and Dye is Life at the SAE house. All my own photographs.',
 	),
 	array(
 		'title' => 'Blog',
@@ -50,20 +50,20 @@ $rh_ventures = array(
 	array(
 		'name'  => 'GoMojo',
 		'role'  => 'Founder',
-		'blurb' => 'A free AI concierge for Las Vegas. You give it a vibe and a budget; six seconds later you have a real three-stop night with real venues, real times and real costs. Behind the answer is a seven-agent swarm that argues about budget, distance, timing and taste before it commits.',
-		'facts' => array( '7-agent AI swarm', 'Installable PWA', 'Free tier, no ads', 'Reno + Sparks next' ),
+		'blurb' => 'A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, with venues, times and costs, planned by a seven-agent swarm.',
+		'facts' => array( '7-agent AI swarm', 'Installable PWA', 'Built for under $1K' ),
 	),
 	array(
 		'name'  => 'TagData',
 		'role'  => 'Frontend Design Lead',
-		'blurb' => 'A personal-data vault I was hired to redesign, with full authority over the frontend. The TagData ID turns any slice of your vault into a styled, scannable card — and the shared data lives inside the link itself, never on a server.',
-		'facts' => array( '$3.5M invested', 'Full frontend authority', 'Token-driven design system', 'Next.js + .NET' ),
+		'blurb' => 'A personal-data vault I was hired to redesign, with full authority over the frontend. Its share card hands over exactly the data you choose, and that data lives in the link, never on a server.',
+		'facts' => array( '$3.5M invested', 'Design-system lead', 'Next.js + .NET' ),
 	),
 	array(
 		'name'  => 'GoInvest',
 		'role'  => 'Builder',
-		'blurb' => 'A multi-agent research sandbox where eight investor personas — momentum, quant, macro, value, biotech, forensic short — debate a ticker, vote, and log every argument and outcome to a database. Educational only, and deliberately paper-traded.',
-		'facts' => array( '8 investor personas', 'Every debate logged', 'Paper trading only', 'Not investment advice' ),
+		'blurb' => 'A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper-traded and labeled educational, on purpose.',
+		'facts' => array( '8 investor personas', 'Every debate logged', 'Paper trading only' ),
 	),
 );
 ?>
@@ -75,6 +75,7 @@ $rh_ventures = array(
  * per browser tab. cinematic.js owns the whole lifecycle.
  */
 $rh_intro_logo = $rh_logo_id ? wp_get_attachment_image_url( $rh_logo_id, 'full' ) : rh_img( 'logo-hero-light.png' );
+if ( get_theme_mod( 'rh_intro_on', true ) ) :
 ?>
 <div class="rh-intro" id="rh-intro" hidden role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Site introduction', 'roman-heuser' ); ?>">
 	<canvas class="rh-intro__warp" aria-hidden="true"></canvas>
@@ -108,6 +109,7 @@ $rh_intro_logo = $rh_logo_id ? wp_get_attachment_image_url( $rh_logo_id, 'full' 
 	<button class="rh-intro__skip" type="button"><?php esc_html_e( 'Skip', 'roman-heuser' ); ?></button>
 </div>
 <template id="rh-intro-template"></template>
+<?php endif; // rh_intro_on ?>
 
 <section class="rh-hero">
 	<canvas class="rh-fx rh-fx--interactive" id="rh-galaxy" role="img"
@@ -208,6 +210,38 @@ $rh_intro_logo = $rh_logo_id ? wp_get_attachment_image_url( $rh_logo_id, 'full' 
 				<div class="rh-stat__num">6<span>s</span></div>
 				<div class="rh-stat__label"><?php esc_html_e( 'To plan a night out', 'roman-heuser' ); ?></div>
 			</div>
+		</div>
+	</div>
+</section>
+
+
+<!-- ========================= OFF THE CLOCK ========================= -->
+<?php
+$rh_life = array(
+	array( 'file' => 'life/reno-sunset.jpg', 'label' => 'Reno, after dark', 'alt' => __( 'Casino entrance chandeliers framing a pink and violet sunset over Reno', 'roman-heuser' ), 'pos' => '50% 82%', 'w' => 1200, 'h' => 900 ),
+	array( 'file' => 'life/treenet.jpg',     'label' => 'Treenet',          'alt' => __( 'Looking up through a woven rope treenet strung between pine trees', 'roman-heuser' ), 'pos' => '50% 35%', 'w' => 900, 'h' => 1200 ),
+	array( 'file' => 'life/dye-is-life.jpg', 'label' => 'Dye is Life',      'alt' => __( 'A crowded backyard party at the Sigma Alpha Epsilon house', 'roman-heuser' ), 'pos' => '50% 40%', 'w' => 1200, 'h' => 900 ),
+);
+$rh_gallery_url = rh_page_url_by_title( 'Gallery' );
+?>
+<section class="rh-section">
+	<div class="rh-edge">
+		<p class="rh-eyebrow rh-reveal"><?php esc_html_e( 'Off the clock', 'roman-heuser' ); ?></p>
+		<div class="rh-section__head rh-reveal">
+			<h2><?php esc_html_e( 'Reno sunsets, treenets, and the SAE house.', 'roman-heuser' ); ?></h2>
+			<a class="rh-link" href="<?php echo esc_url( $rh_gallery_url ); ?>">
+				<?php esc_html_e( 'See the gallery', 'roman-heuser' ); ?>
+				<span class="rh-btn__arrow" aria-hidden="true">&rarr;</span>
+			</a>
+		</div>
+		<div class="rh-life rh-reveal">
+			<?php foreach ( $rh_life as $rh_p ) : ?>
+				<a class="rh-life__tile" href="<?php echo esc_url( $rh_gallery_url ); ?>">
+					<img src="<?php echo esc_url( rh_img( $rh_p['file'] ) ); ?>" alt="<?php echo esc_attr( $rh_p['alt'] ); ?>"
+						width="<?php echo (int) $rh_p['w']; ?>" height="<?php echo (int) $rh_p['h']; ?>" loading="lazy" style="object-position:<?php echo esc_attr( $rh_p['pos'] ); ?>">
+					<span><?php echo esc_html( $rh_p['label'] ); ?></span>
+				</a>
+			<?php endforeach; ?>
 		</div>
 	</div>
 </section>

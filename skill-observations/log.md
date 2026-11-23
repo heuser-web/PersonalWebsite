@@ -168,3 +168,85 @@ DECLINED = user decided not to pursue
 
 **Principle:** Replacement strings are not literals in most stream editors. Any tool where the replacement has its own syntax will silently corrupt content that happens to use that syntax — and content-safe replacement is exactly what a general-purpose language does better.
 
+
+### Observation 11: Phone photos headed for a public site carry GPS — strip metadata as a pipeline step
+
+**Status:** OPEN
+**Date:** 2026-11-10
+**Session context:** Adding a student's own phone photos (a party at a residence, a camping trip, a city view) to a personal-website gallery and About page.
+
+**Skill:** New skill candidate: web-image-intake (or an addition to frontend-design)
+**Type:** open-source
+**Phase/Area:** Asset intake — user-supplied images
+
+**Correction (2026-11-23):** the GPS finding below is unproven. The check searched 200 KB for the byte pair 0x8825 in either order, which matches random data 199 times out of 200. EXIF with make/model/timestamps was real (sips read it); GPS presence was never established and the originals are gone. The strip itself is verified by parsing segments: only APP0/APP2 remain.
+
+**Issue:** All three supplied JPEGs contained an EXIF block with camera make/model and capture timestamps, and (claimed, unproven) a GPS IFD. One was taken at a private residence. Resizing with macOS `sips` does NOT drop EXIF, and Spotlight (`mdls`) reported null coordinates only because the temp files were never indexed — a false all-clear. Reading the JPEG segments directly is the only reliable check. Python had no PIL and there was no exiftool, so the fix was a ~30-line stdlib script that drops APP1/APP3–APP15/COM and keeps APP0 (JFIF) and APP2 (ICC), asserting afterwards that no Exif/XMP header remains.
+
+**Suggested improvement:** For any skill that takes user photos onto the web: (1) check pixel orientation first — stripping EXIF also drops the Orientation tag, so only strip when the pixels are already upright, or bake the rotation in first; (2) resize (long edge ~2000px gallery, ~1200px cards); (3) strip metadata with a byte-level segment filter and assert the result; (4) never trust a metadata indexer's "null" as proof of absence.
+
+**Principle:** A resize step is not a privacy step. Every publish pipeline for user photos needs an explicit, verified metadata strip, because the dangerous field (location) is invisible in the image and survives most common image tools.
+
+### Observation 12: "Add these to my gallery" needs a provenance screen when the gallery is graded on ownership
+
+**Status:** OPEN
+**Date:** 2026-11-10
+**Session context:** A student sent five images to add to a personal-site gallery whose grading rubric requires the photos to be their own.
+
+**Skill:** New skill candidate: web-image-intake (pairs with Observation 11)
+**Type:** open-source
+**Phase/Area:** Asset intake — user-supplied images
+
+**Issue:** Two of the five were plainly not the user's photographs: a flat Greek-letter organization graphic and a generic "code on a monitor" stock-style image (52 KB, no camera EXIF, the other three had iPhone/smart-glasses EXIF). Following the instruction literally would have put a copyright problem on the one page graded on ownership. The user's stated intent (show membership + show love of web design) could be met without them: one of their own photos already showed the organization's flag and banner, and the web-design interest went into About Me copy.
+
+**Suggested improvement:** When ingesting user images for a page with an ownership/copyright requirement, screen each one: camera EXIF present? photographic vs flat graphic? tiny file size typical of a web download? Exclude likely-downloaded images by default, say so plainly, and meet the user's underlying intent another way (their own photo that shows the same thing, or copy). Also check images that ARE theirs for things a professional page may not want: identifiable bystanders, alcohol, or a photographer who is someone else — flag, don't silently drop.
+
+**Principle:** Read an asset request against the constraint it will be judged by, not just the instruction. Camera metadata is useful evidence twice: once to prove provenance, then it must be stripped before publishing.
+
+### Observation 13: "Cleaner" is not permission to switch off a feature the user built
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** A "make it cleaner and more professional" pass on a personal site, followed by "restart the dev server, make sure animation is visible".
+
+**Skill:** frontend-design
+**Type:** open-source
+**Phase/Area:** Redesign scope; motion verification
+
+**Issue:** The clean-up pass turned a signature opening animation off by default and dropped it from the preview, on taste. Every screenshot in that pass used reduced-motion emulation, so the removal and two older bugs went unseen: a replay function that was called but never defined, and a WebGL layer rendered at roughly alpha cubed because blendFunc(SRC_ALPHA, ONE) was paired with premultipliedAlpha:false. A real-time DevTools-protocol run (normal motion, wall clock, frame hashes, console errors) found all of it in one go.
+
+**Suggested improvement:** Under "polish", keep signature features on and propose removals as a question. After any visual change, do one pass with motion ENABLED: capture frames at real times, assert consecutive frames differ, click the controls, and collect console errors. For additive WebGL on a transparent canvas use premultipliedAlpha:true with blendFuncSeparate(SRC_ALPHA, ONE, ONE, ONE).
+
+**Principle:** A verification mode that disables a feature cannot verify it. "Running" is not "visible"; look at the pixels.
+
+### Observation 14: "Verified in a fresh browser" does not cover a visitor who has already seen it
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** A once-per-session intro animation passed a clean-profile real-time test, yet the user reported twice that it never played.
+
+**Skill:** frontend-design
+**Type:** open-source
+**Phase/Area:** Verification of gated or stateful effects
+
+**Issue:** The test always started from an empty browser profile, so the "already seen" gate (sessionStorage) was never exercised on a reload. The user, iterating in one tab, hit it every time. Two further hazards were also invisible to a clean-profile test: heuristic HTTP caching of unstamped JS/CSS after rebuilds, and a skip-on-scroll handler that a resting trackpad can trigger.
+
+**Suggested improvement:** For any effect that is conditional (once per session/visit, first-run, seen flags), test the full state matrix with real navigation: fresh open, reload, in-site link, back/forward, forced override. Stamp asset URLs with a version or mtime in dev builds. Make dismiss-on-scroll require deliberate travel and a grace period. Give the owner a forced-replay URL parameter.
+
+**Principle:** A gate that is correct for the visitor is a bug for the developer iterating on the page. Test the states the user will actually be in, and when a user says it is not working, suspect your own gating before their environment.
+
+### Observation 15: A linked reference video must be watched frame by frame before planning from it
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** User linked a short-form social video and asked for a plan to make their site animated "like this".
+
+**Skill:** New skill candidate: video-reference-teardown
+**Type:** open-source
+**Phase/Area:** Intake of visual references
+
+**Issue:** The caption and page metadata only contained marketing copy ("cinematic scrolls, 3D experiences"), which would have produced a generic parallax plan. The actual frames showed something specific: an ink-hatched graphic novel with press-and-hold interactions, a visitor choice whose color carries through the rest of the story, line-work wipes between scenes, and inset panels at a different parallax. No ffmpeg or yt-dlp was installed. What worked: resolve the short link, read the page's embedded JSON for duration and play address, fetch with the page's cookies, then a ~40-line AVFoundation Swift tool that samples every 0.5s into timestamped 5x2 contact sheets (47 frames in 5 images, readable in one pass). Reading the in-frame captions also identified the featured site, which the caption never named. A separate pre-plan check found the AI art tool had zero credits, which would have invalidated an art-generation-based plan.
+
+**Suggested improvement:** For any "make it like this video" request: (1) get frames, not just the caption; (2) list the mechanics separately from the look, because mechanics transfer and the look should not be copied; (3) map each mechanic to the user's own material; (4) check budget and tool availability before proposing an asset pipeline.
+
+**Principle:** A reference is only useful at the level of detail you actually observed. Separate the transferable mechanic from the borrowed style, and confirm the plan's inputs exist before proposing it.

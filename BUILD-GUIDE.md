@@ -5,8 +5,9 @@ Budget about **3 focused hours** for the whole build, plus a day of waiting on
 friends to leave blog comments.
 
 **Read this first:** two things in this kit are deliberately unfinished because
-only you can finish them — your **five gallery photos** (they must be your own)
-and the **Lab #3 Custom GPT link**. Everything else is done.
+only you can finish them — your **gallery photos** (they must be your own) and
+the **Lab #3 Custom GPT link**. The photos are now done: three of yours are in
+`gallery/`, resized and stripped of GPS data. That leaves the GPT link.
 
 ---
 
@@ -219,7 +220,10 @@ Needed for the Resume page.
    footer or the About page) so there is no doubt a social plugin is in use.
 
 ### 9c. Gallery → **Modula** *(or Envira Gallery Lite)*
-1. **Modula → Add New Gallery**, upload **3 to 5 of your own photos**.
+1. **Modula → Add New Gallery**, upload the three photos in `gallery/` in this
+   order: `reno-sunset.jpg`, `treenet.jpg`, `dye-is-life.jpg` (it matches the
+   numbered captions). Upload those copies, not the originals from your phone —
+   these are resized and have the GPS location stripped out.
 2. Publish, copy the shortcode (looks like `[modula id="123"]`).
 3. Edit your **Gallery** page and replace `((GALLERY SHORTCODE GOES HERE))`
    with it — again using a **Shortcode block** if it does not run inside the
@@ -348,9 +352,13 @@ you will get.
 ## Step 14 — The cinematic layer
 
 The theme ships an optional cinematic layer: the opening sequence, a WebGL
-particle galaxy behind the hero, glass cards, and gradient section washes. It is
-two files — `assets/css/cinematic.css` and `assets/js/cinematic.js`. **Delete
+particle galaxy behind the hero, glass cards, and a soft brass section wash. It
+is two files — `assets/css/cinematic.css` and `assets/js/cinematic.js`. **Delete
 both and the site falls back to the clean base theme with nothing broken.**
+
+**The opening sequence plays by default.** To go straight to the hero instead,
+untick **Customize → Heuser Theme Options → Opening Sequence → Play the opening
+sequence on the home page**.
 
 ### The opening sequence
 
@@ -380,12 +388,13 @@ The highlight renders in the brass gradient. Leave it empty with two pipes
 | Situation | What happens |
 |---|---|
 | First visit in a tab | Plays in full, about 14 seconds |
-| Second page view | Skipped — remembered per browser tab |
-| **Skip**, Escape, or any scroll | Ends immediately |
+| Reload, or opening the home page fresh | Plays again |
+| Clicking Home from another page, or Back/Forward | Skipped, so browsing is not interrupted |
+| **Skip**, Escape, or a deliberate scroll | Ends immediately (a light trackpad touch does not) |
 | "Reduce motion" enabled | Never mounts at all |
 | WebGL unavailable | Hero galaxy is skipped; the sequence still runs (it is 2D canvas) |
 | Anything throws | A failsafe timer removes the overlay regardless |
-| Replay | Circular button, bottom-right of the home page |
+| Replay | Circular button, bottom-left of the home page |
 
 A progress hairline runs along the bottom so visitors can see it has an end.
 

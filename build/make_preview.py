@@ -11,7 +11,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT  = ROOT / "preview"
 
 NAV = [("Home","index.html"),("About Me","about-me.html"),("Resume","resume.html"),
-       ("Gallery","gallery.html"),("Blog","blog.html"),("Chatbot A","excel-helper.html"),("Chatbot B","chatbot-b.html")]
+       ("Gallery","gallery.html"),("Blog","blog.html"),("Excel Helper","excel-helper.html")]
+
+def A(name):
+    """Asset URL with a content-time stamp, so a browser never serves a stale copy
+    of CSS/JS after a rebuild (heuristic caching can hold files for days)."""
+    f = ROOT / "preview" / "assets" / name
+    return f"assets/{name}?v={int(f.stat().st_mtime)}" if f.exists() else f"assets/{name}"
 
 GFONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
           '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -33,8 +39,8 @@ def chrome(title, cur, body):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} — Roman Heuser</title>
 {GFONTS}
-<link rel="stylesheet" href="assets/style.css">
-<link rel="stylesheet" href="assets/cinematic.css">
+<link rel="stylesheet" href="{A('style.css')}">
+<link rel="stylesheet" href="{A('cinematic.css')}">
 <link rel="icon" href="assets/logo.png">
 </head>
 <body class="no-js">
@@ -43,7 +49,8 @@ def chrome(title, cur, body):
 <header class="rh-header" id="rh-header">
   <div class="rh-edge rh-header__inner">
     <a class="rh-brand" href="index.html" rel="home">
-      <img src="assets/logo.png" alt="Roman Heuser" class="custom-logo">
+      <img src="assets/logo.png" alt="Roman Heuser" class="custom-logo rh-brand__light" width="2400" height="600">
+      <img src="assets/logo-header-light.png" alt="Roman Heuser" class="custom-logo rh-brand__dark" width="2400" height="600">
     </a>
     <button class="rh-burger" id="rh-burger" aria-expanded="false" aria-controls="rh-nav" aria-label="Toggle menu"><span></span></button>
     <nav class="rh-nav" id="rh-nav" aria-label="Primary">
@@ -79,7 +86,7 @@ def chrome(title, cur, body):
         <h2 class="widget-title">Get in touch</h2>
         <ul>
           <li><a href="mailto:heuser@romanattitudeofgratitude.com">heuser@romanattitudeofgratitude.com</a></li>
-          <li>Las Vegas, Nevada</li>
+          <li>Reno, Nevada</li>
           <li>University of Nevada, Reno</li>
         </ul>
       </div>
@@ -90,9 +97,9 @@ def chrome(title, cur, body):
     </div>
   </div>
 </footer>
-<script src="assets/theme.js"></script>
-<script src="assets/cinematic.js"></script>
-<script src="assets/blog-demo.js"></script>
+<script src="{A('theme.js')}"></script>
+<script src="{A('cinematic.js')}"></script>
+<script src="{A('blog-demo.js')}"></script>
 </body>
 </html>
 """
@@ -113,17 +120,17 @@ def read(p):
 
 # ---------------- HOME ----------------
 VENTURES = [
-    ("Founder","GoMojo","A free AI concierge for Las Vegas. You give it a vibe and a budget; six seconds later you have a real three-stop night with real venues, real times and real costs. Behind the answer is a seven-agent swarm that argues about budget, distance, timing and taste before it commits.",
-     ["7-agent AI swarm","Installable PWA","Free tier, no ads","Reno + Sparks next"]),
-    ("Frontend Design Lead","TagData","A personal-data vault I was hired to redesign, with full authority over the frontend. The TagData ID turns any slice of your vault into a styled, scannable card — and the shared data lives inside the link itself, never on a server.",
-     ["$3.5M invested","Full frontend authority","Token-driven design system","Next.js + .NET"]),
-    ("Builder","GoInvest","A multi-agent research sandbox where eight investor personas — momentum, quant, macro, value, biotech, forensic short — debate a ticker, vote, and log every argument and outcome to a database. Educational only, and deliberately paper-traded.",
-     ["8 investor personas","Every debate logged","Paper trading only","Not investment advice"]),
+    ("Founder","GoMojo","A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, with venues, times and costs, planned by a seven-agent swarm.",
+     ["7-agent AI swarm","Installable PWA","Built for under $1K"]),
+    ("Frontend Design Lead","TagData","A personal-data vault I was hired to redesign, with full authority over the frontend. Its share card hands over exactly the data you choose, and that data lives in the link, never on a server.",
+     ["$3.5M invested","Design-system lead","Next.js + .NET"]),
+    ("Builder","GoInvest","A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper-traded and labeled educational, on purpose.",
+     ["8 investor personas","Every debate logged","Paper trading only"]),
 ]
 DEST = [
     ("Chapter 01","About Me","about-me.html","Where I grew up, why I picked business, the four jobs that taught me more than any of it, and where this is going."),
     ("Chapter 02","Resume","resume.html","Two versions of the same resume — my original, and one I retooled for a product role using AI as an editor, not an author. The prompts are documented."),
-    ("Chapter 03","Gallery","gallery.html","Photographs from the places, people and late nights behind the work. All my own images."),
+    ("Chapter 03","Gallery","gallery.html","A Reno sunset, a treenet in the pines, and Dye is Life at the SAE house. All my own photographs."),
     ("Chapter 04","Blog","blog.html","One long look at a scam I watched work in real life, how it was built, and the questions that would have stopped it."),
 ]
 STATS = [("3","Products shipped"),("&lt;<span>$1K</span>","Total build cost, GoMojo"),("15","AI agents in production"),("6<span>s</span>","To plan a night out")]
@@ -140,13 +147,24 @@ dcards = "\n".join(f"""<a class="rh-card rh-reveal rh-glass rh-tilt" href="{href
 
 scards = "\n".join(f'<div class="rh-stat"><div class="rh-stat__num">{n}</div><div class="rh-stat__label">{l}</div></div>' for n,l in STATS)
 
+# On by default in the theme (Customizer > Opening Sequence), so the preview plays it too.
 INTRO = (ROOT / "content" / "_intro-markup.html").read_text().replace("__LOGO__", "assets/logo-light.png")
+
+PHOTOS = [  # file, label, alt, object-position on square crops, w, h
+  ("reno-sunset.jpg", "Reno, after dark", "Casino entrance chandeliers framing a pink and violet sunset over the mountains and the Reno skyline", "50% 82%", 2000, 1500),
+  ("treenet.jpg",     "Treenet",          "Looking up through a woven rope treenet at someone climbing into it between pine trees", "50% 35%", 1500, 2000),
+  ("dye-is-life.jpg", "Dye is Life",      "A crowded backyard party at the Sigma Alpha Epsilon house, with people watching from the roof", "50% 40%", 2000, 1500),
+]
+life = "\n".join(
+    f'<a class="rh-life__tile" href="gallery.html"><img src="assets/gallery/{f}" alt="{html.escape(alt)}" '
+    f'width="{w}" height="{h}" loading="lazy" style="object-position:{pos}"><span>{label}</span></a>'
+    for f, label, alt, pos, w, h in PHOTOS)
 
 home = INTRO + f"""<section class="rh-hero">
   <canvas class="rh-fx rh-fx--interactive" id="rh-galaxy" role="img" aria-label="Interactive particle galaxy. Drag to rotate."></canvas>
   <img class="rh-hero__bg" src="assets/vegas-night.jpg" alt="" aria-hidden="true">
   <div class="rh-edge">
-    <p class="rh-hero__eyebrow">Las Vegas · University of Nevada, Reno</p>
+    <p class="rh-hero__eyebrow">Reno, Nevada · From Las Vegas</p>
     <img class="rh-hero__logo" src="assets/logo-light.png" alt="Roman Heuser">
     <h1>I build things that <em>ship</em>.</h1>
     <p class="rh-hero__sub">Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.</p>
@@ -176,6 +194,17 @@ home = INTRO + f"""<section class="rh-hero">
 
 <section class="rh-section">
   <div class="rh-edge">
+    <p class="rh-eyebrow rh-reveal">Off the clock</p>
+    <div class="rh-section__head rh-reveal">
+      <h2>Reno sunsets, treenets, and the SAE house.</h2>
+      <a class="rh-link" href="gallery.html">See the gallery <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="rh-life rh-reveal">{life}</div>
+  </div>
+</section>
+
+<section class="rh-section rh-section--alt">
+  <div class="rh-edge">
     <p class="rh-eyebrow rh-reveal">Start anywhere</p>
     <h2 class="rh-reveal" style="margin-bottom:2.5rem">The rest of the site</h2>
     <div class="rh-grid rh-grid--2">{dcards}</div>
@@ -187,7 +216,8 @@ home = INTRO + f"""<section class="rh-hero">
 def article(body):
     return f'<section class="rh-section"><div class="rh-edge"><div class="rh-article">{body}</div></div></section>'
 
-about = pagehead("Roman Heuser","About Me","Founder, student, and the person who answers the support email.") + article(read("about-me.html"))
+about_body = read("about-me.html").replace("((MEDIA URL: ", "assets/gallery/").replace(".jpg))", ".jpg")
+about = pagehead("Roman Heuser","About Me","Founder, student, and the person who answers the support email.") + article(about_body)
 
 resume_body = read("resume.html")
 resume_body = resume_body.replace('[pdf-embedder url="((MEDIA URL: resume-original.pdf))" title="Roman Heuser Resume — Original"]',
@@ -198,13 +228,18 @@ resume_body = resume_body.replace("((MEDIA URL: resume-original.pdf))","../resum
 resume_body = resume_body.replace("((MEDIA URL: resume-ai-refined.pdf))","../resume/resume-ai-refined.pdf")
 resume = pagehead("Roman Heuser","Resume","Two versions of the same experience, and the prompts that produced the second.") + article(resume_body)
 
-gal_body = read("gallery.html").replace("((GALLERY SHORTCODE GOES HERE))",
-  '<div class="rh-grid rh-grid--3" style="gap:1rem">' +
-  "".join(f'<div style="aspect-ratio:4/3;border-radius:var(--rh-radius);background:linear-gradient(135deg,var(--rh-bg-alt),var(--rh-mist-deep));border:1px dashed var(--rh-line);display:grid;place-items:center;color:var(--rh-text-muted);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase">Photo {i}</div>' for i in range(1,6)) +
-  "</div>")
-gallery = pagehead("Roman Heuser","Gallery","Five photographs, all mine.") + article(gal_body)
+def gal_item(i, f, label, alt, pos, w, h):
+    tall = " rh-gallery__item--tall" if h > w else ""
+    return (f'<figure class="rh-gallery__item{tall}"><a href="assets/gallery/{f}">'
+            f'<img src="assets/gallery/{f}" alt="{html.escape(alt)}" width="{w}" height="{h}" loading="lazy" style="--rh-focus:{pos}"></a>'
+            f'<figcaption><b>{i:02d}</b>{label}</figcaption></figure>')
 
-post = read("blog-post.html")
+# Caption order. CSS pins the tall (portrait) frame to the left column.
+mosaic = '<div class="rh-gallery">' + "".join(
+    gal_item(i + 1, *PHOTOS[i]) for i in range(len(PHOTOS))) + "</div>"
+gal_body = read("gallery.html").replace("((GALLERY SHORTCODE GOES HERE))", mosaic)
+gallery = pagehead("Roman Heuser","Gallery","Reno, the pines, and the SAE house. All my own photographs.") + article(gal_body)
+
 post = read("blog-post.html")
 blog = pagehead("Blog", "The Restaurant With 400 Perfect Reviews and No Customers",
                 "Published August 2026 &middot; about 6 minutes to read") + f"""
@@ -224,7 +259,9 @@ blog = pagehead("Blog", "The Restaurant With 400 Perfect Reviews and No Customer
 excel_widget = (ROOT / "chatbot" / "excel-gpt-chatbot.html").read_text()
 excel_widget = re.sub(r"<!--.*?-->", "", excel_widget, flags=re.S).strip()
 excel = pagehead("Excel Helper","Ask my Excel GPT","A Custom GPT trained on Microsoft Excel — ask it about formulas, PivotTables, charts, or the error you are stuck on.") + \
-    f'<section class="rh-section"><div class="rh-edge">{excel_widget}</div></section>'
+    f'<section class="rh-section"><div class="rh-edge">{excel_widget}' + \
+    '<p class="rh-demoflag"><b>Preview only.</b> The WordPress-plugin version of this chatbot, with a live model behind it, is ' + \
+    '<a href="chatbot-b.html">here</a>. Ship one or both; see chatbot/CHOOSING.md.</p></div></section>'
 
 # ---------------- CHATBOT B (the plugin) ----------------
 _php = (ROOT / "chatbot" / "rh-excel-gpt" / "rh-excel-gpt.php").read_text()
@@ -252,7 +289,7 @@ botb = pagehead("Chatbot B", "Excel GPT Assistant",
   <pre style="background:var(--rh-bg-alt);padding:1rem;border-radius:var(--rh-radius-sm);overflow-x:auto"><code>OPENAI_API_KEY=sk-... python3 build/devserver.py</code></pre>
   <p>On the real site this endpoint is <code>/wp-json/rh-excel-gpt/v1/chat</code>, served by the
   plugin, with your key in the WordPress database and never in the page.</p>
-  <p><a href="excel-helper.html">Compare it with Chatbot A &rarr;</a></p>
+  <p><a href="excel-helper.html">Compare it with the inline version &rarr;</a></p>
 </div></div></section>
 """ + _w + """
 <script>
@@ -270,7 +307,7 @@ PAGES = {
  "resume.html": ("Resume", resume),
  "gallery.html": ("Gallery", gallery),
  "blog.html": ("Blog", blog),
- "excel-helper.html": ("Chatbot A", excel),
+ "excel-helper.html": ("Excel Helper", excel),
  "chatbot-b.html": ("Chatbot B", botb),
 }
 OUT.mkdir(exist_ok=True)

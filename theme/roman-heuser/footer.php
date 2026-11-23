@@ -78,7 +78,7 @@ $rh_email  = rh_opt( 'rh_contact_email' );
 						<?php if ( $rh_email ) : ?>
 							<li><a href="mailto:<?php echo esc_attr( antispambot( $rh_email ) ); ?>"><?php echo esc_html( antispambot( $rh_email ) ); ?></a></li>
 						<?php endif; ?>
-						<li><?php esc_html_e( 'Las Vegas, Nevada', 'roman-heuser' ); ?></li>
+						<li><?php esc_html_e( 'Reno, Nevada', 'roman-heuser' ); ?></li>
 						<li><?php esc_html_e( 'University of Nevada, Reno', 'roman-heuser' ); ?></li>
 					</ul>
 				<?php endif; ?>
