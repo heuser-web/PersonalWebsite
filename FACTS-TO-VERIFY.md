@@ -19,6 +19,19 @@ the site is factually yours.
 
 ---
 
+## 🟡 New on 2026-11-23 — LifeSwitch and your other projects
+
+| What the site says | Where | Check |
+|---|---|---|
+| You are **co-founder** of LifeSwitch; your co-founder is a UNR student who had the idea. They are **not named** | Home, About | Right? Add the name only if they agree |
+| Every LifeSwitch feature and number is taken from its **live public site** (2026-11-23) and nothing else | Home, About | Re-check if that site changes |
+| The **link** to LifeSwitch is the Render address | Home card 1, About | Swap it when you buy the domain |
+| Thirteen Reno businesses are listed as **redesign concepts, not official sites** | Home, About | Remove any owner who would not want to be named |
+| GoGlobal, LifeStyle, the SAE site, The Heuser Team site and the Roblox kit are described from their own READMEs | Home, About | Read each line once |
+| **Both resumes still list the older vault job.** The pages no longer do, so decide whether the resumes should match | Resume | Your call; I did not change your employment history |
+
+---
+
 ## 🔴 Must fix — the site says something I guessed
 
 | # | What the site says | Where | Why I said it | Action |
@@ -54,9 +67,9 @@ correct anything wrong before you publish, since they are on both PDFs.
 | Job | What I wrote | Check |
 |---|---|---|
 | Nevada Premier Valet | Valet Attendant &middot; Aug 2026 – Present | You said you started last week |
-| Pressure washing | Owner &amp; Operator &middot; `((2025))` – Present, self-employed | **When did you actually start?** |
-| Lee Canyon | Grill Cook &middot; Summer `((2026))` | You said burgers, so I wrote grill. Which summer? |
-| Maggiano's Little Italy | **Restaurant Team Member** &middot; `((2025))` – Dec 2025 | **You did not say your title.** Server, busser, host and line cook all read differently to an employer — put the real one in |
+| Pressure washing | Owner &amp; Operator &middot; Present, self-employed (no start year shown) | **When did you actually start?** |
+| Lee Canyon | Grill Cook &middot; One summer (no year shown) | You said burgers, so I wrote grill. Which summer? |
+| Maggiano's Little Italy | **Restaurant Team Member** &middot; 9 months, to Dec 2025 | **You did not say your title.** Server, busser, host and line cook all read differently to an employer — put the real one in |
 
 I also assumed **B.S. Business Administration, expected 2030** (freshman + four
 years). If you are in a named concentration — Finance, Marketing, Supply Chain —
@@ -64,13 +77,13 @@ say so; it is more specific and reads better than plain "Business."
 
 ---
 
-## 🟡 Blanks I left for you — search for `((` and fill them in
+## 🟡 Blanks I left for you — search for `((` in content/, and `DATE` in resume/
 
 | Where | What is missing |
 |---|---|
-| Both resumes | `((2030))` — confirm your expected graduation year |
+| Both resumes | Expected graduation year. The PDFs now say "Fall 2026 – Present" instead of a printed blank |
 | Both resumes | `((GPA))` — **include only if 3.3 or above, otherwise delete the line** |
-| Both resumes | `((START))` dates for GoMojo, GoInvest and TagData; `((2025))` for the pressure washing and Maggiano's start |
+| Both resumes | Start dates. Unknown ones are left off so visitors never see a raw `((START))`; each spot is marked with a `<!-- DATE ... -->` comment |
 | Both resumes | Your **TagData job title** — I used "Frontend Design Lead". Change it to whatever your offer letter or LinkedIn says |
 | About Me | Two `((MEDIA URL: ...))` image markers — upload `gallery/reno-sunset.jpg` and `gallery/treenet.jpg`, paste their URLs |
 | Gallery | Your gallery plugin shortcode |
@@ -89,7 +102,7 @@ python3 build/render.py pdf "file://$PWD/resume/resume-ai-refined.html" "$PWD/re
 
 ## 🟠 The background images are AI-generated
 
-`assets-generated/` holds three images I generated for this build — the Vegas
+`assets-generated/` holds five AI-generated images — the two Drive plates, the old Vegas
 night hero, an abstract mesh for page headers, and a nebula. They are site
 chrome, the same category as artwork bundled with any theme.
 

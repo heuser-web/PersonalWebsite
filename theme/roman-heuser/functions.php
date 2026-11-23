@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'RH_VERSION', '2.0.0' );
+define( 'RH_VERSION', '2.2.0' );
 
 /* -------------------------------------------------------------------------
  * 1. Theme setup
@@ -163,7 +163,7 @@ function rh_drive_markup( $logo_url ) {
 			'{{cta2_txt}}' => esc_html( rh_opt( 'rh_hero_cta2_txt' ) ),
 			'{{cta2_url}}' => esc_url( rh_opt( 'rh_hero_cta2_url' ) ),
 			'{{logo}}'     => esc_url( $logo_url ),
-			'{{img:vegas-night.jpg}}' => esc_url( $hero ? $hero : rh_img( 'vegas-night.jpg' ) ),
+			'{{img:plate-vegas-sm.webp}}' => esc_url( $hero ? $hero : rh_img( 'plate-vegas-sm.webp' ) ),
 		)
 	);
 	$html = preg_replace_callback(
@@ -381,7 +381,29 @@ function rh_img( $name ) {
 	return get_template_directory_uri() . '/assets/img/' . $name;
 }
 
-/** Site icon fallback: use the uploaded custom logo area if no icon is set. */
+/**
+ * Page-to-page transitions: the opt-in has to be inline.
+ *
+ * Browsers decide whether a new page takes part before external stylesheets have
+ * applied, so the same rule inside drive.css was read too late and every
+ * transition was cancelled. RHVT lets drive.js wait for the wipe to finish
+ * before it builds the 3D scene.
+ */
+function rh_view_transition() {
+	echo '<style>@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}</style>' . "\n";
+	echo "<script>addEventListener('pagereveal',function(e){window.RHVT=e.viewTransition?e.viewTransition.finished:null})</script>\n";
+}
+add_action( 'wp_head', 'rh_view_transition', 0 );
+
+/** Browser-tab icon until one is set under Customize > Site Identity. */
+function rh_site_icon_fallback() {
+	if ( ! has_site_icon() ) {
+		printf( '<link rel="icon" href="%s" sizes="512x512">' . "\n", esc_url( rh_img( 'site-icon.png' ) ) );
+	}
+}
+add_action( 'wp_head', 'rh_site_icon_fallback' );
+
+/** Advertise the pingback endpoint on posts that accept pings. */
 function rh_pingback_header() {
 	if ( is_singular() && pings_open() ) {
 		printf( '<link rel="pingback" href="%s">' . "\n", esc_url( get_bloginfo( 'pingback_url' ) ) );

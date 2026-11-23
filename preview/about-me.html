@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}</style>
+<script>addEventListener('pagereveal',function(e){window.RHVT=e.viewTransition?e.viewTransition.finished:null})</script>
 <title>About Me — Roman Heuser</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=1795464684">
-<link rel="stylesheet" href="assets/cinematic.css?v=1795461169">
-<link rel="stylesheet" href="assets/drive.css?v=1795465293">
-<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css?v=1795472079">
+<link rel="stylesheet" href="assets/cinematic.css?v=1795472079">
+<link rel="stylesheet" href="assets/drive.css?v=1795472493">
+<link rel="icon" href="assets/site-icon.png" sizes="512x512">
 </head>
-<body class="no-js rd-on" data-rd-range="1,7.3">
+<body class="no-js rd-on" data-rd-range="1,7.3" data-rd-img="assets/">
 <a class="skip-link screen-reader-text" href="#rh-main">Skip to content</a>
 
 <header class="rh-header" id="rh-header">
@@ -62,7 +64,26 @@
 
 <h2>What I build</h2>
 
-<p>Three products, and all of them are live. Two I started myself. The third is a company that hired me to redesign what its users actually see.</p>
+<p>Three products come first: LifeSwitch, GoMojo and GoInvest. Then a longer list of sites and apps I have built for other people, for fun, or to see if I could.</p>
+
+<h3>LifeSwitch &mdash; everything you own, and who it goes to</h3>
+
+<p>Nobody knows what you own except you. The deed is with the county. The policy is with a broker whose firm has since been bought. Three accounts sit at institutions nobody remembers you opened, and the only index to any of it is in your head. So almost every estate gets reconstructed afterward, by people who are grieving, working from a filing cabinet and a password they are guessing at.</p>
+
+<p><strong>LifeSwitch is the same work, done in advance.</strong> It is a private vault for your documents, accounts and belongings, and I am its co-founder. My co-founder, also a student here at the University of Nevada, Reno, had the idea and kept it alive. I design it, build it and ship it.</p>
+
+<p>Most tools in this space are a nicer file cabinet. You upload a PDF and hope. LifeSwitch turns that around: the thing it stores is the <em>record</em>, not the file. A policy knows its number, its carrier and its beneficiary. A house knows who it goes to. There are forty-five kinds of record across eight areas of life, and because the vault understands what is inside it, it can add things up, warn you before something lapses, and hand an executor a schedule of assets instead of a shoebox.</p>
+
+<ul>
+  <li><strong>Snap and seal.</strong> Point your phone at anything you own: a ring, a painting, the car. LifeSwitch fingerprints the exact photo and gives it a number nobody can guess. Change a single byte and it no longer matches.</li>
+  <li><strong>Who gets what.</strong> Your whole estate on one page, with a name beside every asset, down to the percent.</li>
+  <li><strong>Share by scan.</strong> A QR card that shows only what you choose, like allergies for a paramedic or an employer for a landlord. The details travel inside the code itself, so a shared card is never stored on our servers.</li>
+  <li><strong>The Switch.</strong> You decide how often you check in, how long you can say no, and who holds the keys. Your plan is sealed under a key cut in three, and any two open it. No one can open it alone.</li>
+</ul>
+
+<p>Two promises matter more to me than any feature. LifeSwitch never holds or moves your money, and we do not sell your vault, profile it, or use it to train AI models, ours or anyone else&rsquo;s. We are also careful about what we claim: the release half of the Switch stays off until a legal review is complete, and a LifeSwitch plan records your wishes but is not a will. If you are asking people to trust two college students with the most private document they own, honesty has to be a feature.</p>
+
+<p>The stack is Next.js 15, React 19, Tailwind and MongoDB, in one codebase with one deploy. It is live now: <a href="https://lifeswitch-bsvx.onrender.com" target="_blank" rel="noopener">see LifeSwitch</a>.</p>
 
 <h3>GoMojo — an AI concierge for Las Vegas</h3>
 
@@ -72,19 +93,22 @@
 
 <p>The part I am proudest of is not the AI. It is that I built the whole platform — app, agents, partner system, QR co-branded landing pages, multi-city architecture — for under a thousand dollars, total. That number is the reason the free tier can stay genuinely free and the paid tier can stay at five dollars. Low costs are not a bragging right. They are a design constraint that keeps you honest.</p>
 
-<h3>TagData &mdash; the redesign I was brought in to lead</h3>
-
-<p>TagData is a personal data vault. It holds the records that define you across eight life domains &mdash; health, employment, finance, insurance, vehicle, property, education &mdash; and its centerpiece is the TagData ID: a QR share card that hands over exactly the slice you choose and nothing more. The shared data lives inside the link itself, so it never touches a server. That is not a privacy policy you have to trust. It is a design that makes the promise structurally true.</p>
-
-<p>I did not start TagData. I was <strong>hired to recreate its frontend, and given full authority over the redesign</strong> &mdash; at a company with <strong>$3.5 million invested</strong> behind it. That is a lot of rope to hand someone, and it is the work I am proudest of so far. Not because the code was hard, but because every screen had to answer to one design language instead of accumulating into a pile of one-off pages.</p>
-
-<p>What that looked like day to day: a token-driven design system where every color, size and easing resolves to a single source of truth; a dark mode built as its own palette rather than an inverted copy of the light one; and the discipline to make the share card degrade gracefully when a payload exceeds what a scannable QR code can physically hold. Constraints like that are where the real design decisions live.</p>
-
 <h3>GoInvest — eight investors who disagree with each other</h3>
 
 <p>GoInvest is a multi-agent research sandbox. Eight AI personas modeled on real investing philosophies — macro momentum, technical discipline, pure quant, risk parity, growth-at-a-reasonable-price, a biotech policy specialist, a drug-delivery briefer, and a forensic short-seller whose whole job is to attack the thesis — debate a single stock, vote, and size a position. Every debate, trade and outcome is logged so the record can be checked later.</p>
 
 <p>Two rules are hard-coded and non-negotiable: it trades on paper only, and every user-facing screen says it is educational and not investment advice. Building something that touches money taught me more about restraint than about finance. The interesting engineering was not making the agents smart. It was making sure a confident agent could not do damage.</p>
+
+<h3>And the rest of the garage</h3>
+
+<ul>
+  <li><strong>LifeStyle</strong> &mdash; a digital closet. Photograph every piece you own, show off your closet, then sell, trade or lend what is in it, using the app&rsquo;s own currency.</li>
+  <li><strong>GoGlobal</strong> &mdash; a travel concierge for America&rsquo;s iconic destinations.</li>
+  <li><strong>Sigma Alpha Epsilon chapter site</strong> &mdash; a public site for rush and philanthropy, a members area behind a login, and an admin panel the exec board can run without touching code. Members-only information is protected in the database, not just hidden on the screen.</li>
+  <li><strong>The Heuser Team</strong> &mdash; a new website for my parents&rsquo; real estate practice in Las Vegas.</li>
+  <li><strong>Roblox NPC Kit</strong> &mdash; a starter kit that lets characters in a Roblox game talk through Claude, with a small proxy so the key never reaches a player.</li>
+  <li><strong>Reno, redrawn</strong> &mdash; redesign concepts for thirteen local businesses: Nick&rsquo;s Automotive, Nevada Tire Service, Roy Foster&rsquo;s Automotive, Greg&rsquo;s Garage, The Auto Clinic, North Valley Automotive, Speedy Burritos, Suri&rsquo;s Mediterranean, World Star Cutz, BJ&rsquo;s Hair Shop, Master Service Plumbing, OMNI Cards and Anime Kingdom. These are concepts made for owner review, not the businesses&rsquo; official sites.</li>
+</ul>
 
 <h2>Where I have actually worked</h2>
 
@@ -132,13 +156,13 @@
 
 <h2>Where this is going</h2>
 
-<p>Short term, I am expanding GoMojo into Reno and Sparks so it works in the city I now live in, and continuing the frontend work at TagData. Long term, I want to work on products where the technology is genuinely hard and the customer is a normal person — the intersection where most software gets one of the two badly wrong.</p>
+<p>Short term, I am expanding GoMojo into Reno and Sparks so it works in the city I now live in, and growing LifeSwitch. Long term, I want to work on products where the technology is genuinely hard and the customer is a normal person — the intersection where most software gets one of the two badly wrong.</p>
 
 <p>I am interested in product management, solutions engineering, and founding roles. If you are hiring for something where someone has to understand the system <em>and</em> explain it to a customer, that is the job I have been practicing for.</p>
 
 <h2>Beyond the screen</h2>
 
-<p><strong>Sigma Alpha Epsilon.</strong> I am a brother of SAE. Moving to a city where you know nobody is a lot easier when a house full of people has already decided you are one of them. I also love a good party, and Dye is Life at the house, which is in my <a href="/gallery/">gallery</a>, is what that looks like.</p>
+<p><strong>Sigma Alpha Epsilon.</strong> I am a brother of SAE. Moving to a city where you know nobody is a lot easier when a house full of people has already decided you are one of them. I also love a good party, and Dye is Life at the house, which is in my <a href="gallery.html">gallery</a>, is what that looks like.</p>
 
 <p><strong>Treenets and camping.</strong> I make treenets: woven rope platforms rigged high between trees, so the whole campsite is underneath you. Then I take them camping with friends. It is the most hands-on thing I do. Knots, load, anchor points, and an honest test the first time someone climbs on.</p>
 
@@ -151,7 +175,7 @@
 
 <h2>Say hello</h2>
 
-<p>The fastest way to reach me is email, and I answer it myself: <a href="mailto:heuser@romanattitudeofgratitude.com">heuser@romanattitudeofgratitude.com</a>. If you want the short version of everything above, my <a href="/resume/">resume is here</a> — in two flavors.</p></div></div></section>
+<p>The fastest way to reach me is email, and I answer it myself: <a href="mailto:heuser@romanattitudeofgratitude.com">heuser@romanattitudeofgratitude.com</a>. If you want the short version of everything above, my <a href="resume.html">resume is here</a> — in two flavors.</p></div></div></section>
 </main>
 
 <footer class="rh-footer">
@@ -160,11 +184,6 @@
       <div>
         <img src="assets/logo-light.png" alt="Roman Heuser" class="rh-footer__logo">
         <p>Built from scratch on a self-hosted WordPress install — custom theme, no page builder. Thanks for stopping by.</p>
-        <ul class="rh-social">
-          <li><a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.24 8h4.52v14H.24V8zm7.4 0h4.33v1.92h.06c.6-1.14 2.08-2.34 4.28-2.34 4.58 0 5.42 3.01 5.42 6.93V22h-4.52v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.49V22H7.64V8z"/></svg></a></li>
-          <li><a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.96 0-1.32.47-2.39 1.24-3.23-.12-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016.02 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.23 0 4.63-2.81 5.65-5.49 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.21.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z"/></svg></a></li>
-          <li><a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.8 3.8 0 01-1.38-.9 3.8 3.8 0 01-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63a5.9 5.9 0 00-2.13 1.39A5.9 5.9 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.3.79.72 1.46 1.39 2.13a5.9 5.9 0 002.13 1.39c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.9 5.9 0 002.13-1.39 5.9 5.9 0 001.39-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.9 5.9 0 00-1.39-2.13A5.9 5.9 0 0019.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32A6.16 6.16 0 0012 5.84zm0 10.16a4 4 0 110-8 4 4 0 010 8zm7.85-10.4a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg></a></li>
-        </ul>
       </div>
       <div>
         <h2 class="widget-title">Explore</h2>
@@ -185,11 +204,11 @@
     </div>
   </div>
 </footer>
-<script src="assets/theme.js?v=1787814213"></script>
-<script src="assets/cinematic.js?v=1795464684"></script>
-<script src="assets/vendor/three.rh.min.js?v=1795464684"></script>
-<script src="assets/drive-world.js?v=1795465148"></script>
-<script src="assets/drive.js?v=1795465293"></script>
-<script src="assets/blog-demo.js?v=1787874675"></script>
+<script src="assets/theme.js?v=1795472079"></script>
+<script src="assets/cinematic.js?v=1795472079"></script>
+<script src="assets/vendor/three.rh.min.js?v=1795469216"></script>
+<script src="assets/drive-world.js?v=1795471419"></script>
+<script src="assets/drive.js?v=1795472617"></script>
+<script src="assets/blog-demo.js?v=1795472078"></script>
 </body>
 </html>

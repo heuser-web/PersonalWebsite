@@ -18,19 +18,29 @@ body.rd-on{
 .rd-on .rh-brand .rh-brand__dark{display:block}
 
 /* ---------------------------------------------------------------- header */
-.rd-home .rh-header{position:fixed;left:0;right:0;top:0;background:linear-gradient(180deg,rgba(5,9,18,.97),rgba(5,9,18,.8) 55%,rgba(5,9,18,0));backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0}
-.rd-home.admin-bar .rh-header{top:32px}
-.rd-home .rh-header__inner{max-width:none;padding-inline:clamp(1.1rem,5vw,5.5rem)}
-@media (max-width:782px){.rd-home.admin-bar .rh-header{top:46px}}
+.rd-home .rh-header{background:linear-gradient(180deg,rgba(5,9,18,.97),rgba(5,9,18,.8) 55%,rgba(5,9,18,0));backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0}
+/* Once cards start passing underneath, solid behind the links and soft only below
+   them, so card text never shows through the menu. */
+.rd-home .rh-header::before{content:"";position:absolute;z-index:-1;inset:0 0 -1.1rem;pointer-events:none;opacity:0;transition:opacity .3s;background:linear-gradient(180deg,#050912 calc(100% - 1.5rem),rgba(5,9,18,0))}
+.rd-home .rh-header.is-stuck::before{opacity:1}
+/* Same gutters on every page, so the logo and menu hold still between pages. */
+.rd-on .rh-header__inner{max-width:none;padding-inline:clamp(1.1rem,5vw,5.5rem)}
+.rd-home #rh-main{padding-top:0}
 
 /* ----------------------------------------------------------------- stage */
 .rd{position:relative;overflow-x:clip;background:#050912;color:var(--rh-text-invert)}
-.rd__stage,.rd__ui{position:sticky;top:0;height:100vh;height:100svh;margin-bottom:-100vh;margin-bottom:-100svh;overflow:hidden}
-.rd__stage{z-index:0}
-.rd__ui{z-index:3;pointer-events:none;overflow:visible}
+/* Each layer is sticky inside a track exactly as tall as the drive, so it leaves with
+   the drive instead of sitting on top of the footer. */
+.rd__track{position:absolute;inset:0;z-index:0;pointer-events:none}
+.rd__track--ui{z-index:3}
+.rd__stage,.rd__ui{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.rd__ui{overflow:visible}
 .rd-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.rd__poster{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.5}
-.rd-gl .rd__poster{display:none}
+@media (prefers-reduced-motion:no-preference){.rd-canvas{animation:rd-lights .7s ease both}}
+@keyframes rd-lights{from{opacity:0}}
+/* Behind the canvas and gone only once the canvas has faded in, so there is no black gap. */
+.rd__poster{position:absolute;z-index:-1;inset:0;background-size:cover;background-position:center;opacity:.5}
+.rd-gl .rd__poster{visibility:hidden;transition:visibility 0s 1s}
 .rd__veil{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 46%,rgba(5,9,18,0) 55%,rgba(5,9,18,.62) 100%),linear-gradient(180deg,rgba(5,9,18,.3) 0%,rgba(5,9,18,0) 18%,rgba(5,9,18,0) 76%,rgba(5,9,18,.72) 100%)}
 .rd-scene{position:relative;z-index:2;pointer-events:none;padding-inline:clamp(1.1rem,5vw,5.5rem);min-height:300vh;min-height:300svh;display:flow-root}
 #rd-vegas{min-height:250svh}#rd-jobs,#rd-bass,#rd-reno{min-height:400svh}#rd-home,#rd-treenet,#rd-sae{min-height:310svh}#rd-finale{min-height:300svh}
@@ -53,11 +63,17 @@ body.rd-on{
 #rd-jobs .rd-card{margin-top:70svh}#rd-jobs .rd-card + .rd-card{margin-top:90svh}
 #rd-bass .rd-card{margin-top:104svh}#rd-bass .rd-card + .rd-card{margin-top:136svh}
 #rd-treenet .rd-card,#rd-sae .rd-card{margin-top:112svh}
+#rd-lifeswitch{min-height:600svh}#rd-lifeswitch .rd-card{margin-top:108svh}#rd-lifeswitch .rd-card + .rd-card{margin-top:78svh}
+#rd-builds{min-height:400svh}#rd-builds .rd-card{margin-top:84svh}#rd-builds .rd-card + .rd-card{margin-top:88svh}
+.rd-fine{font-size:.84rem!important;line-height:1.5;color:rgba(234,238,247,.72)!important;border-top:1px solid var(--rd-hair);padding-top:.8rem}
+.rd-card .rd-fine:last-child{margin-top:1rem}
+.rd-chips{font-size:.94rem;line-height:1.85;color:rgba(234,238,247,.9)!important}.rd-chips i{font-style:normal;color:var(--rd-accent);margin:0 .25em}
+.rd-card .rh-btn{margin-top:.2rem}.rd-card .rh-btn--primary{background:var(--rd-accent);border-color:var(--rd-accent)}
 #rd-reno .rd-card{margin-top:76svh}#rd-reno .rd-card + .rd-card{margin-top:132svh}
 
 /* hero */
 .rd-hero{width:min(34rem,44vw);min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:6.5rem 0 5rem}
-.rd-hero{position:relative}.rd-hero::before{content:"";position:absolute;z-index:-1;left:-6vw;top:0;bottom:0;width:64vw;pointer-events:none;background:linear-gradient(90deg,rgba(5,9,18,.88),rgba(5,9,18,.62) 45%,rgba(5,9,18,0))}
+.rd-hero{position:relative}.rd-hero::before{content:"";position:absolute;z-index:-1;left:-6vw;top:0;bottom:0;width:64vw;pointer-events:none;background:linear-gradient(90deg,rgba(5,9,18,.88),rgba(5,9,18,.62) 45%,rgba(5,9,18,0));-webkit-mask:linear-gradient(#000 55%,transparent);mask:linear-gradient(#000 55%,transparent)}
 .rd-hero__logo{width:min(26rem,100%);height:auto;margin:0 0 1.5rem}
 .rd-hero h1{font-size:clamp(2.6rem,1.5rem + 3.5vw,4.6rem);margin-bottom:.35em;text-shadow:0 2px 30px rgba(5,9,18,.9)}
 .rd-hero__sub{color:rgba(247,245,239,.88);font-size:clamp(1rem,.95rem + .3vw,1.16rem);line-height:1.6;margin-bottom:1.7rem;text-shadow:0 1px 16px rgba(5,9,18,.95)}
@@ -100,11 +116,11 @@ body.rd-on{
 /* three signs */
 .rd-scene--signs{min-height:340svh}
 .rd-signs{position:absolute;left:0;right:0;bottom:4.6rem;display:grid;gap:1.1rem;pointer-events:none}
-.rd-signs::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-3rem;bottom:-5rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.78) 34%)}
+.rd-signs::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-3rem;bottom:-9rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.78) 30%,rgba(5,9,18,.78) 70%,rgba(5,9,18,0))}
 .rd-signs__head{max-width:34rem}.rd-signs__head h2{font-size:clamp(1.6rem,1.1rem + 1.5vw,2.4rem);margin-bottom:.35em;text-shadow:0 2px 24px #050912}
 .rd-picks{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;pointer-events:auto}
-.rd-pick{--c:#C9A227;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--rd-panel);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:4px;padding:1rem 1.15rem 1.1rem;display:block;transition:transform .35s var(--rh-ease),background .35s,box-shadow .35s}
-.rd-pick[data-pick=gomojo]{--c:#FF6FAE}.rd-pick[data-pick=tagdata]{--c:#4FD6F7}.rd-pick[data-pick=goinvest]{--c:#6BE79A}
+.rd-pick{--c:#C9A227;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--rd-panel);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:4px;padding:1rem 1.15rem 1.1rem;display:flex;flex-direction:column;justify-content:flex-start;transition:transform .35s var(--rh-ease),background .35s,box-shadow .35s}
+.rd-pick[data-pick=gomojo]{--c:#FF6FAE}.rd-pick[data-pick=lifeswitch]{--c:#E9CB86}.rd-pick[data-pick=goinvest]{--c:#6BE79A}
 .rd-pick small{display:block;font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c)}
 .rd-pick b{display:block;font-family:var(--rh-font-display);font-weight:400;font-size:1.55rem;line-height:1.2;margin:.15rem 0 .35rem;color:#fff}
 .rd-pick span{display:block;font-size:.88rem;line-height:1.5;color:rgba(234,238,247,.82)}
@@ -115,11 +131,15 @@ body.rd-on{
 /* Reno */
 .rd-flood{position:absolute;inset:0;margin:0;visibility:hidden;clip-path:circle(calc(var(--f,0)*125%) at 60% 60%)}
 .rd-flood img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;transform:scale(calc(1.14 - var(--f,0)*.14))}
-.rd-cap{width:max-content;max-width:100%;margin:86svh 0 0;padding:.7rem 1rem;background:var(--rd-panel);border-left:3px solid var(--rd-accent);font-family:var(--rh-font-display);font-size:1.25rem}
+/* Rides on the photo it describes, fading in as the photo fills the screen. */
+.rd-flood .rd-cap{position:absolute;left:clamp(1.1rem,5vw,5.5rem);bottom:5.6rem;margin:0;text-align:left;color:var(--rh-text-invert);opacity:calc((var(--f,0) - .7)*4)}
+.rd-inset--plain{display:none}
+.rd-cap{width:max-content;max-width:calc(100% - 2.2rem);padding:.7rem 1rem;background:var(--rd-panel);border-left:3px solid var(--rd-accent);font-family:var(--rh-font-display);font-size:1.25rem}
 .rd-cap span{display:block;font-family:var(--rh-font-body);font-size:.82rem;color:rgba(234,238,247,.78)}
 
 /* finale */
-.rd-end::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-4rem;bottom:-6rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.82) 34%)}
+.rd-end::before{content:"";position:absolute;z-index:-1;left:-12vw;right:-12vw;top:-4rem;bottom:-6rem;background:linear-gradient(180deg,rgba(5,9,18,0),rgba(5,9,18,.86) 26%)}
+.rd-end .rd-eyebrow{white-space:nowrap;text-shadow:0 0 14px #050912,0 1px 4px #050912}
 .rd-gl .rd-end{opacity:0;translate:0 24px;transition:opacity .7s,translate .8s var(--rh-ease)}.rd-gl.rd-endon .rd-end,.rd-end:focus-within{opacity:1;translate:0 0}
 .rd-gl:not(.rd-endon) .rd-doors{pointer-events:none}
 .rd-end{position:absolute;left:0;right:0;bottom:5rem}
@@ -154,12 +174,16 @@ body.rd-on{
 .rd-rail a[aria-current]::after{background:var(--rd-accent);border-color:var(--rd-accent);transform:scale(1.35)}
 .rd-hold{position:absolute;left:0;top:0;width:88px;height:88px;border-radius:50%;border:1px solid var(--rd-hair);background:rgba(6,11,23,.62);color:#fff;font:600 .7rem/1.25 var(--rh-font-body);display:grid;place-items:center;text-align:center;padding:.7rem;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;user-select:none;-webkit-user-select:none;touch-action:none}
 .rd-hold.is-on{opacity:1;visibility:visible}.rd-hold.is-off{opacity:0}
+.rd-hold:not(.is-set){opacity:0!important}
+.rd-hold.is-off{pointer-events:none!important}
 .rd-hold__ring{position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(var(--rd-accent) calc(var(--h,0)*360deg),rgba(247,245,239,.14) 0);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))}
 .rd-hold:focus-visible{outline:2px solid var(--rd-accent);outline-offset:8px;border-radius:50%}
 .rd-holding{cursor:grabbing;user-select:none;-webkit-user-select:none}
 @media (pointer:coarse){.rd-hold{left:auto;right:1.1rem;top:auto;bottom:4.2rem;width:78px;height:78px;pointer-events:auto;background:rgba(6,11,23,.82)}}
 .rd-hold[hidden],.rd-nogl .rd-hold,.rd-nogl .rd-sound,.rd-nogl .rd-flood,.rd-nogl .rd-card .rd-try{display:none}
-.rd-home .rh-replay{bottom:4.2rem}
+/* In the gutter beside the mileage, clear of the cards and buttons above it. */
+.rd-home .rh-replay{width:34px;height:34px;bottom:1.15rem;left:calc((clamp(1.1rem,5vw,5.5rem) - 34px)/2)}
+.rd-home .rhxg:not(.is-open){bottom:4.2rem}
 
 /* --------------------------------------------------------------- reveals */
 .rd-rv{opacity:0;transition:opacity .8s var(--rh-ease),translate .9s var(--rh-ease),clip-path .9s var(--rh-ease);translate:0 34px}
@@ -186,7 +210,8 @@ body.rd-on{
 .rd-on:not(.rd-home) .rh-footer{margin-top:var(--rh-section)}
 .rd-on .rh-gallery__item{transition:translate .9s var(--rh-ease),opacity .8s}
 
-@media (max-width:1000px){.rd-hud__place{display:none}.rd-rail{display:none}.rd-doors{grid-template-columns:repeat(3,1fr)}.rd-hero{width:min(34rem,56vw)}}
+@media (max-width:1000px){.rd-hud__place{display:none}.rd-rail{display:none}.rd-hero{width:min(34rem,56vw)}
+  .rd-doors{grid-template-columns:repeat(6,1fr)}.rd-door{grid-column:span 2}.rd-door:nth-child(n+4){grid-column:span 3}}
 @media (max-width:760px){
   .rd-hero{width:100%;justify-content:flex-end;padding:5rem 0 4.6rem}.rd-hero__cta{padding-right:6rem}
   .rd-hero__logo,.rd-hero .rd-eyebrow{display:none}
@@ -197,17 +222,47 @@ body.rd-on{
   .rd-card{padding:1.2rem 1.2rem 1.3rem;background:rgba(6,11,23,.88)}
   .rd-signs{position:static;padding-top:84svh}.rd-scene--signs .rd-pin{position:static;height:auto}.rd-picks{grid-template-columns:1fr;gap:.8rem}
   .rd-signs__head{background:rgba(6,11,23,.88);border:1px solid var(--rd-hair);border-radius:4px;padding:1.2rem;pointer-events:auto;margin-bottom:34svh}
-  .rd-end{bottom:4rem}.rd-doors{grid-template-columns:1fr 1fr;gap:.6rem}.rd-door{padding:.7rem .85rem}.rd-door:last-child{grid-column:1/-1}.rd-door span{display:none}.rd-door b{font-size:1.15rem}
+  .rd-end{bottom:4rem}.rd-doors{grid-template-columns:1fr 1fr;gap:.6rem}.rd-door,.rd-door:nth-child(n+4){grid-column:auto;padding:.7rem .85rem}.rd-door:last-child{grid-column:1/-1}.rd-door span{display:none}.rd-door b{font-size:1.15rem}
   .rd-hud{gap:.8rem;bottom:.9rem}.rd-inset{margin-top:60svh}
   .rd-home .rh-replay{display:none}
+  .rd-end .rd-eyebrow::before,.rd-end .rd-eyebrow::after{width:2rem}
+  .rd-flood .rd-cap{bottom:9.6rem;font-size:1.1rem}
+  .rd-home:has(.rhxg) .rd-hold{bottom:8.4rem}
 }
+@media (max-width:360px){.rd-hud{gap:.55rem}.rd-hud__bar{display:none}.rd-sound{margin-left:auto;padding:0 .7rem}}
+/* A phone on its side: no room for the logo or a pinned panel, so let them scroll. */
+@media (max-height:500px) and (min-width:560px){
+  .rd-home .rh-replay,.rd-hero__logo,.rd-hero .rd-eyebrow,.rd-hint{display:none}
+  .rd-hero{width:min(30rem,54vw);padding:4.4rem 0 4rem}.rd-hero h1{font-size:2.2rem}.rd-hero__sub{font-size:.92rem;line-height:1.5;margin-bottom:1rem}.rd-hero .rh-btn{padding:.6rem 1.1rem;font-size:.82rem}
+  .rd-scene--signs .rd-pin{position:static;height:auto}.rd-signs{position:static;padding-top:70svh}.rd-signs::before{display:none}.rd-signs__head{background:var(--rd-panel);border:1px solid var(--rd-hair);border-radius:4px;padding:1rem 1.2rem;margin-bottom:40svh;pointer-events:auto}
+  .rd-end{bottom:4.3rem}.rd-doors{grid-template-columns:repeat(5,1fr);gap:.5rem}.rd-door,.rd-door:nth-child(n+4){grid-column:auto;padding:.5rem .7rem}.rd-door span{display:none}.rd-door b{font-size:1rem}
+  .rd-card{padding:1rem 1.2rem}.rd-card h2{font-size:1.5rem}.rd-card p{font-size:.92rem;line-height:1.5}
+}
+/* No WebGL or no scripts: there is no drive to scroll through, so close the gaps it
+   needed and read as a normal page. */
+.rd-nogl .rd-scene,.no-js .rd-scene{min-height:0!important;padding-block:clamp(2.5rem,7vh,5rem)}
+.rd-nogl #rd-vegas,.no-js #rd-vegas{padding-block:0}
+.rd-nogl .rd .rd-card,.no-js .rd .rd-card,.rd-nogl .rd-inset,.no-js .rd-inset{margin-top:0!important}
+.rd-nogl .rd .rd-card + .rd-card,.no-js .rd .rd-card + .rd-card,.rd-nogl .rd .rd-card + .rd-inset,.no-js .rd .rd-card + .rd-inset{margin-top:1.5rem!important}
+.rd-nogl .rd-inset--plain,.no-js .rd-inset--plain{display:block;margin-top:1.5rem!important}
+.rd-nogl .rd-pin,.no-js .rd-pin{position:static;height:auto}
+.rd-nogl .rd-signs,.no-js .rd-signs,.rd-nogl .rd-end,.no-js .rd-end{position:relative;bottom:auto;padding-top:0}
+.rd-nogl .rd-signs__head,.no-js .rd-signs__head{margin-bottom:0}
+.rd-nogl .rd-signs::before,.no-js .rd-signs::before,.rd-nogl .rd-end::before,.no-js .rd-end::before{display:none}
+.rd-nogl .rd-rail,.no-js .rd-rail,.rd-nogl .rd-hud,.no-js .rd-hud,.no-js .rd-hold,.no-js .rd-card .rd-try,.rd-nogl .rd__ui::before,.no-js .rd__ui::before,.rd-nogl .rd-hint,.no-js .rd-hint,.rd-nogl .rd-signs .rd-try,.no-js .rd-signs .rd-try{display:none}
+.rd-nogl .rd__poster,.no-js .rd__poster{opacity:.32}
+.rd-nogl .rd-anchor,.no-js .rd-anchor{bottom:auto;top:0;height:1px}
 @media (max-height:640px) and (min-width:761px){.rd-hero__logo{width:15rem;margin-bottom:.7rem}.rd-hint{display:none}.rd-pick span{font-size:.8rem;line-height:1.4}}
 
 /* --------------------------------------------- page-to-page transitions */
 @media (prefers-reduced-motion:no-preference){
-  @view-transition{navigation:auto}
-  ::view-transition-old(root){animation:rd-vt-out .45s var(--rh-ease,ease) both}
-  ::view-transition-new(root){animation:rd-vt-in .75s cubic-bezier(.2,.7,.2,1) both}
+  /* The opt-in itself (@view-transition) is inline in <head>: browsers check it before
+     this file has applied, and every transition was being cancelled. The header keeps
+     its own layer so the menu stays put while the page changes under it. */
+  .rh-header{view-transition-name:rh-header}
+  ::view-transition-group(rh-header){z-index:1}
+  ::view-transition-old(root){animation:rd-vt-out .35s var(--rh-ease,ease) both}
+  ::view-transition-new(root){animation:rd-vt-in .6s cubic-bezier(.2,.7,.2,1) both}
   @keyframes rd-vt-out{to{filter:brightness(.15)}}
   @keyframes rd-vt-in{from{clip-path:circle(2% at 50% 74%);filter:brightness(2.2)}to{clip-path:circle(140% at 50% 74%);filter:none}}
 }
@@ -215,7 +270,14 @@ body.rd-on{
   .rd-rv,.rd-card.rd-rv{opacity:1!important;translate:none!important;clip-path:none!important;transition:none!important}
   .rd-try::before,.rd-hint::before,.rd-sound i{animation:none!important}
   .rd-inset{transform:none}
+  .rd-inset--plain{display:block}.rd-flood{display:none}
   .rd-card .rd-try,.rd-sound{display:none}   /* nothing to hold when nothing moves */
   .rd-pick,.rd-door{transition:none}
 }
-@media print{.rd,.rd-canvas{display:none!important}}
+@media print{.rd-canvas,.rd__track,.rd-hero::before,.rd-signs::before,.rd-end::before,.rd-hero__logo,.rd-hint,.rd-try,.rd-inset__f::after{display:none!important}.rd-hero{min-height:0!important;padding:0!important}.rd-inset img,.rd-on .rh-article figure img,.rd-on .rh-gallery__item img{filter:none!important}.rd-on .rh-chips li{background:#fff!important;color:#111!important;border-color:#bbb!important}.rd-rv{opacity:1!important;translate:none!important;clip-path:none!important}.rd-scene,.rd-pin{min-height:0!important;height:auto!important}.rd .rd-card,.rd-inset{margin-top:1rem!important}.rd-signs,.rd-end,.rd-pin{position:static!important}
+  body.rd-on{--rh-bg:#fff;--rh-text:#111;--rh-text-muted:#333;--rh-text-invert:#111;--rh-card:#fff;color-scheme:light}.rd-on:not(.rd-home) .rh-article,.rd,.rd-card,.rd-pick,.rd-door{background:#fff!important;border-color:#bbb}.rd-on .rh-pagehead{background:#fff!important;padding-block:1rem!important}.rd-on .rh-pagehead :is(h1,p){color:#111!important;text-shadow:none!important}.rd :is(h1,h2,h3,p,li,dt,dd,b,span,em,a,small){color:#111!important;text-shadow:none!important}}
+
+/* Cards over lit signs need a ground of their own. */
+#rd-lifeswitch .rd-card,#rd-builds .rd-card{background:rgba(6,11,23,.93)}
+@supports (backdrop-filter:blur(1px)){.rd-card{backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1)}}
+@media (max-width:760px){#rd-lifeswitch{min-height:760svh}#rd-builds{min-height:480svh}}

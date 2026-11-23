@@ -1,17 +1,19 @@
 <div class="rd" id="rd" aria-label="The drive from Las Vegas to Reno">
 
-  <div class="rd__stage" aria-hidden="true">
-    <div class="rd__poster" style="background-image:url('{{img:vegas-night.jpg}}')"></div>
-    <figure class="rd-flood"><img src="{{img:life/reno-sunset.jpg}}" alt="" width="1200" height="900" loading="lazy"></figure>
-    <div class="rd__veil"></div>
-  </div>
+  <div class="rd__track"><div class="rd__stage">
+    <div class="rd__poster" style="background-image:url('{{img:plate-vegas-sm.webp}}')"></div>
+    <div class="rd__veil" aria-hidden="true"></div>
+    <figure class="rd-flood"><img src="{{img:life/reno-sunset.jpg}}" alt="Casino entrance chandeliers framing a pink and violet sunset over the mountains and the Reno skyline" width="1200" height="900" loading="lazy"><figcaption class="rd-cap">Reno, after dark. <span>My own photograph, from under the lights.</span></figcaption></figure>
+  </div></div>
 
-  <div class="rd__ui">
+  <div class="rd__track rd__track--ui"><div class="rd__ui">
     <nav class="rd-rail" aria-label="Stops on the drive">
       <a href="#rd-vegas"><span>Las Vegas</span></a>
       <a href="#rd-home"><span>Home</span></a>
       <a href="#rd-jobs"><span>The jobs</span></a>
       <a href="#rd-signs"><span>Three signs</span></a>
+      <a href="#rd-lifeswitch"><span>LifeSwitch</span></a>
+      <a href="#rd-builds"><span>More builds</span></a>
       <a href="#rd-bass"><span>The desert</span></a>
       <a href="#rd-treenet"><span>Treenet</span></a>
       <a href="#rd-sae"><span>SAE</span></a>
@@ -26,7 +28,7 @@
       <button class="rd-sound" type="button" aria-pressed="false" aria-label="Toggle the bass"><i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i><span class="rd-sound__t">Bass off</span></button>
       <a class="rd-skip" href="#rd-doors">Skip the drive</a>
     </div>
-  </div>
+  </div></div>
 
   <section class="rd-scene" id="rd-vegas" data-scene="vegas">
     <div class="rd-hero">
@@ -85,10 +87,67 @@
         </div>
         <div class="rd-picks">
           <button class="rd-pick" type="button" data-pick="gomojo" aria-pressed="false"><small>Founder</small><b>GoMojo</b><span>A free AI concierge for Las Vegas. Give it a vibe and a budget, and six seconds later you have a real three-stop night, planned by a seven-agent swarm. Built for under $1K.</span></button>
-          <button class="rd-pick" type="button" data-pick="tagdata" aria-pressed="false"><small>Frontend Design Lead</small><b>TagData</b><span>A personal-data vault I was hired to redesign, with full authority over the frontend. $3.5M invested. Your share card hands over exactly the data you choose.</span></button>
+          <button class="rd-pick" type="button" data-pick="lifeswitch" aria-pressed="false"><small>Co-founder</small><b>LifeSwitch</b><span>A private vault for everything you own, and who it goes to. Photograph it, seal it, name the person. It is the next stop on the road.</span></button>
           <button class="rd-pick" type="button" data-pick="goinvest" aria-pressed="false"><small>Builder</small><b>GoInvest</b><span>A research sandbox where eight AI investor personas debate a stock, vote, and log every argument. Paper trading only, on purpose.</span></button>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="rd-scene" id="rd-lifeswitch" data-scene="lifeswitch">
+    <div class="rd-card">
+      <p class="rd-eyebrow">What I am building now</p>
+      <h2>LifeSwitch. Everything you own, <em>and who it goes to.</em></h2>
+      <p>A private vault for your documents, accounts and belongings. I am the co-founder who designs it, builds it and ships it. My co-founder, another student at the University of Nevada, Reno, had the idea. I could build it.</p>
+      <p><a class="rh-btn rh-btn--primary" href="https://lifeswitch-bsvx.onrender.com" target="_blank" rel="noopener">See LifeSwitch live <span class="rh-btn__arrow" aria-hidden="true">&rarr;</span></a></p>
+    </div>
+    <div class="rd-card">
+      <p class="rd-eyebrow">Why it exists</p>
+      <h3>Nobody knows what you own except you.</h3>
+      <p>Almost every estate is put back together afterward, by people who are grieving, working from a filing cabinet and a guessed password. LifeSwitch is the same work, done in advance.</p>
+      <dl class="rd-stats">
+        <div><dt>Kinds of record</dt><dd>45</dd></div>
+        <div><dt>Areas of a life</dt><dd>8</dd></div>
+        <div><dt>Keys, any two open it</dt><dd>3</dd></div>
+        <div><dt>Records used to train AI</dt><dd>0</dd></div>
+      </dl>
+    </div>
+    <div class="rd-card">
+      <p class="rd-eyebrow">What it does</p>
+      <ul class="rd-list">
+        <li><b>Snap and seal</b> Photograph anything you own. It gets a fingerprint and a number nobody can guess, so you can prove the photo has never changed.</li>
+        <li><b>One vault</b> Passports, policies, accounts, deeds and logins, each on a form that knows what matters and when it expires.</li>
+        <li><b>Who gets what</b> Your whole estate on one page, with a name beside every asset, down to the percent.</li>
+        <li><b>Share by scan</b> A QR card with only the details you pick. The details travel inside the code, so nothing is stored on a server.</li>
+      </ul>
+    </div>
+    <div class="rd-card">
+      <p class="rd-eyebrow">The Switch</p>
+      <h3>Nothing opens while you are here.</h3>
+      <p>You check in every 30 to 180 days. Go quiet and a window of 7 to 60 days begins, and signing in at any point stops it. Your plan is sealed under a key cut in three: your executor, someone you trust, and us. Any two open it. No one can alone.</p>
+      <p class="rd-fine">Release turns on once legal review is complete. Until then nothing is sent. LifeSwitch never holds or moves your money, and it is not a will.</p>
+      <p class="rd-try">Hold to turn two keys.</p>
+    </div>
+  </section>
+
+  <section class="rd-scene rd-scene--right" id="rd-builds" data-scene="builds">
+    <div class="rd-card">
+      <p class="rd-eyebrow">Also on the road</p>
+      <h2>Other things <em>I have built.</em></h2>
+      <ul class="rd-list">
+        <li><b>LifeStyle</b> A digital closet. Photograph every piece you own, show it off, then sell it, trade it or lend it.</li>
+        <li><b>GoGlobal</b> A travel concierge for America&rsquo;s iconic destinations.</li>
+        <li><b>Sigma Alpha Epsilon</b> A chapter site with a public face, a members-only calendar and an admin panel that needs no code.</li>
+        <li><b>The Heuser Team</b> A new real estate site for my parents&rsquo; practice in Las Vegas.</li>
+        <li><b>Roblox NPC Kit</b> A starter kit that lets characters in a Roblox game talk through Claude without exposing the key.</li>
+      </ul>
+    </div>
+    <div class="rd-card">
+      <p class="rd-eyebrow">Reno, redrawn</p>
+      <h3>Thirteen local businesses, redesigned.</h3>
+      <p>Auto shops, a barber, a burrito window, a plumber. Same question every time: what would this look like if it were as good as the business?</p>
+      <p class="rd-chips">Nick&rsquo;s Automotive <i>&middot;</i> Nevada Tire Service <i>&middot;</i> Roy Foster&rsquo;s Automotive <i>&middot;</i> Greg&rsquo;s Garage <i>&middot;</i> The Auto Clinic <i>&middot;</i> North Valley Automotive <i>&middot;</i> Speedy Burritos <i>&middot;</i> Suri&rsquo;s Mediterranean <i>&middot;</i> World Star Cutz <i>&middot;</i> BJ&rsquo;s Hair Shop <i>&middot;</i> Master Service Plumbing <i>&middot;</i> OMNI Cards <i>&middot;</i> Anime Kingdom</p>
+      <p class="rd-fine">Design concepts made for owner review. These are not the businesses&rsquo; official sites.</p>
     </div>
   </section>
 
@@ -147,7 +206,11 @@
       <p>I park cars for a living right now. Under the lights, engine still warm, handing over the keys.</p>
       <p class="rd-try">Hold to hand them over.</p>
     </div>
-    <p class="rd-cap">Reno, after dark. <span>My own photograph, from under the lights.</span></p>
+    <!-- Only where the photo cannot flood the screen: no 3D, no scripts, or reduced motion. -->
+    <figure class="rd-inset rd-inset--plain">
+      <span class="rd-inset__f"><img src="{{img:life/reno-sunset.jpg}}" alt="Casino entrance chandeliers framing a pink and violet sunset over the mountains and the Reno skyline" width="1200" height="900" loading="lazy"></span>
+      <figcaption>Reno, after dark. My own photograph, from under the lights.</figcaption>
+    </figure>
   </section>
 
   <section class="rd-scene rd-scene--finale" id="rd-finale" data-scene="finale">

@@ -1,12 +1,14 @@
 # Generated backgrounds
 
-Made with the Higgsfield image model on 2026-08-27, from prompts written for this
-site. They are **decorative backgrounds**, in the same category as a theme's
+Made with the Higgsfield image model, from prompts written for this site (the
+first three on 2026-08-27, the two plates by Roman on 2026-11-23). They are **decorative backgrounds**, in the same category as a theme's
 bundled artwork.
 
 | File | Use |
 |---|---|
-| `vegas-night.jpg` | Home hero background — aerial Las Vegas valley at night |
+| `plate-vegas.webp` | The Drive: the skyline behind the car at the start, and the no-WebGL poster |
+| `plate-reno.webp` | The Drive: the mountains ahead all night, then the dusk you arrive in |
+| `vegas-night.jpg` | Old home hero background — no longer used by the theme |
 | `nebula.jpg` | Deep-space backdrop, pairs with the opening crawl |
 | `mesh.jpg` | Abstract ink-and-brass gradient, for interior page headers |
 

@@ -55,6 +55,7 @@
 .rh-intro[hidden]{display:none}
 .rh-intro.is-leaving{opacity:0;pointer-events:none}
 body.rh-intro-open{overflow:hidden}
+.rh-intro{touch-action:none;overscroll-behavior:contain}
 
 .rh-intro__warp{position:absolute;inset:0;width:100%;height:100%;display:block}
 
@@ -128,11 +129,14 @@ body.rh-intro-open{overflow:hidden}
   font-size:clamp(2.1rem,.9rem + 6.4vw,6.4rem);
   line-height:.98;letter-spacing:.02em;text-transform:uppercase;
   color:#F6F3EC;
+  /* One line for the whole beat. The wide opening spacing used to push it onto
+     two lines, then it snapped back to one as the letters closed up. */
+  white-space:nowrap;max-width:none;--rh-name-ls:.24em;
 }
 .rh-beat--name.is-on{animation:rh-name 2.05s cubic-bezier(.16,.8,.2,1) forwards}
 @keyframes rh-name{
-  0%  {opacity:0;filter:blur(22px);letter-spacing:.42em;transform:scale(1.10)}
-  32% {opacity:1;filter:blur(3px);letter-spacing:.10em;transform:scale(1.015)}
+  0%  {opacity:0;filter:blur(22px);letter-spacing:var(--rh-name-ls);transform:scale(1.10)}
+  32% {opacity:1;filter:blur(3px);letter-spacing:calc(var(--rh-name-ls)*.4);transform:scale(1.015)}
   52% {opacity:1;filter:blur(0);letter-spacing:.02em;transform:scale(1)}
   80% {opacity:1;filter:blur(0);transform:scale(1)}
   /* It has to clear the stage before the first statement card lands. */
@@ -242,8 +246,9 @@ body.rh-intro-open{overflow:hidden}
 .rh-replay:hover{transform:translateY(-2px);color:var(--rh-accent-quiet)}
 .rh-replay svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
 
+@media (max-width:900px){ .rh-beat--name{--rh-name-ls:.16em} }
 @media (max-width:640px){
-  .rh-beat--name{font-size:clamp(1.9rem,1.1rem + 7.4vw,3.3rem)}
+  .rh-beat--name{font-size:min(8.6vw,3.3rem);--rh-name-ls:.1em}
   .rh-beat--card .rh-card__lead{font-size:clamp(1.5rem,1rem + 5.6vw,2.6rem)}
   .rh-beat--card .rh-card__sub{letter-spacing:.2em}
   .rh-beat--sign .rh-sign__tag{letter-spacing:.28em}

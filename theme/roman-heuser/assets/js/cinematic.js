@@ -207,6 +207,12 @@
       '<path d="M4 4v6h6" stroke-linecap="round" stroke-linejoin="round"/>' +
       '<path d="M4.6 14.5a8 8 0 1 0 1.2-7.9L4 10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     on(b, 'click', function () {
+      // The sequence hands off to the hero, so it has to land at the top.
+      try { window.history.scrollRestoration = 'manual'; } catch (e) {}
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, 0);
+      if (/[?&]intro=/.test(window.location.search)) { window.location.replace(window.location.pathname + '?intro=play'); return; }
+      if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search);
       window.location.reload();
     });
     document.body.appendChild(b);
@@ -230,7 +236,7 @@
     var timers = [], done = false, bootRaf = 0;
     function later(fn, ms) { timers.push(window.setTimeout(fn, ms)); }
 
-    function finish() {
+    function finish(slow) {
       if (done) return;
       done = true;
       for (var i = 0; i < timers.length; i++) window.clearTimeout(timers[i]);
@@ -238,7 +244,9 @@
       if (bootRaf) window.cancelAnimationFrame(bootRaf);
       if (warp) warp.stop();
       el.classList.add('is-leaving');
-      document.body.classList.remove('rh-intro-open');
+      // Skipped by scrolling: stay locked until the fade is over, or the rest of
+      // that same swipe lands on the page and throws the visitor past the hero.
+      window.setTimeout(function () { document.body.classList.remove('rh-intro-open'); }, slow === true ? 900 : 0);
       window.setTimeout(function () {
         if (el.parentNode) el.parentNode.removeChild(el);
         mountReplay();
@@ -247,7 +255,10 @@
     }
 
     function onKey(e) {
-      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') finish();
+      // Space would also page down, and Enter would also press whatever has focus.
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finish(); }
+      // Skip is the only control up here; Tab must not wander into the covered page.
+      if (e.key === 'Tab') { e.preventDefault(); if (skip) skip.focus(); }
     }
 
     var scrub = null;
@@ -286,6 +297,7 @@
       }
 
       document.body.classList.add('rh-intro-open');
+      try { window.history.scrollRestoration = 'auto'; } catch (e) {}
       if (warp) warp.start();
       if (prog) prog.classList.add('is-on');
 
@@ -321,7 +333,7 @@
       later(finish, T.END);
       later(finish, T.END + 4000);          // failsafe
 
-      on(skip, 'click', finish);
+      on(skip, 'click', function () { finish(); });
       document.addEventListener('keydown', onKey);
       // A resting trackpad emits stray wheel events, so only a real scroll skips:
       // not in the first 1.5s, and only after a decent amount of travel.
@@ -329,7 +341,7 @@
       on(el, 'wheel', function (e) {
         if (performance.now() < wheelFrom) return;
         wheelSum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
-        if (wheelSum > 240) finish();
+        if (wheelSum > 240) finish(true);
       }, { passive: true });
     } catch (err) {
       if (window.console && console.warn) console.warn('[intro] failed, skipping:', err);

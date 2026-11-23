@@ -2,8 +2,10 @@
  * HEUSER — THE DRIVE: WORLD
  *
  * Builds the whole Las Vegas -> Reno road as one continuous 3D scene. Every
- * object is geometry written here (no downloaded models, no generated art) and
- * shaded like a banknote engraving: brightness is drawn as line thickness.
+ * object is geometry written here (no downloaded models) and shaded like a
+ * banknote engraving: brightness is drawn as line thickness. Two AI-generated
+ * plates (Las Vegas at night, Reno at dusk) hang behind it as the horizon, and
+ * are re-lit and re-engraved by the sky shader so they belong to the same world.
  *
  * Exposes window.RHWorld(THREE, opts) -> world. drive.js owns scroll, camera,
  * input and the page; this file only owns what exists and how it moves.
@@ -104,7 +106,9 @@
       uTail: { value: V(0, 0.8, 2.3) }, uTailOn: { value: 0.6 },
       uCar: { value: V(0, 0, 0) },
       uAccent: { value: new T.Color(C.brass) },
-      uDpr: { value: 1 }, uPx: { value: 0.12 }
+      uDpr: { value: 1 }, uPx: { value: 0.12 },
+      uMir: { value: 0 }, uRefl: { value: null }, uReflOn: { value: 0 }, uRes: { value: new T.Vector2(1, 1) },   // mirror pass
+      uWet: { value: 1 }, uWarm: { value: new T.Color(0x3a2a18) }, uWarmZ: { value: 1 }                            // rain on the ground, light on the horizon
     };
 
     /* --------------------------------------------------- engraving shader */
@@ -140,15 +144,29 @@
       'float spot(vec3 P,vec3 N){ vec3 d=P-uHead; float l=length(d); d/=max(l,0.01); float c=dot(d,uHeadDir);',
       '  return smoothstep(0.86,0.985,c)*max(dot(N,-d),0.16)*uHeadOn*(1.0/(1.0+l*l*0.0009)); }',
       'float tail(vec3 P){ float l=distance(P,uTail); return uTailOn/(1.0+l*l*0.5); }',
-      'vec3 fogged(vec3 c,vec3 P){ float d=distance(P,cameraPosition); float f=1.0-exp(-pow(d*uFogD,1.5)); return mix(c,uFog,clamp(f,0.0,1.0)); }'
+      'uniform vec3 uWarm; uniform float uWarmZ;',
+      'vec3 fogged(vec3 c,vec3 P){ vec3 v=P-cameraPosition; float d=length(v); float f=1.0-exp(-pow(d*uFogD,1.5)); v/=max(d,0.01);',
+      '  float az=clamp(0.5+0.5*v.z*uWarmZ,0.0,1.0); vec3 fc=mix(uFog,uFog*0.6+uWarm,az*az*0.75);',
+      '  float m=exp(-max(P.y-cameraPosition.y+1.6,0.0)*0.22)*(1.0-exp(-d*0.011))*(0.75+0.25*sin(P.x*0.045+P.z*0.03+uTime*0.22)*sin(P.z*0.021-uTime*0.13));',
+      '  return mix(mix(c,fc*1.12,clamp(m*0.34,0.0,1.0)),fc,clamp(f,0.0,1.0)); }'
+    ].join('\n');
+    /* Wet ground: what the mirror pass saw, broken up by ripples and grain. */
+    var WET = [
+      'uniform sampler2D uRefl; uniform float uReflOn,uWet; uniform vec2 uRes;',
+      'float wn2(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }',
+      'float wns(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(wn2(i),wn2(i+vec2(1,0)),f.x),mix(wn2(i+vec2(0,1)),wn2(i+vec2(1,1)),f.x),f.y); }',
+      'vec3 wet(vec3 P,float lo,out float pud){ vec2 q=P.xz; float n=wns(q*0.32)*0.6+wns(q*0.9+7.0)*0.4; pud=smoothstep(0.42,0.66,n); vec3 E=cameraPosition-P; float d=length(E); float F=pow(1.0-clamp(E.y/d,0.0,1.0),3.0);',
+      '  vec2 rp=vec2(wns(q*3.1+uTime*0.25)-0.5,wns(q*2.7-uTime*0.22+9.0)-0.5)*mix(0.030,0.007,pud); vec2 uv=gl_FragCoord.xy/uRes+rp*vec2(0.55,1.0)*(1.0/(1.0+d*0.02)); float b=mix(0.030,0.006,pud)/(1.0+d*0.012);',
+      '  vec3 r=texture2D(uRefl,uv).rgb*0.28; r+=(texture2D(uRefl,uv+vec2(0.0,b)).rgb+texture2D(uRefl,uv-vec2(0.0,b)).rgb)*0.2; r+=(texture2D(uRefl,uv+vec2(b*0.15,b*2.2)).rgb+texture2D(uRefl,uv-vec2(b*0.15,b*2.2)).rgb)*0.12; r+=texture2D(uRefl,uv+vec2(0.0,b*3.6)).rgb*0.08;',
+      '  return r*mix(lo,1.0,F)*mix(0.62,1.12,pud)*uReflOn*uWet; }'
     ].join('\n');
 
     var ENG_FS = [
-      'uniform vec3 uInk,uBg; uniform float uSolid,uEmis,uAmb,uRim,uSpec,uDens,uTailK;',
+      'uniform vec3 uInk,uBg; uniform float uMir,uSolid,uEmis,uAmb,uRim,uSpec,uDens,uTailK;',
       'varying vec3 vW,vN,vC,vI; varying float vH;',
       LIGHT,
       'void main(){',
-      '  vec3 N=normalize(vN); if(!gl_FrontFacing) N=-N;',
+      '  vec3 N=normalize(vN); if(gl_FrontFacing==(uMir>0.5)) N=-N;',
       '  vec3 E=normalize(cameraPosition-vW);',
       '  float dif=max(dot(N,uMoon),0.0);',
       '  float sp=spot(vW,N);',
@@ -158,7 +176,9 @@
       '  float th=clamp(Lm*0.86+uBeat*0.05,0.03,0.97);',
       '  float line=hatch(vH,th,uDens,boil);',
       '  vec3 ink=uInk*vC*vI;',
-      '  vec3 c=mix(uBg,ink*(0.5+0.62*Lm),line);',
+      '  float far=smoothstep(30.0,150.0,distance(vW,cameraPosition)); float keep=1.0-0.45*far;',
+      '  vec3 sh=uBg+ink*vec3(0.17,0.19,0.26)*(0.40+dif*1.0);',
+      '  vec3 c=mix(sh,ink*(0.16+0.86*Lm),line*keep*(0.50+0.50*smoothstep(0.16,0.5,Lm)));',
       '  vec3 sc=ink*(0.1+0.95*Lm);',
       '  c=mix(c,sc,uSolid);',
       '  float s1=pow(max(dot(reflect(-E,N),uMoon),0.0),28.0)*uSpec;',
@@ -255,6 +275,24 @@
     }
     var SANS = '"Inter",-apple-system,"Helvetica Neue",Arial,sans-serif';
 
+    /** Buildings: dark stone, lit rooms, the occasional lamp being switched. */
+    function facade(o) {
+      var u = { uStone: { value: new T.Color(o.stone || 0x151b27) }, uRoom: { value: new T.Color(o.room || 0xffc071) }, uDen: { value: o.den || 0.34 }, uGain: { value: o.gain || 1 } };
+      for (var k in U) u[k] = U[k];
+      return new T.ShaderMaterial({ uniforms: u, side: T.DoubleSide,
+        vertexShader: 'varying vec3 vW,vN; void main(){ vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*viewMatrix*w; }',
+        fragmentShader: ['uniform vec3 uStone,uRoom; uniform float uDen,uGain; varying vec3 vW,vN;', LIGHT,
+          'float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }',
+          'void main(){ vec3 N=normalize(vN); vec3 E=normalize(cameraPosition-vW); float d=distance(vW,cameraPosition); float side=1.0-step(0.6,abs(N.y)); float ax=abs(N.x)>abs(N.z)?vW.z:vW.x;',
+          '  vec2 g=vec2(ax/1.55,vW.y/2.35); vec2 id=floor(g),f=fract(g); float bl=floor(ax/23.0)+floor(vW.x/60.0)*7.0+floor(vW.z/60.0)*3.0;',
+          '  float r=h(id+bl*13.7+(abs(N.x)>abs(N.z)?5.0:0.0)); float floorLit=step(0.82,h(vec2(id.y,bl))); float on=step(1.0-uDen-floorLit*0.4,r); on*=0.55+0.45*h(id*3.1+bl); on*=1.0-0.75*step(0.994,h(id+floor(uTime*0.35+r*9.0)));',
+          '  vec2 w=fwidth(g); float win=smoothstep(0.16-w.x,0.16+w.x,f.x)*smoothstep(0.16-w.x,0.16+w.x,1.0-f.x)*smoothstep(0.24-w.y,0.24+w.y,f.y)*smoothstep(0.18-w.y,0.18+w.y,1.0-f.y); float aa=smoothstep(0.9,0.35,max(w.x,w.y)); win=mix(0.40,win,aa); on=mix(uDen*0.6,on,aa);',
+          '  vec3 c=uStone*(0.55+0.9*max(dot(N,uMoon),0.0)); c+=uFog*pow(1.0-abs(dot(N,E)),3.0)*0.5; float up=clamp(1.0-vW.y/26.0,0.0,1.0); c+=uWarm*up*up*0.16;',
+          '  vec3 rc=mix(uRoom,mix(vec3(1.0,0.86,0.66),vec3(0.62,0.80,1.0),step(0.86,h(id*1.7+bl))),0.35); c+=rc*win*on*side*uGain*(0.75+0.25*r); c+=vec3(0.03,0.04,0.06)*win*(1.0-on)*side;',
+          '  float ln=abs(fract(vW.y*0.85)-0.5)*2.0,lw=fwidth(vW.y*0.85); c+=vec3(0.50,0.38,0.18)*smoothstep(0.90-lw,0.90+lw,ln)*0.10*side*aa; c+=spot(vW,N)*vec3(0.5,0.42,0.28)*0.6;',
+          '  gl_FragColor=vec4(fogged(c,vW),1.0); }'].join('\n') });
+    }
+
     /* Groups that only exist near their stretch of road. */
     var zones = [];
     function zone(a, b) { var g = new T.Group(); scene.add(g); zones.push({ g: g, a: a, b: b }); return g; }
@@ -262,15 +300,61 @@
     function tick(f) { ticks.push(f); }
 
     /* ================================================================ SKY */
+    /* The plates. Las Vegas hangs behind the car (+Z) and is left behind; Reno
+       rises ahead of it (-Z), and is also what the finale looks back at. Each is
+       wrapped on the dome by angle: (centre azimuth, half span, image row that
+       sits on the true horizon, elevation lift). If an image never loads its
+       weight stays 0 and the drawn sky is what you get. */
+    var blank = new T.CanvasTexture(canvas(2, 2));
     var skyU = {
       uZen: { value: new T.Color(0x050912) }, uHor: { value: new T.Color(0x1a1626) }, uGlow: { value: new T.Color(0x8a5a2a) },
-      uGZ: { value: 1 }, uTime: U.uTime, uBeat: U.uBeat
+      uGZ: { value: 1 }, uTime: U.uTime, uBeat: U.uBeat, uDpr: U.uDpr,
+      uV: { value: blank }, uR: { value: blank }, uVw: { value: 0 }, uRw: { value: 0 },      // textures, loaded weights
+      uLit: { value: 0 }, uSurge: { value: 0 }, uPar: { value: new T.Vector2(0, 0) },
+      uBack: { value: 0 },                                                                    // 0: +Z is Vegas, 1: +Z is Reno
+      uF: { value: new T.Vector4(0, 1.05, 0.765, 0) }, uB: { value: new T.Vector4(-0.36, 1.2, 0.665, 0) },
+      uWhole: { value: 1 }, uFw: { value: 0 }, uBw: { value: 1 },                                   // 1: Vegas may wrap the whole dome
+      uFx: { value: 0.3 }, uBx: { value: 1 }, uEngF: { value: 1 }, uEngB: { value: 0.3 }, uDusk: { value: 1 }, uMilk: { value: 0 }
     };
     var sky = new T.Mesh(new T.SphereGeometry(900, 40, 24), new T.ShaderMaterial({
-      side: T.BackSide, depthWrite: false, uniforms: skyU,
+      side: T.DoubleSide, depthWrite: false, uniforms: skyU,
       vertexShader: 'varying vec3 vD; void main(){ vD=position; vec4 p=projectionMatrix*mat4(mat3(viewMatrix))*vec4(position,1.0); gl_Position=p.xyww; }',
       fragmentShader: [
-        'uniform vec3 uZen,uHor,uGlow; uniform float uGZ,uTime,uBeat; varying vec3 vD;',
+        'uniform vec3 uZen,uHor,uGlow; uniform float uGZ,uTime,uBeat,uDpr,uVw,uRw,uLit,uSurge,uBack,uWhole,uFw,uBw,uFx,uBx,uEngF,uEngB,uDusk,uMilk; uniform sampler2D uV,uR; uniform vec4 uF,uB; uniform vec2 uPar; varying vec3 vD;',
+        'float h21(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }',
+        'float n3(vec3 p){ vec3 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); vec2 k=i.xy+i.z*vec2(37.0,17.0); vec2 a=vec2(h21(k),h21(k+vec2(37.0,17.0))),b=vec2(h21(k+vec2(1,0)),h21(k+vec2(38.0,17.0))),c=vec2(h21(k+vec2(0,1)),h21(k+vec2(37.0,18.0))),e=vec2(h21(k+vec2(1,1)),h21(k+vec2(38.0,18.0))); vec2 m=mix(mix(a,b,f.x),mix(c,e,f.x),f.y); return mix(m.x,m.y,f.z); }',
+        'float fb(vec3 p){ return n3(p)*0.5+n3(p*2.1+3.0)*0.27+n3(p*4.4+9.0)*0.15+n3(p*9.0)*0.08; }',
+        // a band of galaxy with dust lanes, and now and then something burns up in it
+        'vec3 milky(vec3 d){ vec3 ax=normalize(vec3(0.62,0.46,0.63)); float u=dot(d,ax); float w=fb(d*2.6+4.0)-0.5; float core=exp(-pow(u*3.6+w*0.75,2.0)); float dust=smoothstep(0.38,0.72,fb(d*5.2+11.0)+0.16*exp(-pow(u*9.0+w,2.0)));',
+        '  float cl=fb(d*8.0)*0.7+0.3; vec3 hue=mix(vec3(0.20,0.26,0.46),vec3(0.62,0.46,0.30),smoothstep(0.35,1.0,core*cl)); vec3 q=hue*core*cl*(1.0-dust*0.82)*0.62;',
+        '  vec3 cell=floor(d*210.0); vec3 fr=fract(d*210.0)-0.5; float r=h21(cell.xy+cell.z*31.7); float st=smoothstep(0.965-core*0.09,1.0,r)*smoothstep(0.22,0.0,dot(fr,fr)); return q+vec3(0.85,0.9,1.0)*st*(0.35+0.65*core)*0.75; }',
+        'float shoot(vec3 d,float t,float s){ float n=floor(t/7.0+s); float f=fract(t/7.0+s); float a=h21(vec2(n,s*9.1))*6.283; vec3 o=normalize(vec3(sin(a),0.45+0.35*h21(vec2(n,3.3)),cos(a))); vec3 v=normalize(cross(o,vec3(0.2,1.0,0.1))+vec3(0.0,-0.35,0.0)); float k=f*7.0/0.8; if(k>1.0) return 0.0; vec3 h=normalize(o+v*k*0.55); float al=dot(d-h,v); vec3 off=(d-h)-v*al; float w=exp(-dot(off,off)*90000.0); return w*smoothstep(-0.22,0.0,al)*step(al,0.004)*sin(k*3.14); }',
+        'vec3 plate(sampler2D t,vec2 uv,float isV,float ex,float eng,float k,out float cover){',
+        '  vec2 e=vec2(abs(uv.x-0.5)*2.0,uv.y);',
+        '  cover=(1.0-smoothstep(0.72,1.0,e.x))*(1.0-smoothstep(0.74,0.98,e.y));',
+        // hot air over the valley floor: only near the lights, never the sky
+        '  float band=exp(-pow((uv.y-(isV>0.5?0.40:0.22))*13.0,2.0));',
+        '  uv.x+=band*0.00026*sin(uv.y*300.0-uTime*2.6+sin(uv.x*70.0)*2.0);',
+        '  vec3 p=texture2D(t,uv,-0.6).rgb,pb=texture2D(t,uv,3.2).rgb; float L=dot(p,vec3(0.3,0.6,0.1)),Lb=dot(pb,vec3(0.3,0.6,0.1));',
+        // electric light: warm, bright, and low in the frame
+        '  float low=isV>0.5?1.0-smoothstep(0.50,0.58,uv.y):1.0-smoothstep(0.255,0.30,uv.y);',
+        '  float el=smoothstep(0.05,0.26,L-Lb)*smoothstep(0.22,0.5,L)*low*step(0.0,p.r-p.b); p=max(p+(p-pb)*low*(isV>0.5?0.55:0.25),0.0);',
+        '  vec2 c=floor(uv*vec2(900.0,380.0)); float r=h21(c);',
+        '  float tw=0.5+0.5*sin(uTime*(0.5+r*3.2)+r*80.0); tw*=tw;',
+        // the valley switches on from the middle outward, block by block
+        '  float far=abs(uv.x-0.5)*1.5+(h21(floor(uv*vec2(60.0,24.0)))-0.5)*0.35;',
+        '  float on=isV>0.5?smoothstep(far-0.06,far+0.1,uLit*1.35):1.0;',
+        '  float glow=isV>0.5?exp(-pow((uv.y-0.45)*7.5,2.0))*exp(-pow((uv.x-0.5)*2.6,2.0)):0.0;',
+        '  vec3 q=p*ex*mix(1.0,mix(0.26,1.0,on),max(low,glow));',
+        '  q+=p*el*on*ex*(tw*0.9-0.2+uBeat*0.2)+p*low*on*ex*uSurge*0.1;',
+        '  q+=vec3(0.95,0.62,0.26)*glow*on*(uSurge*0.05+uBeat*0.02+0.014*sin(uTime*0.7));',
+        // the sun keeps working behind the Sierra
+        '  if(isV<0.5){ float s=exp(-pow((uv.y-0.47)*6.0,2.0))*exp(-pow((uv.x-0.53)*2.4,2.0)); q+=vec3(0.85,0.45,0.14)*s*(0.03*sin(uTime*0.45)+uBeat*0.03)*uDusk; }',
+        // the same burin that cuts everything else: tone becomes line width
+        '  float Lq=clamp(dot(q,vec3(0.4,0.5,0.1))*1.5,0.0,1.0); float w=max(fwidth(k),1e-5); float tri=abs(fract(k)-0.5)*2.0;',
+        '  float th=clamp(Lq,0.03,0.93); float ln=smoothstep(1.0-th-w,1.0-th+w,tri); ln=mix(ln,th,smoothstep(0.35,0.9,w));',
+        '  vec3 cut=mix(vec3(0.016,0.028,0.055),q*1.18+vec3(0.05,0.035,0.012),ln);',
+        '  return mix(q,cut,eng); }',
         'void main(){ vec3 d=normalize(vD); float h=d.y;',
         '  float az=0.5+0.5*normalize(d.xz+1e-4).y*uGZ; az=0.35+0.65*az*az;',
         '  float g=exp(-max(h,0.0)*5.5)*az;',
@@ -279,7 +363,19 @@
         '  float k=(h+sin(d.x*9.0+uTime*0.05)*0.004)*150.0; float w=fwidth(k);',
         '  float tri=abs(fract(k)-0.5)*2.0; float th=clamp(g*0.62+uBeat*0.04,0.0,0.8)*smoothstep(0.0,0.02,h);',
         '  float ln=smoothstep(1.0-th-w,1.0-th+w,tri); ln=mix(ln,th,smoothstep(0.4,1.0,w));',
-        '  c+=uGlow*ln*0.34; gl_FragColor=vec4(c,1.0); }'].join('\n')
+        '  c+=uGlow*ln*0.13; vec3 mk=vec3(0.0); if(uMilk>0.01&&h>-0.05){ float up=smoothstep(0.02,0.35,h); mk=milky(d)*uMilk*up+vec3(1.0,0.95,0.85)*(shoot(d,uTime,0.0)+shoot(d,uTime+3.1,0.37))*uMilk*1.6; }',
+        '  float rd=length(d.xz), elv=atan(h,rd); float front=step(d.z,0.0)*(1.0-uWhole); vec4 P=mix(uB,uF,front);',
+        '  float azm=front>0.5?atan(d.x,-d.z):atan(-d.x,d.z);',
+        // image is 3120x1328, so one unit of v is 2.349 times shorter than one of u
+        '  float span=2.0*P.y; vec2 uv=vec2(0.5+mod(azm-P.x+3.14159265,6.2831853)/span-3.14159265/span,(1.0-P.z)+(elv-P.w)/(span/2.3494));',
+        '  uv+=uPar*vec2(1.0,0.5)*(0.010-0.006*clamp(uv.y*1.6,0.0,1.0));',
+        '  if(uv.x>0.0&&uv.x<1.0&&uv.y<1.0&&uv.y>0.0){ float isV=(1.0-front)*(1.0-step(0.5,uBack)); float cov; vec3 q;',
+        '    float kk=elv*150.0+sin(d.x*9.0+uTime*0.05)*0.6;',
+        '    if(isV>0.5) q=plate(uV,uv,1.0,uBx,uEngB,kk,cov); else q=plate(uR,uv,0.0,mix(uBx,uFx,front),mix(uEngB,uEngF,front),kk,cov);',
+        '    float ck=cov*(isV>0.5?uVw:uRw)*mix(uBw,uFw,front); if(isV<0.5){ float rock=(1.0-smoothstep(0.05,0.13,dot(texture2D(uR,uv,1.5).rgb,vec3(0.34))))*(1.0-smoothstep(0.43,0.475,uv.y)); ck=mix(ck,max(ck,0.94*cov*uRw*smoothstep(0.0,0.25,mix(uBw,uFw,front))),rock); mk*=1.0-rock; } c=mix(c,q,ck); mk*=1.0-0.8*smoothstep(0.06,0.3,dot(c,vec3(0.34))); } c+=mk;',
+        // long dark gradients band on 8-bit screens without a little dither
+        '  c+=(h21(gl_FragCoord.xy+fract(uTime)*61.0)-0.5)*(1.6/255.0);',
+        '  gl_FragColor=vec4(c,1.0); }'].join('\n')
     }));
     sky.frustumCulled = false; sky.renderOrder = -10; scene.add(sky);
 
@@ -301,6 +397,8 @@
       var pts = new T.Points(g, m); pts.frustumCulled = false; pts.renderOrder = -9; scene.add(pts);
     }());
 
+    var mirrorHide = [];                  // the ground itself is not in its own reflection
+
     /* ============================================================ TERRAIN */
     (function () {
       var xs = [], K = lite ? 32 : 46, i, j, s;
@@ -319,8 +417,30 @@
       var g = new T.BufferGeometry();
       g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('aH', new T.BufferAttribute(ah, 1));
       g.setIndex(idx); g.computeVertexNormals();
-      var m = new T.Mesh(g, eng({ hatch: 'attr', freq: 1, ink: 0xB08C2E, amb: 0.12, rim: 0.12 }));
-      m.frustumCulled = false; scene.add(m);
+      var lat = new Float32Array(rows * nx); for (i = 0; i < rows; i++) for (j = 0; j < nx; j++) lat[i * nx + j] = xs[j];
+      g.setAttribute('aLat', new T.BufferAttribute(lat, 1));
+      var tu = {}; for (var q in U) tu[q] = U[q];
+      var m = new T.Mesh(g, new T.ShaderMaterial({
+        uniforms: tu, side: T.DoubleSide,
+        vertexShader: 'attribute float aH,aLat; varying float vH,vLat; varying vec3 vW,vN; uniform float uWave,uTime; uniform vec3 uCar; void main(){ vH=aH; vLat=aLat; vN=normal; vec4 w=modelMatrix*vec4(position,1.0); float r=distance(w.xz,uCar.xz); w.y+=uWave*sin(r*0.85-uTime*10.0)*exp(-r*0.055)*smoothstep(3.0,7.0,r); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
+        fragmentShader: [
+          'varying float vH,vLat; varying vec3 vW,vN;', LIGHT, WET,
+          'void main(){ vec3 N=normalize(vN); if(N.y<0.0) N=-N; vec3 E=normalize(cameraPosition-vW); float d=distance(vW,cameraPosition);',
+          '  float g1=wns(vW.xz*0.55),g2=wns(vW.xz*2.3),g3=wns(vW.xz*7.0); float grain=g1*0.5+g2*0.32+g3*0.18;',
+          '  vec3 Ng=normalize(N+vec3(g2-0.5,0.0,g3-0.5)*0.55*exp(-d*0.02));',
+          '  float dif=max(dot(Ng,uMoon),0.0); float sp=spot(vW,Ng); float gz=pow(1.0-max(dot(N,E),0.0),4.0);',
+          // moonlit dust, cold in shadow, warm toward whatever city is on the horizon
+          '  float az=clamp(0.5+0.5*normalize(vW-cameraPosition).z*uWarmZ,0.0,1.0);',
+          '  vec3 c=mix(vec3(0.014,0.021,0.040),vec3(0.105,0.118,0.160),dif*(0.40+grain*0.85)); c+=vec3(0.05,0.06,0.09)*pow(dif,3.0)*smoothstep(20.0,160.0,d);',
+          '  c+=uWarm*(0.10+0.30*grain)*az*(0.3+0.7*dif); c+=mix(uFog,uWarm,az)*gz*0.35;',
+          '  float slope=1.0-smoothstep(0.80,0.985,N.y); float tone=clamp(0.05+slope*(0.10+dif*0.42)+sp*2.2+gz*0.10+uBeat*0.02,0.0,0.9);',
+          '  float l=hatch(vH,tone,0.62,sin(vW.x*0.5+vW.z*0.4)*0.06); float fade=exp(-d*0.0052);',
+          '  c=mix(c,vec3(0.56,0.43,0.19)*(0.30+sp*1.6+dif*0.30),l*(0.20+0.62*clamp(sp*2.5,0.0,1.0)+slope*0.30)*fade);',
+          '  c+=vec3(1.0,0.88,0.62)*sp*grain*0.34; c+=vec3(0.95,0.05,0.07)*tail(vW)*0.28*(0.4+grain);',
+          '  float flat_=smoothstep(0.965,0.995,N.y)*(1.0-smoothstep(20.0,46.0,abs(vLat))); float pud; vec3 r=wet(vW,0.16,pud); c=mix(c,c*0.72,flat_*pud*uWet); c+=r*flat_*(0.25+0.75*pud);',
+          '  gl_FragColor=vec4(fogged(c,vW),1.0); }'].join('\n')
+      }));
+      m.frustumCulled = false; scene.add(m); mirrorHide.push(m);
     }());
 
     /* =============================================================== ROAD */
@@ -340,21 +460,21 @@
         uniforms: u, side: T.DoubleSide,
         vertexShader: 'attribute float aLat,aS; varying float vLat,vS; varying vec3 vW; uniform float uWave,uTime; uniform vec3 uCar; void main(){ vLat=aLat; vS=aS; vec4 w=modelMatrix*vec4(position,1.0); float r=distance(w.xz,uCar.xz); w.y+=uWave*sin(r*0.85-uTime*10.0)*exp(-r*0.055)*smoothstep(3.0,7.0,r); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
         fragmentShader: [
-          'varying float vLat,vS; varying vec3 vW;', LIGHT,
+          'varying float vLat,vS; varying vec3 vW;', LIGHT, WET,
           'float ln(float x,float w){ float e=fwidth(vLat)*1.2; return 1.0-smoothstep(w,w+e,abs(vLat-x)); }',
           'void main(){ vec3 N=vec3(0.0,1.0,0.0); float sp=spot(vW,N);',
-          '  vec3 c=vec3(0.018,0.026,0.048);',
+          '  float gr=wns(vW.xz*9.0)*0.6+wns(vW.xz*31.0)*0.4; vec3 c=vec3(0.011,0.015,0.026)*(0.7+gr*0.6);',
           '  float jit=sin(vS*0.6+floor(uTime*7.0))*0.05;',
-          '  float th=clamp(0.05+sp*2.6+uBeat*0.05,0.0,0.94); float l=hatch(vLat,th,0.9,jit);',
-          '  c=mix(c,vec3(0.62,0.5,0.26)*(0.35+sp*1.9),l*0.8);',
+          '  float th=clamp(0.02+sp*1.5+uBeat*0.04,0.0,0.8); float l=hatch(vLat,th,0.9,jit);',
+          '  c=mix(c,vec3(0.62,0.5,0.28)*(0.2+sp*1.5),l*0.42); c+=vec3(1.0,0.9,0.68)*sp*gr*0.22;',
           '  float dash=step(fract(vS/12.0),0.34)*ln(0.0,0.085);',
           '  float edge=max(ln(4.25,0.06),ln(-4.25,0.06));',
           '  c=mix(c,mix(vec3(0.95,0.72,0.2),uAccent,0.55)*(0.42+sp*1.7),dash);',
           '  c=mix(c,vec3(0.86,0.84,0.78)*(0.2+sp*1.5),edge);',
-          '  c+=vec3(0.95,0.05,0.08)*tail(vW)*0.8;',
+          '  c+=vec3(0.95,0.05,0.08)*tail(vW)*0.34*(0.5+gr); float pud; vec3 rf=wet(vW,0.30,pud); c=mix(c,c*0.6,pud*0.6*uWet)+rf;',
           '  gl_FragColor=vec4(fogged(c,vW),1.0); }'].join('\n')
       }));
-      m.frustumCulled = false; scene.add(m);
+      m.frustumCulled = false; scene.add(m); mirrorHide.push(m);
     }());
 
     /* ================================================================ CAR
@@ -390,10 +510,30 @@
       }
 
       var PAINT = 0x5C646E, CLAD = 0x1b1f25, DARK = 0x0A0C10;
-      var paintMat = eng({ vcol: 1, hatch: 'obj', ink: 0xffffff, bg: 0x070A11, freq: 20, dir: V(0.12, 1, 0.05), solid: 0.74, amb: 0.26, rim: 1.0, spec: 0.75, dens: 1.5, tailK: 0.1 });
+      /* Clear-coat over metallic carbon. It reflects the same plates and sky the
+         dome draws, so the car always belongs to where it is. */
+      var pu = {}; for (var pk in U) pu[pk] = U[pk];
+      ['uZen', 'uHor', 'uGlow', 'uV', 'uR', 'uVw', 'uRw', 'uF', 'uB', 'uFx', 'uBx', 'uFw', 'uBw', 'uWhole', 'uBack', 'uGZ', 'uLit'].forEach(function (k) { pu[k] = skyU[k]; });
+      var ENV = [
+        'uniform vec3 uZen,uHor,uGlow; uniform sampler2D uV,uR; uniform vec4 uF,uB; uniform float uVw,uRw,uFx,uBx,uFw,uBw,uWhole,uBack,uGZ,uLit;',
+        'vec3 env(vec3 d,float bias){ float h=d.y; vec3 c=mix(uHor,uZen,smoothstep(0.0,0.5,h)); float az=clamp(0.5+0.5*normalize(d.xz+1e-4).y*uGZ,0.0,1.0); c+=uGlow*exp(-abs(h)*6.0)*(0.35+0.65*az*az)*0.7;',
+        '  float front=step(d.z,0.0)*(1.0-uWhole); vec4 P=mix(uB,uF,front); float a=front>0.5?atan(d.x,-d.z):atan(-d.x,d.z); float span=2.0*P.y; vec2 uv=vec2(0.5+mod(a-P.x+3.14159265,6.2831853)/span-3.14159265/span,(1.0-P.z)+(atan(h,length(d.xz))-P.w)/(span/2.3494));',
+        '  if(uv.x>0.0&&uv.x<1.0&&uv.y>0.0&&uv.y<1.0){ float isV=(1.0-front)*(1.0-step(0.5,uBack)); float cv=(1.0-smoothstep(0.72,1.0,abs(uv.x-0.5)*2.0))*(1.0-smoothstep(0.74,0.98,uv.y)); vec3 q=isV>0.5?texture2D(uV,uv,bias).rgb*uBx*(0.3+0.7*uLit)*1.5:texture2D(uR,uv,bias).rgb*mix(uBx,uFx,front)*1.3; c=mix(c,q,cv*(isV>0.5?uVw:uRw)*mix(uBw,uFw,front)); }',
+        '  return mix(vec3(0.012,0.012,0.016)+uHor*0.10,c,smoothstep(-0.10,0.015,h)); }'].join('\n');
+      var CAR_VS = 'attribute vec3 aCol; varying vec3 vC,vW,vN,vO; void main(){ vC=aCol; vO=position; vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*viewMatrix*w; }';
+      var paintMat = new T.ShaderMaterial({ uniforms: pu, side: T.DoubleSide, vertexShader: CAR_VS, fragmentShader: ['uniform float uMir; varying vec3 vC,vW,vN,vO;', LIGHT, ENV,
+        'float h3(vec3 p){ return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453); }',
+        'void main(){ vec3 N=normalize(vN); vec3 E=normalize(cameraPosition-vW); if(dot(N,E)<0.0) N=-N; float nv=max(dot(N,E),0.0); vec3 R=reflect(-E,N);',
+        '  float F=0.11+0.89*pow(1.0-nv,3.6); float fl=h3(floor(vO*240.0)); vec3 base=vC*vec3(0.58,0.60,0.66);',
+        '  float dif=max(dot(N,uMoon),0.0); vec3 c=base*(0.13+dif*0.50+0.20*max(N.y,0.0))+base*pow(nv,3.0)*0.14*(0.7+fl*0.6);',
+        '  c+=env(R,1.2)*F*1.55+env(normalize(R+vec3(0.0,0.16,0.0)),4.2)*base*1.5; c+=mix(uHor,uGlow,0.5)*pow(1.0-nv,2.4)*0.16;',
+        '  float s1=pow(max(dot(R,uMoon),0.0),90.0),s2=pow(max(dot(R,uMoon),0.0),14.0); c+=vec3(1.0,0.95,0.86)*(s1*0.9+s2*0.10);',
+        '  c+=spot(vW,N)*vC*0.25; c+=uAccent*pow(1.0-nv,5.0)*0.10; c+=vec3(0.9,0.06,0.08)*tail(vW)*0.06;',
+        '  gl_FragColor=vec4(fogged(c,vW),1.0); }'].join('\n') });
       var trimMat = eng({ vcol: 1, hatch: 'obj', ink: 0xffffff, bg: 0x040609, freq: 26, solid: 0.6, amb: 0.24, rim: 0.6, spec: 0.35, dens: 1.5, tailK: 0.12 });
       var redMat = eng({ vcol: 1, hatch: 'obj', ink: 0xffffff, bg: 0x22040a, freq: 22, dir: V(1, 0.3, 0), solid: 0.66, amb: 0.36, rim: 0.4, emis: 0.06, dens: 1.5, tailK: 0.1 });
-      var glassMat = new T.MeshBasicMaterial({ color: 0x0b0408, transparent: true, opacity: 0.5, side: T.DoubleSide, depthWrite: false });
+      var glassMat = new T.ShaderMaterial({ uniforms: pu, side: T.DoubleSide, transparent: true, depthWrite: false, vertexShader: CAR_VS, fragmentShader: ['varying vec3 vC,vW,vN,vO;', LIGHT, ENV,
+        'void main(){ vec3 N=normalize(vN); vec3 E=normalize(cameraPosition-vW); if(dot(N,E)<0.0) N=-N; float F=0.05+0.95*pow(1.0-max(dot(N,E),0.0),3.2); vec3 r=env(reflect(-E,N),0.8); gl_FragColor=vec4(mix(vec3(0.012,0.006,0.010),r*1.35,clamp(F*1.15,0.0,1.0)),clamp(0.42+F*0.6,0.0,0.94)); }'].join('\n') });
 
       /* lower body: [z, half-width, bottom, top] */
       var LB = [[-2.215, 0.001, 0.36, 0.71], [-2.2, 0.64, 0.36, 0.72], [-2.1, 0.8, 0.29, 0.83], [-1.85, 0.872, 0.25, 0.91], [-1.4, 0.898, 0.24, 0.975],
@@ -410,7 +550,7 @@
         return PAINT;
       });
       body.add(new T.Mesh(lower.paint, paintMat));
-      body.add(edges(lower.paint, C.lite, 0.2, 24));
+      body.add(edges(lower.paint, C.lite, 0.05, 30));
 
       /* greenhouse: [z, base half-width, belt y, roof half-width, roof y] */
       var GH = [[-0.98, 0.8, 1.02, 0.66, 1.035], [-0.6, 0.815, 1.02, 0.645, 1.245], [-0.2, 0.822, 1.02, 0.635, 1.44], [0.1, 0.826, 1.03, 0.63, 1.52],
@@ -424,16 +564,17 @@
         if (i >= 7) return null;
         return PAINT;
       });
-      body.add(new T.Mesh(gh.paint, paintMat)); body.add(edges(gh.paint, C.lite, 0.24, 18));
+      body.add(new T.Mesh(gh.paint, paintMat)); body.add(edges(gh.paint, C.lite, 0.06, 30));
       var gl = new T.Mesh(gh.glass, glassMat); gl.renderOrder = 3; body.add(gl);
 
       /* pillars, roof rails, cladding arches, floor, grille, details */
       var tb = new Bag(), box = new T.BoxGeometry(1, 1, 1);
       function bx(x, y, z, sx, sy, sz, c, rx, ry, rz) { tb.add(box, mat(x, y, z, rx, ry, rz, sx, sy, sz), c); }
+      function rod(a, b, w, h, c) { var p = V(a[0], a[1], a[2]), q = V(b[0], b[1], b[2]), dr = q.clone().sub(p), L2 = dr.length(); _q.setFromUnitVectors(V(0, 0, 1), dr.normalize()); tb.add(box, new T.Matrix4().compose(p.add(q).multiplyScalar(0.5), _q.clone(), V(w, h, L2)), c); }
       [1, -1].forEach(function (d) {
         bx(d * 0.735, 1.27, 0.42, 0.05, 0.5, 0.09, DARK, 0, 0, d * 0.36);                 // B pillar
-        bx(d * 0.728, 1.235, -0.52, 0.04, 0.04, 1.0, DARK, -0.52, d * 0.1, 0);          // A pillar
-        bx(d * 0.585, 1.548, 0.72, 0.03, 0.03, 1.3, DARK, 0.03, 0, 0);                      // roof rail
+        rod([d * 0.795, 1.03, -0.96], [d * 0.655, 1.415, -0.18], 0.035, 0.035, DARK);      // A pillar
+        rod([d * 0.575, 1.535, 0.16], [d * 0.578, 1.572, 0.6], 0.022, 0.022, 0x8d949c); rod([d * 0.578, 1.572, 0.6], [d * 0.555, 1.525, 1.26], 0.022, 0.022, 0x8d949c);   // roof rail
         bx(d * 0.9, 1.06, -0.62, 0.16, 0.11, 0.1, PAINT);                                  // mirror
         bx(d * 0.906, 0.84, 0.16, 0.016, 0.022, 0.16, 0xC7CDD4); bx(d * 0.906, 0.86, 1.0, 0.016, 0.022, 0.16, 0xC7CDD4); // handles
         bx(d * 0.84, 0.33, 0, 0.16, 0.16, 1.7, CLAD);                                      // rocker
@@ -476,7 +617,7 @@
       var hs = HP.map(function (r) { return [[r[2], r[1] - 1.44, r[0] - 1.72], [r[2] * 0.5, r[1] - 1.44 + 0.01, r[0] - 1.72 + 0.03], [0, r[1] - 1.44 + 0.012, r[0] - 1.72 + 0.04]]; });
       var hg = loft(hs, function (i) { return i === 0 ? 'glass' : i === 3 ? PAINT : PAINT; });
       var hatch = new T.Group(); hatch.position.set(0, 1.44, 1.72);
-      hatch.add(new T.Mesh(hg.paint, paintMat)); hatch.add(edges(hg.paint, C.lite, 0.3, 14));
+      hatch.add(new T.Mesh(hg.paint, paintMat)); hatch.add(edges(hg.paint, C.lite, 0.08, 24));
       var hgl = new T.Mesh(hg.glass, glassMat); hgl.renderOrder = 3; hatch.add(hgl);
       var plateC = canvas(256, 128), px = plateC.getContext('2d');
       px.fillStyle = '#F2DBA0'; px.fillRect(0, 0, 256, 128); px.fillStyle = '#0A1426'; px.textAlign = 'center';
@@ -490,6 +631,7 @@
       var heads = [], tails = [];
       [1, -1].forEach(function (d) {
         var h = new T.Mesh(box, headM); h.scale.set(0.27, 0.062, 0.05); h.position.set(d * 0.69, 0.735, -2.168); h.rotation.set(0, d * -0.52, d * 0.12); body.add(h);
+        var drl = new T.Mesh(box, headM); drl.scale.set(0.34, 0.014, 0.03); drl.position.set(d * 0.66, 0.672, -2.2); drl.rotation.set(0, d * -0.5, d * 0.1); body.add(drl);
         var hg2 = glow(0xffe9b8, 1.5, 0); hg2.position.set(d * 0.68, 0.735, -2.26); body.add(hg2); heads.push(hg2);
         var t1 = new T.Mesh(new T.TorusGeometry(0.056, 0.012, 8, 28), tailM); t1.position.set(d * 0.725, 0.89, 2.2); body.add(t1);
         var t2 = new T.Mesh(new T.TorusGeometry(0.056, 0.012, 8, 28), tailM); t2.position.set(d * 0.56, 0.885 - 1.44, 2.225 - 1.72); hatch.add(t2);
@@ -502,7 +644,7 @@
       var beamM = new T.ShaderMaterial({
         transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, uniforms: beamU,
         vertexShader: 'varying vec3 vP; varying vec2 vUv; void main(){ vUv=uv; vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-        fragmentShader: 'uniform float uOn,uTime; varying vec2 vUv; varying vec3 vP; void main(){ float a=pow(vUv.y,2.6)*0.12*uOn; float st=0.75+0.25*sin(vUv.x*60.0+sin(uTime*0.7+vUv.y*9.0)*2.0); gl_FragColor=vec4(vec3(1.0,0.9,0.66)*a*st,1.0); }'
+        fragmentShader: 'uniform float uOn,uTime; varying vec2 vUv; varying vec3 vP; void main(){ float a=pow(max(vUv.y,0.0),2.6)*0.10*uOn; float st=0.75+0.25*sin(vUv.x*60.0+sin(uTime*0.7+vUv.y*9.0)*2.0); gl_FragColor=vec4(vec3(1.0,0.9,0.66)*a*st,1.0); }'
       });
       [1, -1].forEach(function (d) {
         var cg = new T.CylinderGeometry(0.1, 2.5, 17, 24, 1, true); cg.translate(0, -8.5, 0); cg.rotateX(-Math.PI / 2 + Math.PI);
@@ -557,8 +699,14 @@
         var rm = new T.Mesh(new T.RingGeometry(0.96, 1, 72), new T.MeshBasicMaterial({ color: C.lite, transparent: true, opacity: 0, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
         rm.position.set(0, 0.72, 2.0); body.add(rm); rings.push(rm);
       }
+      function metal(o) {
+        return new T.ShaderMaterial({ uniforms: pu, side: T.DoubleSide, vertexShader: CAR_VS, fragmentShader: ['uniform float uMir; varying vec3 vC,vW,vN,vO;', LIGHT, ENV,
+          'void main(){ vec3 N=normalize(vN); vec3 E=normalize(cameraPosition-vW); if(dot(N,E)<0.0) N=-N; float bq=length(vO.xy)*' + (o && o.brush || '46.0') + '; float br=sin(bq)*0.022*smoothstep(1.6,0.4,fwidth(bq)); N=normalize(N+vec3(br,br*0.6,0.0)); float nv=max(dot(N,E),0.0); vec3 R=reflect(-E,N);',
+          '  vec3 F=vC+(vec3(1.0,0.9,0.72)-vC)*pow(1.0-nv,4.0); vec3 er=env(R,2.4),es=env(R,4.8); er=mix(er,vec3(dot(er,vec3(0.34)))*vec3(1.10,1.0,0.86),0.55); vec3 c=F*(er*1.9+es*0.6+vec3(0.075,0.068,0.058)); float dif=max(dot(N,uMoon),0.0); c+=vC*(0.06+dif*0.42+0.14*nv);',
+          '  c+=vec3(1.0,0.93,0.8)*(pow(max(dot(R,uMoon),0.0),40.0)*0.8+pow(max(dot(R,normalize(vec3(0.25,0.35,0.9))),0.0),9.0)*0.16)*vC; c+=spot(vW,N)*vC*1.1; gl_FragColor=vec4(fogged(c,vW),1.0); }'].join('\n') });
+      }
       scene.add(root);
-      return { root: root, body: body, wheels: wheels, hatch: hatch, subs: subs, leds: leds, subGlow: subGlow, rings: rings, heads: heads, tails: tails, beam: beamU, cabin: cabin, tailM: tailM, headM: headM };
+      return { metal: metal, root: root, body: body, wheels: wheels, hatch: hatch, subs: subs, leds: leds, subGlow: subGlow, rings: rings, heads: heads, tails: tails, beam: beamU, cabin: cabin, tailM: tailM, headM: headM };
     }());
 
     /* ======================================================= THE POINTS
@@ -573,10 +721,10 @@
       var i;
       for (i = 0; i < 84; i++) {
         var sd = R() < 0.5 ? -1 : 1, s = -70 - R() * 290, x = sd * (16 + Math.pow(R(), 1.3) * 190);
-        var far = sm(-120, -300, s); tower(x, s, 9 + R() * 17, 7 + Math.pow(R(), 1.8) * (10 + far * 58), 9 + R() * 14);
+        var far = sm(-120, -300, s); tower(x, s, 9 + R() * 17, (7 + Math.pow(R(), 1.8) * (10 + far * 58)) * 0.3, 9 + R() * 14);
       }
       for (i = 0; i < 26; i++) { var e = i % 2 ? 1 : -1; tower(e * (24 + R() * 34), 18 + i * 6 + R() * 5, 8 + R() * 9, 6 + Math.pow(R(), 1.5) * 24, 7 + R() * 8); }
-      Z.add(b.mesh(eng({ vcol: 1, freq: 1.15, dir: V(0, 1, 0), ink: 0x8A6A3F, bg: 0x060A14, amb: 0.1, rim: 0.12 })));
+      Z.add(b.mesh(facade({ stone: 0x131925, den: 0.19, gain: 1.0 })));
 
       /* generic landmarks: needle tower, pyramid with a beam, wheel */
       var lm = new Bag();
@@ -831,7 +979,7 @@
       var Z = zone(600, 1080), box = new T.BoxGeometry(1, 1, 1), list = [];
       var data = [
         { id: 'gomojo', t: 'GoMojo', sub: 'FOUNDER', c: '#FF4F9A', s: 884, r: -14.5, y: 8.4, ry: 0.3 },
-        { id: 'tagdata', t: 'TagData', sub: 'FRONTEND DESIGN LEAD', c: '#3FD8FF', s: 900, r: 0, y: 11.8, ry: 0 },
+        { id: 'lifeswitch', t: 'LifeSwitch', sub: 'CO-FOUNDER', c: '#E9CB86', s: 900, r: 0, y: 11.8, ry: 0 },
         { id: 'goinvest', t: 'GoInvest', sub: 'BUILDER', c: '#5BE38A', s: 884, r: 14.5, y: 8.4, ry: -0.3 }
       ];
       data.forEach(function (d, i) {
@@ -839,7 +987,7 @@
         var n = neon([{ t: d.t, size: 2.0, y: -0.35, color: d.c }, { t: d.sub, size: 0.5, y: 1.35, color: '#F7F5EF', w: '600', font: SANS, ls: 0.14 }], 11, 4.6, { frame: d.c, px: 90 });
         n.position.set(0, d.y, 0.2); g.add(n);
         var pb = new Bag(); pb.add(box, mat(0, d.y, -0.15, 0, 0, 0, 10.6, 4.2, 0.2), 0x1a2438);
-        if (d.id === 'tagdata') { [-7.2, 7.2].forEach(function (x) { pb.add(box, mat(x, 6.2, -0.2, 0, 0, 0, 0.45, 14, 0.45), 0xffffff); }); pb.add(box, mat(0, 13.9, -0.2, 0, 0, 0, 14.8, 0.4, 0.45), 0xffffff); pb.add(box, mat(0, 9.2, -0.2, 0, 0, 0, 14.8, 0.3, 0.4), 0xffffff); }
+        if (d.id === 'lifeswitch') { [-7.2, 7.2].forEach(function (x) { pb.add(box, mat(x, 6.2, -0.2, 0, 0, 0, 0.45, 14, 0.45), 0xffffff); }); pb.add(box, mat(0, 13.9, -0.2, 0, 0, 0, 14.8, 0.4, 0.45), 0xffffff); pb.add(box, mat(0, 9.2, -0.2, 0, 0, 0, 14.8, 0.3, 0.4), 0xffffff); }
         else { pb.add(box, mat(-3, d.y / 2 - 1.4, -0.6, 0, 0, 0, 0.42, d.y, 0.42), 0xffffff); pb.add(box, mat(3, d.y / 2 - 1.4, -0.6, 0, 0, 0, 0.42, d.y, 0.42), 0xffffff); }
         g.add(pb.mesh(eng({ vcol: 1, freq: 3, ink: C.brass, amb: 0.2 })));
         var gw = glow(new T.Color(d.c), 16, 0.22); gw.position.set(0, d.y, 0.6); g.add(gw);
@@ -847,7 +995,7 @@
 
         /* what each one does, acted out in points */
         var N = d.id === 'gomojo' ? 7 : d.id === 'goinvest' ? 8 : 16, orbs = [];
-        for (var k = 0; k < N; k++) { var o = glow(new T.Color(d.c), d.id === 'tagdata' ? 0.7 : 0.95, 0.9); g.add(o); orbs.push(o); }
+        for (var k = 0; k < N; k++) { var o = glow(new T.Color(d.c), d.id === 'lifeswitch' ? 0.7 : 0.95, 0.9); g.add(o); orbs.push(o); }
         Z.add(g); list.push({ id: d.id, c: d.c, g: g, n: n, gw: gw, hit: hitM, orbs: orbs, y: d.y, hov: 0, rise: 0, i: i });
       });
       tick(function (S) {
@@ -867,6 +1015,118 @@
         });
       });
       return { list: list, zone: Z };
+    }());
+
+    /* ========================================================= LIFESWITCH
+       A vault by the side of the road. Two of three keys open it, and what is
+       inside is not money: it is forty-five kinds of record, each going to
+       someone. Nothing here blinks or pulses, which is the product's own rule. */
+    var vault = (function () {
+      var Z = zone(720, 1090), S0 = 952, G = new T.Group(), box = new T.BoxGeometry(1, 1, 1), R = rng(45), i, k, CY = 6.3;
+      place(G, S0, 15.6, 0, -0.5); Z.add(G);
+      var brass = 0xE0A84A, deep = 0x9C6C28, dark = 0x1a211d, forest = 0x0F3A2C;
+      var mB = car.metal({ brush: '60.0' }), mD = car.metal({ brush: '22.0' });
+      var f = new Bag();
+      f.add(box, mat(0, 0.2, 0, 0, 0, 0, 15, 0.9, 7), 0x23261f); f.add(box, mat(0, 0.75, -0.1, 0, 0, 0, 13, 0.5, 5.4), 0x2c2f27);
+      f.add(new T.TorusGeometry(5.55, 0.62, 20, 96), mat(0, CY, 0), brass); f.add(new T.TorusGeometry(6.3, 0.09, 10, 96), mat(0, CY, 0.1), deep); f.add(new T.TorusGeometry(4.98, 0.1, 10, 96), mat(0, CY, 0.5), deep);
+      f.add(new T.CylinderGeometry(6.9, 7.2, 1.2, 72, 1, false), mat(0, CY, -1.0, Math.PI / 2, 0, 0), dark);
+      for (i = 0; i < 36; i++) { var a = i / 36 * TAU; f.add(new T.SphereGeometry(0.13, 10, 8), mat(Math.cos(a) * 5.95, CY + Math.sin(a) * 5.95, 0.42), brass); }
+      G.add(f.mesh(mB));
+
+      /* inside: drawers of light */
+      var inU = { uOpen: { value: 0 }, uTime: U.uTime };
+      var inner = new T.Mesh(new T.CircleGeometry(4.95, 72), new T.ShaderMaterial({ uniforms: inU, side: T.DoubleSide,
+        vertexShader: 'varying vec2 vP; void main(){ vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+        fragmentShader: 'uniform float uOpen,uTime; varying vec2 vP; float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); } void main(){ float r=length(vP); vec2 g=vP*vec2(0.92,1.35),id=floor(g),q=fract(g); vec2 w=fwidth(g); float ed=min(min(q.x,1.0-q.x),min(q.y,1.0-q.y)); float ln=1.0-smoothstep(0.03,0.03+max(w.x,w.y)*1.5,ed); float lit=0.35+0.65*smoothstep(0.1,0.9,h(id)); vec3 c=mix(vec3(0.95,0.66,0.28),vec3(1.0,0.88,0.62),exp(-r*0.35))*lit*(0.55+0.45*exp(-r*0.28)); c*=1.0-ln*0.75; c+=vec3(1.0,0.86,0.56)*exp(-r*r*0.22)*0.16; float kn=length(q-vec2(0.5,0.5)); c*=1.0-0.5*(1.0-smoothstep(0.04,0.06,kn)); gl_FragColor=vec4(mix(vec3(0.012,0.016,0.014),c*0.70,uOpen),1.0); }' }));
+      inner.position.set(0, CY, -0.36); G.add(inner);
+
+      /* the door */
+      var hinge = new T.Group(); hinge.position.set(-5.0, CY, 0.15); G.add(hinge);
+      var db = new Bag();
+      db.add(new T.CylinderGeometry(4.86, 4.86, 0.72, 96), mat(5, 0, 0, Math.PI / 2, 0, 0), 0x6d5a35);
+      db.add(new T.CylinderGeometry(4.3, 4.62, 0.22, 96), mat(5, 0, 0.46, Math.PI / 2, 0, 0), brass);
+      [[4.05, 0.07], [3.2, 0.1], [2.35, 0.06]].forEach(function (t) { db.add(new T.TorusGeometry(t[0], t[1], 12, 96), mat(5, 0, 0.58), deep); });
+      for (i = 0; i < 48; i++) { a = i / 48 * TAU; db.add(box, mat(5 + Math.cos(a) * 3.62, Math.sin(a) * 3.62, 0.58, 0, 0, a, 0.44, 0.045, 0.05), i % 4 ? deep : 0xE9D39A); }
+      for (i = 0; i < 24; i++) { a = i / 24 * TAU; db.add(new T.SphereGeometry(0.1, 10, 8), mat(5 + Math.cos(a) * 4.46, Math.sin(a) * 4.46, 0.5), deep); }
+      [4.2, 3.1, 1.9].forEach(function (q) { db.add(new T.TorusGeometry(q, 0.11, 12, 96), mat(5, 0, -0.38), deep); }); for (i = 0; i < 24; i++) { a = i / 24 * TAU; db.add(box, mat(5 + Math.cos(a) * 3.65, Math.sin(a) * 3.65, -0.4, 0, 0, a, 0.72, 0.1, 0.12), brass); } db.add(new T.CylinderGeometry(1.2, 1.4, 0.4, 48), mat(5, 0, -0.5, Math.PI / 2, 0, 0), brass);
+      hinge.add(db.mesh(mB));
+      var bolts = new T.Group(); bolts.position.set(5, 0, 0); hinge.add(bolts); var bl = [];
+      for (i = 0; i < 12; i++) { a = i / 12 * TAU + 0.13; var bg = new T.Group(); bg.rotation.z = a; var bb = new Bag(); bb.add(new T.CylinderGeometry(0.19, 0.19, 1.0, 20), mat(0, 0, 0, 0, 0, Math.PI / 2), 0xB9BEC4); var bm = bb.mesh(mD); bg.add(bm); bolts.add(bg); bl.push(bm); }
+      var wheel = new T.Group(); wheel.position.set(5, 0, 0.95); hinge.add(wheel);
+      var wb = new Bag(); wb.add(new T.TorusGeometry(1.75, 0.11, 14, 72), null, 0xE0C07A); wb.add(new T.SphereGeometry(0.5, 28, 18), mat(0, 0, 0, 0, 0, 0, 1, 1, 0.6), brass); wb.add(new T.CylinderGeometry(0.28, 0.4, 0.7, 24), mat(0, 0, -0.3, Math.PI / 2, 0, 0), deep);
+      for (i = 0; i < 5; i++) { a = i / 5 * TAU; wb.add(new T.CylinderGeometry(0.075, 0.11, 2.15, 14), mat(Math.cos(a) * 1.07, Math.sin(a) * 1.07, 0, 0, 0, a - Math.PI / 2), 0xE0C07A); wb.add(new T.SphereGeometry(0.17, 14, 10), mat(Math.cos(a) * 2.2, Math.sin(a) * 2.2, 0), brass); }
+      wheel.add(wb.mesh(mB));
+
+      /* the name, with the product's own switch mark */
+      var lc = canvas(1400, 360), x = lc.getContext('2d'); x.textBaseline = 'middle'; x.textAlign = 'left';
+      x.lineWidth = 13; x.strokeStyle = 'rgba(251,249,245,.78)'; x.beginPath(); if (x.roundRect) x.roundRect(60, 108, 240, 144, 72); else x.rect(60, 108, 240, 144); x.stroke(); x.fillStyle = '#D9BE79'; x.beginPath(); x.arc(228, 180, 42, 0, TAU); x.fill();
+      x.fillStyle = '#FBF9F5'; x.font = '400 190px "Playfair Display",Didot,Georgia,serif'; x.fillText('Life', 350, 176); var lw = x.measureText('Life').width; x.fillStyle = '#E9D39A'; x.fillText('Switch', 350 + lw, 176);
+      var name = new T.Mesh(new T.PlaneGeometry(13.2, 3.4), new T.MeshBasicMaterial({ map: tex(lc), transparent: true, depthWrite: false, side: T.DoubleSide })); name.position.set(0.2, CY + 8.0, 0.2); G.add(name);
+
+      /* three keys, any two of which open it */
+      var keys = [], kb = new Bag();
+      kb.add(new T.TorusGeometry(0.46, 0.1, 12, 40), mat(0, 0.95, 0), 0xE0C07A); kb.add(new T.CylinderGeometry(0.085, 0.085, 1.7, 14), mat(0, -0.3, 0), 0xE0C07A); kb.add(box, mat(0.2, -0.95, 0, 0, 0, 0, 0.36, 0.14, 0.1), 0xE0C07A); kb.add(box, mat(0.16, -0.66, 0, 0, 0, 0, 0.28, 0.12, 0.1), 0xE0C07A); kb.add(new T.TorusGeometry(0.13, 0.05, 8, 20), mat(0, 0.46, 0, Math.PI / 2, 0, 0), brass);
+      var kg = kb.geo();
+      [['YOUR EXECUTOR', -4.1], ['SOMEONE YOU TRUST', 0], ['LIFESWITCH', 4.1]].forEach(function (d) {
+        var g = new T.Group(), km = new T.Mesh(kg, mB); g.add(km); var gl = glow(0xF2DBA0, 2.6, 0.16); g.add(gl);
+        var c = canvas(512, 64), q = c.getContext('2d'); q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillStyle = '#F2E4BE'; q.font = '600 30px ' + SANS; if ('letterSpacing' in q) q.letterSpacing = '5px'; q.fillText(d[0], 256, 32, 500);
+        var lb = new T.Mesh(new T.PlaneGeometry(3.6, 0.45), new T.MeshBasicMaterial({ map: tex(c), transparent: true, depthWrite: false, side: T.DoubleSide })); lb.position.set(0, -1.75, 0); g.add(lb);
+        G.add(g); keys.push({ g: g, km: km, gl: gl, lb: lb, x: d[1] });
+      });
+
+      var cardC = canvas(256, 168), cx2 = cardC.getContext('2d'); cx2.fillStyle = '#F7EFD9'; if (cx2.roundRect) { cx2.beginPath(); cx2.roundRect(4, 4, 248, 160, 18); cx2.fill(); } else cx2.fillRect(4, 4, 248, 160);
+      cx2.strokeStyle = '#B88E3A'; cx2.lineWidth = 4; if (cx2.roundRect) { cx2.beginPath(); cx2.roundRect(12, 12, 232, 144, 12); cx2.stroke(); } cx2.fillStyle = '#0F3A2C'; cx2.fillRect(28, 36, 110, 13); cx2.globalAlpha = 0.5; [66, 88, 110].forEach(function (yy, q) { cx2.fillRect(28, yy, 96 - q * 18, 8); }); cx2.globalAlpha = 1;
+      cx2.fillStyle = '#C9973A'; cx2.beginPath(); cx2.arc(194, 98, 36, 0, TAU); cx2.fill(); cx2.strokeStyle = '#F7EFD9'; cx2.lineWidth = 5; cx2.beginPath(); cx2.arc(194, 98, 25, 0, TAU); cx2.stroke(); var cardTex = tex(cardC);
+
+      /* forty-five records, and the threads they leave by */
+      var N = 45, cards = new T.InstancedMesh(new T.PlaneGeometry(0.86, 0.56), new T.MeshBasicMaterial({ map: cardTex, side: T.DoubleSide, transparent: true }), N), P = [], lp = new Float32Array(N * 6);
+      var tone = [0xF7E7BD, 0xE9CB86, 0xFBF9F5, 0xD9BE79, 0xBFD6C8];
+      for (i = 0; i < N; i++) { var ring = i % 3, an = (i / N) * TAU * 1.0 + ring * 0.2; var rad = 8.3 + ring * 1.35 + R() * 0.5; P.push({ a: an, r: rad, z: 1.2 + R() * 2.6, d: R() * 0.5, s: R() * 9, ring: ring }); cards.setColorAt(i, new T.Color(tone[i % 5])); }
+      cards.frustumCulled = false; G.add(cards);
+      var lg = new T.BufferGeometry(); lg.setAttribute('position', new T.BufferAttribute(lp, 3)); var lines = new T.LineSegments(lg, new T.LineBasicMaterial({ color: 0xE9CB86, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); lines.frustumCulled = false; G.add(lines);
+      var core = glow(0xFFD58A, 20, 0); core.position.set(0, CY, 0.8); G.add(core);
+      var up = glow(0xF2DBA0, 26, 0.12); up.position.set(0, 2, 3.5); G.add(up);
+
+      var o = 0, eP = V(0, 0, 0);
+      tick(function (S) {
+        if (!Z.visible) return;
+        var want = Math.max(sm(3.942, 3.962, S.g) * 0.62 * (1 - sm(3.9685, 3.974, S.g)), (S.vault || 0)); if (S.ambient) want = 0.25; o += (want - o) * (S.still ? 1 : 0.07);
+        var turn = sm(0.02, 0.38, o), swing = sm(0.34, 1, o);
+        wheel.rotation.z = -turn * 4.4 + Math.sin(S.t * 0.4) * 0.02; bl.forEach(function (m) { m.position.x = 4.75 - turn * 0.62; });
+        hinge.rotation.y = -swing * 1.85; inU.uOpen.value = sm(0.3, 0.85, o); core.material.opacity = sm(0.35, 1, o) * 0.13;
+        keys.forEach(function (q, j) {
+          var go2 = j < 2 ? turn : 0, back = swing; eP.set(lerp(q.x, j ? 0.85 : -0.85, go2), lerp(2.65, CY - 0.2, go2) + Math.sin(S.t * 0.9 + j * 2) * 0.07 * (1 - go2), lerp(3.6, 2.2, go2));
+          q.g.position.copy(eP); q.g.position.x -= back * go2 * (j ? 6.2 : 4.6); q.g.position.z += back * go2 * 2.2; q.km.rotation.set(0, Math.sin(S.t * 0.5 + j) * 0.35 * (1 - go2), -turn * (j < 2 ? 1.57 : 0)); q.gl.material.opacity = 0.14 + go2 * 0.34; q.lb.material.opacity = 1 - go2; q.lb.visible = go2 < 0.98;
+        });
+        for (var n = 0; n < N; n++) {
+          var p = P[n], e = clamp((swing - p.d * 0.55) / 0.5, 0, 1); e = e * e * (3 - 2 * e); var sp = p.a + S.t * 0.035 * (p.ring === 1 ? -1 : 1) + (1 - e) * 2.6, rr = p.r * e, cx = Math.cos(sp) * rr, cy = CY + 0.6 + Math.sin(sp) * rr * 0.82, cz = lerp(-0.3, p.z, e) + Math.sin(S.t * 0.6 + p.s) * 0.15;
+          if (cy < 1.1) cy = 1.1 + (1.1 - cy) * 0.25;
+          cards.setMatrixAt(n, mat(cx, cy, cz, Math.sin(S.t * 0.5 + p.s) * 0.25, Math.sin(S.t * 0.4 + p.s) * 0.5, Math.sin(p.s) * 0.2, Math.max(e, 0.001)));
+          lp[n * 6] = 0; lp[n * 6 + 1] = CY; lp[n * 6 + 2] = 0; lp[n * 6 + 3] = cx; lp[n * 6 + 4] = cy; lp[n * 6 + 5] = cz;
+        }
+        cards.instanceMatrix.needsUpdate = true; lg.attributes.position.needsUpdate = true; lines.material.opacity = swing * 0.16;
+      });
+      return { S0: S0 };
+    }());
+
+    /* ======================================================== THE BUILDS
+       Roadside boards for everything else. */
+    (function () {
+      var Z = zone(900, 1120), box = new T.BoxGeometry(1, 1, 1);
+      [[992, 1, 'LifeStyle', 'A DIGITAL CLOSET', 'Photograph it, show it, sell it, lend it.', '#F2A7C3'], [1005, -1, 'GoGlobal', 'A TRAVEL CONCIERGE', 'For America’s iconic destinations.', '#7FC4F2'], [1019, 1, 'Sigma Alpha Epsilon', 'CHAPTER SITE AND MEMBERS AREA', 'Public face, private calendar.', '#B79BEA'],
+        [1032, -1, 'The Heuser Team', 'REAL ESTATE, LAS VEGAS', 'The family business, online.', '#E3C35C'], [1046, 1, 'Reno, redrawn', 'THIRTEEN REDESIGN CONCEPTS', 'Barbers, burritos, brakes and more.', '#F0936A'], [1058, -1, 'Roblox NPC Kit', 'CLAUDE INSIDE A GAME', 'Characters that talk back, safely.', '#8FE0B0']].forEach(function (d, j) {
+        var g = new T.Group(); place(g, d[0], d[1] * 11.5, 0, d[1] > 0 ? -0.42 : 0.42); Z.add(g);
+        var c = canvas(1120, 620), x = c.getContext('2d'), gr = x.createLinearGradient(0, 0, 1120, 620); gr.addColorStop(0, '#0b1424'); gr.addColorStop(1, '#060a13'); x.fillStyle = gr; x.fillRect(0, 0, 1120, 620);
+        var rg = x.createRadialGradient(920, 90, 10, 920, 90, 620); rg.addColorStop(0, d[5] + '55'); rg.addColorStop(1, d[5] + '00'); x.fillStyle = rg; x.fillRect(0, 0, 1120, 620);
+        x.strokeStyle = d[5]; x.lineWidth = 7; x.strokeRect(26, 26, 1068, 568); x.globalAlpha = 0.35; x.lineWidth = 2; x.strokeRect(44, 44, 1032, 532); x.globalAlpha = 1;
+        x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillStyle = d[5]; x.font = '600 34px ' + SANS; if ('letterSpacing' in x) x.letterSpacing = '6px'; x.fillText(d[3], 92, 150, 930);
+        if ('letterSpacing' in x) x.letterSpacing = '0px'; x.fillStyle = '#FBF9F5'; var fs = d[2].length > 14 ? 104 : 150; x.font = '400 ' + fs + 'px "Playfair Display",Didot,Georgia,serif'; x.fillText(d[2], 88, 350, 950);
+        x.fillRect(92, 412, 130, 4); x.fillStyle = 'rgba(234,238,247,.86)'; x.font = '400 46px ' + SANS; x.fillText(d[4], 92, 506, 940);
+        var p = new T.Mesh(new T.PlaneGeometry(8.6, 4.76), new T.MeshBasicMaterial({ map: tex(c), side: T.DoubleSide })); p.position.y = 5.6; g.add(p);
+        var b = new Bag(); b.add(box, mat(0, 5.6, -0.16, 0, 0, 0, 8.9, 5.06, 0.22), 0x2a2f38); [-2.9, 2.9].forEach(function (px) { b.add(box, mat(px, 1.5, -0.2, 0, 0, 0, 0.24, 3.8, 0.24), 0x565c66); }); b.add(box, mat(0, 3.05, 0.6, 0, 0, 0, 8.2, 0.08, 0.5), 0x565c66); g.add(b.mesh(car.metal({ brush: '3.0' })));
+        var gl = glow(new T.Color(d[5]), 11, 0.13); gl.position.set(0, 4.2, 0.8); g.add(gl);
+        [-2.6, 0, 2.6].forEach(function (lx) { var l = glow(0xfff0cc, 1.1, 0.8); l.position.set(lx, 3.15, 0.75); g.add(l); });
+      });
     }());
 
     /* ===================================================== DESERT + BASS */
@@ -891,7 +1151,7 @@
         var pb = new Bag(); pb.add(box, mat(0, 1, -0.06, 0, 0, 0, 0.16, 2.4, 0.1), 0xffffff); g.add(pb.mesh(eng({ vcol: 1, freq: 8, ink: C.lite }))); Z.add(g);
       });
       var us = neon([{ t: '95', size: 1.9, y: 0.35, color: '#F7F5EF', w: '700', font: SANS }, { t: 'US', size: 0.7, y: -1.15, color: '#F7F5EF', w: '700', font: SANS }], 4, 4, { frame: '#F7F5EF', px: 90 });
-      place(us, 1012, 9, 4.6, -0.2); Z.add(us);
+      place(us, 1084, 9, 4.6, -0.2); Z.add(us);
     }());
 
     /* =========================================================== TREENET */
@@ -1037,8 +1297,7 @@
         for (var k = 0; k < (lite ? 8 : 20); k++) wn.add(new T.PlaneGeometry(0.8, 1.1), mat(p.x - sd * (w / 2 + 0.06), p.y + 1 + Math.round(R() * (h - 4) / 2.2) * 2.2, p.z + (R() - 0.5) * d * 0.85, 0, Math.PI / 2, 0), 0xffffff);
         for (k = 0; k < (lite ? 4 : 10); k++) wn.add(new T.PlaneGeometry(0.8, 1.1), mat(p.x + (R() - 0.5) * w * 0.85, p.y + 1 + Math.round(R() * (h - 4) / 2.2) * 2.2, p.z + d / 2 + 0.06), 0xffffff);
       }
-      Z.add(cb.mesh(eng({ vcol: 1, freq: 1.3, ink: 0x9A6F72, bg: 0x0a0c1c, amb: 0.12, rim: 0.2 })));
-      Z.add(wn.mesh(new T.MeshBasicMaterial({ color: 0xffc98a, side: T.DoubleSide })));
+      Z.add(cb.mesh(facade({ stone: 0x171b28, den: 0.2, gain: 1.0, room: 0xffb866 })));
 
       /* the canopy, from his photo: coffered ceiling, four ring chandeliers */
       var K = new T.Group(); place(K, S2, 0, 0, 0); Z.add(K);
@@ -1076,6 +1335,21 @@
       return { S2: S2 };
     }());
 
+    /* ====================================================== FIREWORKS
+       Over Reno, once the name is up. */
+    var fire = (function () {
+      var B = lite ? 7 : 15, M = lite ? 130 : 300, N = B * M, R = rng(404), dir = new Float32Array(N * 3), inf = new Float32Array(N * 4), col = new Float32Array(N * 3), v = V(0, 0, 0), pal = [0xF2DBA0, 0xE3C35C, 0xFFF3D6, 0xFF9E6B, 0xF28AA8, 0x9CC8FF], c = new T.Color();
+      for (var b = 0; b < B; b++) { c.setHex(pal[b % pal.length]); for (var i = 0; i < M; i++) { var k = b * M + i, u = R() * 2 - 1, a = R() * TAU, q = Math.sqrt(1 - u * u), w = b % 3 === 0 ? 1 : 0.72 + R() * 0.34; dir[k * 3] = q * Math.cos(a) * w; dir[k * 3 + 1] = u * w; dir[k * 3 + 2] = q * Math.sin(a) * w; inf[k * 4] = b; inf[k * 4 + 1] = R(); inf[k * 4 + 2] = R(); inf[k * 4 + 3] = R(); col[k * 3] = c.r; col[k * 3 + 1] = c.g; col[k * 3 + 2] = c.b; } }
+      var g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(dir, 3)); g.setAttribute('aI', new T.BufferAttribute(inf, 4)); g.setAttribute('aCol', new T.BufferAttribute(col, 3));
+      toWorld(2196, 0, 0, 95, v); var u2 = { uTime: U.uTime, uDpr: U.uDpr, uOn: { value: 0 }, uO: { value: v.clone() }, uNar: { value: opt.narrow ? 0.42 : 1 } };
+      var p = new T.Points(g, new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending, uniforms: u2,
+        vertexShader: 'attribute vec4 aI; attribute vec3 aCol; uniform float uTime,uDpr,uOn,uNar; uniform vec3 uO; varying vec3 vC; float h(float n){ return fract(sin(n*127.1)*43758.5453); } void main(){ float T=3.4+h(aI.x)*1.8; float q=uTime/T+h(aI.x+9.0); float n=floor(q),t=fract(q)*T; float sd=aI.x*17.0+n*3.7; vec3 C=uO+vec3((h(sd)-0.5)*210.0*uNar,74.0+h(sd+1.0)*26.0,(h(sd+2.0)-0.5)*50.0); float rise=0.55; float e=max(t-rise,0.0); float R=17.0+h(sd+3.0)*15.0; vec3 P=C+position*R*(1.0-exp(-e*2.3)); P.y-=e*e*2.6; float tr=step(t,rise); if(tr>0.5){ float k=clamp(t/rise-aI.y*0.22,0.0,1.0); P=mix(C-vec3(0.0,66.0,0.0),C,1.0-pow(1.0-k,2.2)); } float life=1.0-smoothstep(0.4,2.5,e); float tw=0.55+0.45*sin(uTime*22.0+aI.z*60.0); vC=mix(aCol,vec3(1.0,0.96,0.88),exp(-e*5.0))*(tr>0.5?(aI.y<0.10?0.8:0.0):life*mix(1.0,tw,smoothstep(0.5,1.4,e)))*uOn; vec4 m=viewMatrix*vec4(P,1.0); gl_PointSize=uDpr*(1.3+aI.w*1.9)*(tr>0.5?1.2:1.0+1.1*exp(-e*3.0))*230.0/max(-m.z,60.0); gl_Position=projectionMatrix*m; }',
+        fragmentShader: 'varying vec3 vC; void main(){ vec2 d=gl_PointCoord-0.5; float a=smoothstep(0.25,0.0,dot(d,d)); gl_FragColor=vec4(vC*a*1.5,1.0); }' }));
+      p.frustumCulled = false; p.visible = false; scene.add(p);
+      tick(function (S) { var on = S.ambient ? 0 : sm(8.12, 8.4, S.g); u2.uOn.value = on; p.visible = on > 0.01; });
+      return u2;
+    }());
+
     /* ======================================================== TRAFFIC
        Oncoming headlights and tail lights ahead: the road is never empty, so
        it never stops moving even when the visitor does. */
@@ -1084,7 +1358,7 @@
       for (var i = 0; i < N; i++) {
         var on = i % 5 !== 4, g = new T.Group(), c = on ? 0xfff0cc : 0xff2838;
         [-0.6, 0.6].forEach(function (x) { var l = glow(c, on ? 2.3 : 1.5, 0.95); l.position.set(x, 0.75, 0); g.add(l); });
-        var streak = new T.Mesh(new T.PlaneGeometry(2.6, 9), new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending, uniforms: { uC: { value: new T.Color(c) } }, vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }', fragmentShader: 'uniform vec3 uC; varying vec2 vUv; void main(){ float a=pow(1.0-abs(vUv.x-0.5)*2.0,2.0)*pow(1.0-vUv.y,1.6)*0.2; gl_FragColor=vec4(uC*a,1.0); }' }));
+        var streak = new T.Mesh(new T.PlaneGeometry(2.6, 9), new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending, uniforms: { uC: { value: new T.Color(c) } }, vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }', fragmentShader: 'uniform vec3 uC; varying vec2 vUv; void main(){ float a=pow(max(1.0-abs(vUv.x-0.5)*2.0,0.0),2.0)*pow(max(1.0-vUv.y,0.0),1.6)*smoothstep(0.0,0.45,vUv.y)*0.34; gl_FragColor=vec4(uC*a,1.0); }' }));
         streak.rotation.x = -Math.PI / 2; streak.position.set(0, 0.04, on ? 4.5 : -4.5); if (!on) streak.rotation.z = Math.PI; g.add(streak);
         scene.add(g); cars.push({ g: g, on: on, off: i * (520 / N) + R() * 20, v: on ? 25 + R() * 8 : 7 + R() * 3 });
       }
@@ -1099,8 +1373,8 @@
 
     /* ======================================================== PER FRAME */
     var SKY = [
-      [0, 0x04070f, 0x191424, 0x9a5f26, 1], [1.2, 0x050912, 0x121a2c, 0x6b4a2a, 1], [3, 0x040815, 0x0c1630, 0x2a3458, 0.2], [4.6, 0x030614, 0x0b1430, 0x23365e, -0.4],
-      [5.6, 0x060c1e, 0x141f40, 0x2c3c6c, -0.8], [6.6, 0x0a0f26, 0x2a2347, 0x7a3f6a, -1], [7.6, 0x0e1230, 0x46294f, 0xd2607a, -1], [9, 0x0a0f28, 0x33214a, 0xc05a78, 1]
+      [0, 0x050b12, 0x15191d, 0x7a5528, 1], [1.2, 0x060b1a, 0x16203a, 0x6b5238, 1], [3, 0x050b1c, 0x111f3a, 0x2b4058, 0.1], [4.6, 0x040a1b, 0x10203c, 0x2a445f, -0.5],
+      [5.6, 0x060c20, 0x152342, 0x34496a, -0.8], [6.6, 0x0a0f26, 0x2a2347, 0x7a3f6a, -1], [7.15, 0x081120, 0x3a2a24, 0xb9752c, -1], [7.6, 0x081120, 0x3a2a24, 0xb9752c, 1], [9, 0x050b16, 0x1c1a20, 0x6b431f, 1]
     ].map(function (r) { return { g: r[0], z: new T.Color(r[1]), h: new T.Color(r[2]), c: new T.Color(r[3]), d: r[4] }; });
     var FOG = new T.Color();
 
@@ -1111,11 +1385,42 @@
       FOG.copy(skyU.uHor.value).multiplyScalar(0.72); U.uFog.value.copy(FOG);
     }
 
+    /** Where the plates are in the story at scene position g. */
+    var lit = 0, surge = 0, seen = 0;
+    function plateAt(S) {
+      var g = S.g, k = 1 - Math.exp(-(S.dt || 0.016) * 1.1), x = skyU, dev = sm(5.9, 7.0, g);
+      lit += ((x.uV.value === blank ? 0 : 1) - lit) * k; if (S.still) lit = 1; x.uLit.value = lit;
+      surge += (Math.max(S.rev || 0, clamp(S.flare || 0, 0, 1) * 0.6) - surge) * 0.1; x.uSurge.value = surge;
+      var fade = S.still ? 1 : 1 - Math.exp(-(S.dt || 0.016) * 2.2);
+      x.uVw.value += ((x.uV.value === blank ? 0 : 1) - x.uVw.value) * fade; x.uRw.value += ((x.uR.value === blank ? 0 : 1) - x.uRw.value) * fade;
+      x.uPar.value.set(S.tilt.x, S.tilt.y);
+      x.uBack.value = g > 5 ? 1 : 0;                                   // nothing looks back between the two
+      /* Reno: a faint engraved ridge for most of the night, then it develops */
+      x.uFx.value = lerp(0.27, 0.5, sm(1, 5.6, g)) + 0.4 * dev; x.uEngF.value = lerp(0.12, 0.06, dev); x.uMilk.value = sm(0.9, 1.7, g) * (1 - 0.75 * sm(5.9, 7.0, g)) * (0.85 + 0.55 * sm(2.9, 4.2, g));
+      U.uWarm.value.copy(skyU.uGlow.value).multiplyScalar(lerp(0.30, 0.16, sm(0.6, 1.6, g)) + 0.16 * sm(6.4, 7.2, g)); U.uWarmZ.value = skyU.uGZ.value;
+      U.uWet.value = lerp(1, 0.16, sm(0.95, 1.7, g)) + 0.84 * sm(6.75, 7.2, g);      // it has just rained in both cities
+      x.uF.value.w = lerp(-0.07, 0, sm(1, 6.6, g));                    // rises over the horizon as it nears
+      x.uWhole.value = g < 0.64 ? 1 : 0; x.uFw.value = sm(0.64, 0.95, g) * lerp(0.46, 1, sm(5.5, 6.9, g));
+      /* Vegas turns slower than the camera does, so it reads as miles away; then it is cut back to lines and gone. */
+      if (g < 5) { x.uBw.value = 1 - sm(0.46, 0.63, g); x.uBx.value = 0.92; x.uEngB.value = 0.03 + 0.4 * sm(0.3, 0.62, g); x.uB.value.set(lerp(0.5, 1.35, sm(0.02, 0.4, g)), 1.16, 0.665, 0.03); }
+      else { x.uBw.value = 1; var nt = sm(8.0, 8.7, g); x.uBx.value = lerp(0.9, 0.5, nt); x.uEngB.value = 0.07; x.uB.value.set(-0.3 + 0.3 * sm(7.9, 8.5, g), 1.1, 0.76, 0); x.uDusk.value = 1 - nt; }
+    }
+    /** Async: the world is complete without them. */
+    if (opt.plates) ['vegas', 'reno'].forEach(function (n, i) {
+      var im = new Image(); im.decoding = 'async';
+      im.onload = function () {
+        var t = new T.CanvasTexture(im); t.colorSpace = T.NoColorSpace; t.anisotropy = 4; t.minFilter = T.LinearMipmapLinearFilter;
+        try { if (opt.upload) opt.upload(t); } catch (e) { return; }
+        skyU[i ? 'uR' : 'uV'].value = t; if (opt.onplate) opt.onplate();
+      };
+      im.src = opt.plates + 'plate-' + n + (lite ? '-sm' : '') + '.webp';
+    });
+
     var cv = V(0, 0, 0), fw = V(0, 0, 0), wheelRot = 0, lastS = null;
     /** S: {t, dt, g, s, beat, bump, hold, holdAmt, ignition, sceneId, pick, hoverPick, ray, tilt, keys, hatch, ambient} */
     function update(S) {
       U.uTime.value = S.t; U.uBeat.value = S.beat; U.uWave.value += ((S.bump * 0.55) * (0.35 + S.beat) - U.uWave.value) * 0.25;
-      skyAt(S.g);
+      skyAt(S.g); plateAt(S);
       for (var i = 0; i < zones.length; i++) zones[i].g.visible = S.s > zones[i].a - 130 && S.s < zones[i].b + 60 || (S.camS !== undefined && S.camS > zones[i].a - 60 && S.camS < zones[i].b + 60);
 
       /* car */
@@ -1146,6 +1451,15 @@
       cloud.u.uTilt.value.set(S.tilt.x * 0.3, S.tilt.y * 0.25); cloud.u.uGain.value = S.ambient ? 0.8 : 1;
     }
 
-    return { scene: scene, U: U, car: car, sky: sky, cloud: cloud, picks: picks, frame: frame, toWorld: toWorld, terrainY: terrainY, update: update, L: L, anchors: { wash: wash.S0, net: net.S0, netY: net.gy, sae: sae.S0, reno: reno.S2 } };
+    /** Where the brightest light in the sky is, for rays. */
+    var sunV = V(0, 0, 0);
+    function sunAt(g, camPos) {
+      var f = g > 7.55 || g < 0.62 ? skyU.uB.value : skyU.uF.value, back = g > 7.55 || g < 0.62, span = 2 * f.y, veg = g < 2, uu = veg ? 0.5 : 0.53, vv = veg ? 0.47 : 0.49;
+      var az = f.x + (uu - 0.5) * span, el = (vv - (1 - f.z)) * span / 2.3494 + f.w;
+      sunV.set(back ? -Math.sin(az) : Math.sin(az), Math.tan(el), back ? Math.cos(az) : -Math.cos(az)).normalize().multiplyScalar(700).add(camPos);
+      return { p: sunV, k: veg ? 0.34 * (1 - sm(0.3, 0.6, g)) : sm(6.2, 7.1, g) * (1 - 0.7 * sm(8.0, 8.6, g)) };
+    }
+
+    return { scene: scene, U: U, mirrorHide: mirrorHide, sunAt: sunAt, sky: sky, car: car, cloud: cloud, picks: picks, frame: frame, toWorld: toWorld, terrainY: terrainY, update: update, L: L, anchors: { vault: vault.S0, wash: wash.S0, net: net.S0, netY: net.gy, sae: sae.S0, reno: reno.S2 } };
   };
 }());

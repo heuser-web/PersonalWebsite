@@ -19,7 +19,7 @@ function rh_customizer_fields() {
 		// Hero.
 		'rh_hero_eyebrow'  => array( 'default' => 'Reno, Nevada · From Las Vegas', 'label' => 'Hero eyebrow', 'type' => 'text', 'section' => 'rh_hero' ),
 		'rh_hero_title'    => array( 'default' => 'I build things that <em>ship</em>.', 'label' => 'Hero headline (HTML allowed — wrap a word in &lt;em&gt; for the brass italic)', 'type' => 'textarea', 'section' => 'rh_hero' ),
-		'rh_hero_sub'      => array( 'default' => 'Founder of GoMojo and GoInvest. Frontend design lead at TagData. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.', 'label' => 'Hero subtitle', 'type' => 'textarea', 'section' => 'rh_hero' ),
+		'rh_hero_sub'      => array( 'default' => 'Co-founder of LifeSwitch. Founder of GoMojo and GoInvest. Business freshman at the University of Nevada, Reno — I turn ideas into working software, usually faster and for less money than anyone expects.', 'label' => 'Hero subtitle', 'type' => 'textarea', 'section' => 'rh_hero' ),
 		'rh_hero_cta1_txt' => array( 'default' => 'Read my story', 'label' => 'Primary button label', 'type' => 'text', 'section' => 'rh_hero' ),
 		'rh_hero_cta1_url' => array( 'default' => '/about-me/', 'label' => 'Primary button link', 'type' => 'url', 'section' => 'rh_hero' ),
 		'rh_hero_cta2_txt' => array( 'default' => 'View my resume', 'label' => 'Secondary button label', 'type' => 'text', 'section' => 'rh_hero' ),

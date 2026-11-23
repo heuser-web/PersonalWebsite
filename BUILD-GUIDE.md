@@ -404,7 +404,7 @@ thing.
 
 ### The generated backgrounds
 
-`assets-generated/` holds three images made with AI for this build:
+`assets-generated/` holds five images made with AI for this build:
 
 | File | Where it is used |
 |---|---|

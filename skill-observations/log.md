@@ -282,3 +282,83 @@ DECLINED = user decided not to pursue
 **Suggested improvement:** Never start an observed element fully clipped; observe a wrapper or leave a sliver. Check reveal transforms against existing transforms. Coerce the second argument of toggle(). For WordPress themes without local PHP, use wp-playground server with a mount and a blueprint before shipping.
 
 **Principle:** An observer waiting on visibility must not be given an element that its own start state makes invisible.
+
+### Observation 18: Adaptive quality must prove a cut helped, or a frame-rate cap reads as a slow GPU
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Added photographic sky plates, bloom and speed blur to a scroll-driven WebGL page; frame rate suddenly read a flat 31 fps.
+
+**Skill:** 3d-web-experience
+**Type:** open-source
+**Phase/Area:** Performance; verification
+
+**Issue:** The page lowered resolution and disabled effects whenever average frame time passed 22 ms. On a laptop whose browser capped animation at 30 Hz to save battery, it stepped to the lowest quality with no gain. An empty page measured the same 31 fps, which identified the cap. Two related findings: GPU texture uploads from file:// fail by logging inside the library rather than throwing, so a try/catch fallback never fires and the surface goes black; and adding bloom to a scene tuned without it requires re-tuning every sprite flare and light multiplier.
+
+**Suggested improvement:** Add to the performance section: make each quality cut reversible and undo it when frame time does not improve; measure an empty page before blaming the scene; gate texture loading on location.protocol instead of catching; re-tune emissive values whenever bloom is introduced.
+
+**Principle:** An adaptive system needs a feedback check on its own actions, or it will keep paying for changes that do nothing.
+
+### Observation 19: A faint rendering artifact becomes a large one when a filter is added
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Added a mirror pass and wider bloom to a WebGL scene; a cone of blocky sparkles appeared on the road.
+
+**Skill:** 3d-web-experience
+**Type:** open-source
+**Phase/Area:** Shaders; post-processing
+
+**Issue:** Earlier frames had thin dotted arcs that were noticed and dismissed as scene detail. They were invalid pixels: pow() of an interpolated coordinate that multisampling pushes slightly below zero. Bloom and reflection blur spread each bad pixel into a block. Clamping the base of every pow() and rejecting invalid values in the bright pass fixed it.
+
+**Suggested improvement:** Add a rule: clamp the base of pow(), and reject non-finite values in the first post-processing pass. When an unexplained dotted or dashed line appears in a frame, identify it before adding any filter.
+
+**Principle:** Explain every unexpected mark in a render before building on it; filters amplify what was already wrong.
+
+### Observation 20: Cross-document view transitions need their opt-in inline in <head>
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Usability pass on a multi-page site whose page wipe was written but never played.
+
+**Skill:** 3d-web-experience
+**Type:** open-source
+**Phase/Area:** Page transitions
+
+**Issue:** `@view-transition{navigation:auto}` lived in the last external stylesheet. The outgoing page opted in, but the incoming page was checked before that sheet applied, so every click threw 'ViewTransition opt-in disabled' and fell back to a hard cut. Back/Forward worked, which hid it. Building a heavy WebGL scene during the wipe also froze it.
+
+**Suggested improvement:** Put the opt-in inline in <head>; start heavy scene construction after viewTransition.finished; give the persistent header its own view-transition-name. Verify with pagereveal logging, not by eye.
+
+**Principle:** Verify a transition by its lifecycle events; a silent fallback looks exactly like a fast page load.
+
+### Observation 21: Walk the site as a visitor with real input, and treat builder scaffolding as a defect
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** First-time-visitor audit of a site that had passed its own motion and screenshot checks.
+
+**Skill:** New skill candidate: first-visit-audit
+**Type:** open-source
+**Phase/Area:** QA method
+
+**Issue:** Automated checks were green while a visitor would hit: a transition that never played, a skip gesture whose leftover scroll leapt past the hero, rail links landing on empty road, a close button under its own drawer, raw ((START)) blanks in a PDF, dead social links, and rubric tallies visible in the page. None were reachable by a scripted scroll to fixed positions.
+
+**Suggested improvement:** Checklist: real wheel/touch/key events; every control pressed twice; Back/Forward; reload mid-page; short, landscape and tablet viewports; no WebGL, no JS, reduced motion, print; crawl for dead links and placeholder text.
+
+**Principle:** Checks that jump to known-good states cannot find the states in between, which is where visitors live.
+
+### Observation 22: Two sessions in one working tree: isolate in a worktree and 3-way merge
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Another session was editing the same uncommitted files during the pass.
+
+**Skill:** gsd-extras
+**Type:** open-source
+**Phase/Area:** Sharing a working tree
+
+**Issue:** Errors appeared mid-test that belonged to the other session's half-written files. Working in a git worktree seeded from its snapshot, messaging it the regions to be touched, and merging per file against that snapshot left two small conflicts and lost nothing.
+
+**Suggested improvement:** Add to the shared-tree section: snapshot, worktree on its own port, announce regions, git merge-file against the snapshot, rebuild generated files instead of merging them.
+
+**Principle:** When state is shared and uncommitted, a frozen common ancestor is what makes merging possible.
