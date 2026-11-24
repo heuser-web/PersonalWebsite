@@ -26,6 +26,14 @@ def sync():
             shutil.copy(t / src, d / dst)
 sync()
 
+def sync_resumes():
+    """Hosts serve preview/ as the site root, so the PDFs must live inside it."""
+    import shutil
+    (OUT / "resume").mkdir(parents=True, exist_ok=True)
+    for pdf in (ROOT / "resume").glob("*.pdf"):
+        shutil.copy(pdf, OUT / "resume" / pdf.name)
+sync_resumes()
+
 def A(name):
     """Asset URL with a content-time stamp, so a browser never serves a stale copy
     of CSS/JS after a rebuild (heuristic caching can hold files for days)."""
@@ -201,11 +209,11 @@ about = pagehead("Roman Heuser","About Me","Founder, student, and the person who
 
 resume_body = read("resume.html")
 resume_body = resume_body.replace('[pdf-embedder url="((MEDIA URL: resume-original.pdf))" title="Roman Heuser Resume — Original"]',
-    '<iframe class="rh-pdf" src="../resume/resume-original.pdf#toolbar=0&navpanes=0&view=FitH" title="Resume — Original"></iframe>')
+    '<iframe class="rh-pdf" src="resume/resume-original.pdf#toolbar=0&navpanes=0&view=FitH" title="Resume — Original"></iframe>')
 resume_body = resume_body.replace('[pdf-embedder url="((MEDIA URL: resume-ai-refined.pdf))" title="Roman Heuser Resume — Product Manager version"]',
-    '<iframe class="rh-pdf" src="../resume/resume-ai-refined.pdf#toolbar=0&navpanes=0&view=FitH" title="Resume — Product"></iframe>')
-resume_body = resume_body.replace("((MEDIA URL: resume-original.pdf))","../resume/resume-original.pdf")
-resume_body = resume_body.replace("((MEDIA URL: resume-ai-refined.pdf))","../resume/resume-ai-refined.pdf")
+    '<iframe class="rh-pdf" src="resume/resume-ai-refined.pdf#toolbar=0&navpanes=0&view=FitH" title="Resume — Product"></iframe>')
+resume_body = resume_body.replace("((MEDIA URL: resume-original.pdf))","resume/resume-original.pdf")
+resume_body = resume_body.replace("((MEDIA URL: resume-ai-refined.pdf))","resume/resume-ai-refined.pdf")
 resume = pagehead("Roman Heuser","Resume","Two versions of the same experience, and the prompts that produced the second.") + article(resume_body)
 
 def gal_item(i, f, label, alt, pos, w, h):
