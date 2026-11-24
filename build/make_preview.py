@@ -228,48 +228,36 @@ blog = pagehead("Blog", "The Restaurant With 400 Perfect Reviews and No Customer
 <div id="rh-blog-demo"></div>
 </div></div></section>"""
 
-excel_widget = (ROOT / "chatbot" / "excel-gpt-chatbot.html").read_text()
-excel_widget = re.sub(r"<!--.*?-->", "", excel_widget, flags=re.S).strip()
-excel = pagehead("Excel Helper","Ask my Excel GPT","A Custom GPT trained on Microsoft Excel — ask it about formulas, PivotTables, charts, or the error you are stuck on.") + \
-    f'<section class="rh-section"><div class="rh-edge">{excel_widget}</div></section>'
-# The plugin version (chatbot-b.html) is a builder's page: open it by address, it is
+# The Excel Helper page is the plugin's own panel, with the engine as a separate file.
+import shutil, subprocess, sys
+subprocess.run([sys.executable, str(ROOT / "build" / "make_chatbot.py")], check=True)
+_plug = ROOT / "chatbot" / "rh-excel-gpt"
+for _f in ("excel-brain.js", "rhxg.js", "rhxg.css"):
+    _src, _dst = _plug / "assets" / _f, OUT / "assets" / _f
+    if not _dst.exists() or _src.read_bytes() != _dst.read_bytes():
+        shutil.copy(_src, _dst)
+
+excel = pagehead("Excel Helper","Ask my Excel GPT","Ask about formulas, PivotTables, charts, or the error you are stuck on. Paste a formula and it finds the mistake.") + \
+    f'<section class="rh-section"><div class="rh-edge">{(_plug / "views" / "helper.html").read_text()}</div></section><script src="{A("excel-brain.js")}"></script>'
+
+# The floating version (chatbot-b.html) is a builder's page: open it by address, it is
 # not linked from anything a visitor sees. See chatbot/CHOOSING.md.
-
-# ---------------- CHATBOT B (the plugin) ----------------
-_php = (ROOT / "chatbot" / "rh-excel-gpt" / "rh-excel-gpt.php").read_text()
-_m = re.search(r'<div class="rhxg" id="rhxg-root".*?</div>\s*\n\t<\?php', _php, re.S)
-_w = _m.group(0).replace("\n\t<?php", "")
-_w = re.sub(r"<\?php echo esc_attr\(.*?\); \?>", "1", _w)
-_w = re.sub(r"<\?php esc_attr_e\(\s*'(.*?)',.*?\); \?>", r"\1", _w)
-_w = re.sub(r"<\?php esc_html_e\(\s*'(.*?)',.*?\); \?>", r"\1", _w)
-_w = re.sub(r"<\?php if \( \$o\['gpt_url'\] \) : \?>.*?<\?php endif; \?>",
-            '', _w, flags=re.S)   # no link until a real GPT address exists
-
-botb = pagehead("Chatbot B", "Excel GPT Assistant",
-                "A WordPress plugin. Floating launcher, live model, API key kept server-side.") + """
+botb = pagehead("Chatbot B", "Excel Helper, floating",
+                "The same assistant as a button in the corner of the page.") + """
 <section class="rh-section"><div class="rh-edge"><div class="rh-article">
   <p class="rh-lede">Click the green <strong>Ask about Excel</strong> button in the bottom-right corner.</p>
-  <p>This is the plugin's real interface and its real JavaScript, talking to a real chat endpoint on
-  this dev server. Ask it something — VLOOKUP, PivotTables, IF, SUMIF, <code>#N/A</code>, absolute
-  references, shortcuts, duplicates, charts — and it answers. Ask it something that is not about
-  Excel and it will refuse, because the system prompt tells it to.</p>
-  <p><strong>Offline vs live.</strong> With no API key set, the dev server answers from a small
-  built-in set so the whole flow is testable. Set <code>OPENAI_API_KEY</code> (or
-  <code>ANTHROPIC_API_KEY</code>) before starting the server and the exact same interface returns
-  real model answers instead:</p>
-  <pre style="background:var(--rh-bg-alt);padding:1rem;border-radius:var(--rh-radius-sm);overflow-x:auto"><code>OPENAI_API_KEY=sk-... python3 build/devserver.py</code></pre>
-  <p>On the real site this endpoint is <code>/wp-json/rh-excel-gpt/v1/chat</code>, served by the
-  plugin, with your key in the WordPress database and never in the page.</p>
-  <p><a href="excel-helper.html">Compare it with the inline version &rarr;</a></p>
+  <p>This is the plugin's real interface. With no API key it answers from its built-in knowledge.
+  To try the live model, start the dev server with a key and open this page with <code>?live</code>:</p>
+  <pre style="background:var(--rh-bg-alt);padding:1rem;border-radius:var(--rh-radius-sm);overflow-x:auto"><code>OPENAI_API_KEY=... python3 build/devserver.py</code></pre>
+  <p><a href="excel-helper.html">Compare it with the panel version &rarr;</a></p>
 </div></div></section>
-""" + _w + """
+""" + (_plug / "views" / "launcher.html").read_text() + f"""
 <script>
-var RHXG = { endpoint:'/wp-json/rh-excel-gpt/v1/chat', nonce:'dev', live:1,
-  greeting:'Hi — I am an Excel assistant. Ask me about formulas, PivotTables, charts, or the error message you are stuck on.',
-  gptUrl:'' };
+var RHXG = {{ endpoint:'/wp-json/rh-excel-gpt/v1/chat', nonce:'', live:/[?&]live\\b/.test(location.search) ? 1 : 0, gptUrl:'' }};
 </script>
-<link rel="stylesheet" href="assets/rhxg.css">
-<script src="assets/rhxg.js"></script>
+<link rel="stylesheet" href="{A('rhxg.css')}">
+<script src="{A('excel-brain.js')}"></script>
+<script src="{A('rhxg.js')}"></script>
 """
 
 PAGES = {

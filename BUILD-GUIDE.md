@@ -262,49 +262,33 @@ different people, and the reply pattern that earns full credit.
 
 ## Step 11 — The Excel Custom GPT chatbot (30 rubric points)
 
-You have **two** working chatbots. Read `chatbot/CHOOSING.md` for the full
-comparison — the short version is below.
-
-### The part that is not optional
-
 The rubric says *"You must use the GPT Chatbot and prompts covered in Lab #3."*
-So whichever chatbot you ship, do these three things:
+Nothing here replaces that. Do both parts.
 
-1. **Embed your Lab #3 Custom GPT the way the lab taught it.** Do not substitute
-   my work for it.
-2. **Paste your Lab #3 system prompt** into the plugin's System prompt field, so
-   the live bot is running the Lab 3 prompt.
-3. **Put your Custom GPT share link** in the plugin settings.
+### Part 1: your Lab #3 GPT
 
-### Option A — inline widget (no cost, no setup)
+Follow `chatbot/custom-gpt/SETUP.md`. It upgrades the GPT you already made and
+keeps your Lab #3 prompt at the top. **OpenAI takes custom GPT pages offline on
+11 December 2026, and personal accounts can no longer create new ones**, so edit
+the one you have.
 
-1. Open `chatbot/excel-gpt-chatbot.html`, replace all 3 occurrences of
-   `YOUR_CUSTOM_GPT_URL_HERE` with your Lab #3 GPT link.
-2. Create a page called **Excel Helper**, add a **Custom HTML** block, paste the
-   file, publish.
-
-26 Excel topics answered on-page, keyword-matched. Never breaks, never costs
-anything, but it is not a real language model.
-
-### Option B — the plugin (a live GPT)
+### Part 2: the assistant on your site
 
 1. **Plugins → Add New → Upload Plugin** → `build/rh-excel-gpt.zip` → Activate.
-2. **Settings → Excel GPT**: tick Enable, choose provider, paste your API key,
-   set the model, paste your Lab 3 system prompt, add your Custom GPT link.
-3. Put `[rh_excel_gpt]` on the Excel Helper page.
+2. Create a page called **Excel Helper**, add a **Shortcode** block, type
+   `[rh_excel_helper]`, publish.
+3. **Settings → Excel GPT**: paste your Lab #3 GPT link. The button appears.
 
-A floating launcher appears bottom-right. It holds a real conversation with
-follow-up context, and refuses off-topic questions per the system prompt.
+It answers 93 Excel topics, checks pasted formulas, writes common ones and runs a
+quiz, with no key and no cost. `[rh_excel_gpt]` is the same thing as a floating
+button; one of the two is enough.
 
-**A ChatGPT Plus subscription is not API access** — the API bills separately and
-needs a card. If you would rather not, leave Enable unticked: the plugin still
-renders and points at your Custom GPT.
+**Optional, makes it a live GPT:** in the same settings tick Enable, paste an API
+key, and put your Lab #3 prompt at the top of the System prompt. If the live model
+ever fails, the built-in answers take over. **A ChatGPT Plus subscription is not
+API access**; the API bills separately and needs a card.
 
-### What I would ship
-
-Both, on the same page — the plugin as the working assistant, the inline widget
-below it. If the API key ever runs dry, the page still has a working Excel
-assistant on it.
+More detail: `chatbot/CHOOSING.md`.
 
 ### Then add it to the menu
 

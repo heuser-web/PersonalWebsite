@@ -1,0 +1,208 @@
+SUM|SUM(number1, [number2], …)|adds numbers; text and blanks are skipped
+AVERAGE|AVERAGE(number1, …)|mean; skips blanks and text, counts zeros
+MEDIAN|MEDIAN(number1, …)|middle value
+MODE.SNGL|MODE.SNGL(number1, …)|most common value
+MIN|MIN(number1, …)|smallest number
+MAX|MAX(number1, …)|largest number
+COUNT|COUNT(value1, …)|counts cells that hold numbers
+COUNTA|COUNTA(value1, …)|counts cells that are not empty
+COUNTBLANK|COUNTBLANK(range)|counts empty cells
+COUNTIF|COUNTIF(range, criteria)|counts cells that meet one condition
+COUNTIFS|COUNTIFS(range1, criteria1, [range2, criteria2], …)|counts rows that meet every condition
+SUMIF|SUMIF(range, criteria, [sum_range])|adds cells that meet one condition
+SUMIFS|SUMIFS(sum_range, range1, criteria1, …)|adds cells that meet every condition
+AVERAGEIF|AVERAGEIF(range, criteria, [average_range])|averages cells that meet one condition
+AVERAGEIFS|AVERAGEIFS(average_range, range1, criteria1, …)|averages cells that meet every condition
+MAXIFS|MAXIFS(max_range, range1, criteria1, …)|largest value among matching rows|2019
+MINIFS|MINIFS(min_range, range1, criteria1, …)|smallest value among matching rows|2019
+SUMPRODUCT|SUMPRODUCT(array1, [array2], …)|multiplies matching cells, then adds the results
+SUBTOTAL|SUBTOTAL(function_num, ref1, …)|totals only the rows a filter leaves visible
+AGGREGATE|AGGREGATE(function_num, options, array)|like SUBTOTAL, and can ignore errors
+PRODUCT|PRODUCT(number1, …)|multiplies numbers
+POWER|POWER(number, power)|raises to a power, same as ^
+SQRT|SQRT(number)|square root
+ABS|ABS(number)|drops the minus sign
+MOD|MOD(number, divisor)|remainder after dividing
+QUOTIENT|QUOTIENT(numerator, denominator)|whole part of a division
+INT|INT(number)|rounds down to a whole number
+TRUNC|TRUNC(number, [digits])|cuts off decimals
+ROUND|ROUND(number, digits)|rounds to a number of decimals
+ROUNDUP|ROUNDUP(number, digits)|always rounds away from zero
+ROUNDDOWN|ROUNDDOWN(number, digits)|always rounds toward zero
+MROUND|MROUND(number, multiple)|rounds to the nearest multiple
+CEILING|CEILING(number, significance)|rounds up to a multiple
+CEILING.MATH|CEILING.MATH(number, [significance])|rounds up to a multiple
+FLOOR|FLOOR(number, significance)|rounds down to a multiple
+FLOOR.MATH|FLOOR.MATH(number, [significance])|rounds down to a multiple
+SIGN|SIGN(number)|1, 0 or -1
+EXP|EXP(number)|e raised to a power
+LN|LN(number)|natural logarithm
+LOG|LOG(number, [base])|logarithm, base 10 by default
+LOG10|LOG10(number)|base-10 logarithm
+PI|PI()|the value of pi
+RAND|RAND()|random decimal from 0 up to 1; changes on every recalculation
+RANDBETWEEN|RANDBETWEEN(bottom, top)|random whole number; changes on every recalculation
+RANDARRAY|RANDARRAY([rows], [columns], [min], [max], [whole])|a block of random numbers|2021
+SEQUENCE|SEQUENCE(rows, [columns], [start], [step])|a list of numbers in order|2021
+LARGE|LARGE(array, k)|k-th largest value
+SMALL|SMALL(array, k)|k-th smallest value
+RANK|RANK(number, ref, [order])|rank of a number; kept for old files, use RANK.EQ
+RANK.EQ|RANK.EQ(number, ref, [order])|rank of a number; ties share a rank
+RANK.AVG|RANK.AVG(number, ref, [order])|rank of a number; ties get the average rank
+PERCENTILE.INC|PERCENTILE.INC(array, k)|value at a percentile
+QUARTILE.INC|QUARTILE.INC(array, quart)|value at a quartile
+STDEV|STDEV(number1, …)|standard deviation of a sample; kept for old files, use STDEV.S
+STDEV.S|STDEV.S(number1, …)|standard deviation of a sample
+STDEV.P|STDEV.P(number1, …)|standard deviation of a whole population
+VAR.S|VAR.S(number1, …)|variance of a sample
+VAR.P|VAR.P(number1, …)|variance of a whole population
+CORREL|CORREL(array1, array2)|correlation, from -1 to 1
+SLOPE|SLOPE(known_ys, known_xs)|slope of the best-fit line
+INTERCEPT|INTERCEPT(known_ys, known_xs)|where the best-fit line crosses the y axis
+RSQ|RSQ(known_ys, known_xs)|R-squared, how well the line fits
+FORECAST|FORECAST(x, known_ys, known_xs)|predicts a value; kept for old files, use FORECAST.LINEAR
+FORECAST.LINEAR|FORECAST.LINEAR(x, known_ys, known_xs)|predicts a value from a straight line
+TREND|TREND(known_ys, [known_xs], [new_xs])|predicts several values from a straight line
+LINEST|LINEST(known_ys, [known_xs], [const], [stats])|full regression statistics
+FREQUENCY|FREQUENCY(data, bins)|counts how many values fall in each group
+NORM.DIST|NORM.DIST(x, mean, sd, cumulative)|normal distribution
+T.TEST|T.TEST(array1, array2, tails, type)|p-value of a t-test
+CONFIDENCE.T|CONFIDENCE.T(alpha, sd, size)|margin of error for a mean
+IF|IF(test, value_if_true, [value_if_false])|one result when a test is true, another when false
+IFS|IFS(test1, value1, [test2, value2], …)|first result whose test is true|2019
+SWITCH|SWITCH(expression, value1, result1, …, [default])|matches one value against a list|2019
+CHOOSE|CHOOSE(index, value1, …)|picks an item by its position
+AND|AND(test1, …)|TRUE when every test is true
+OR|OR(test1, …)|TRUE when at least one test is true
+NOT|NOT(test)|flips TRUE and FALSE
+XOR|XOR(test1, …)|TRUE when an odd number of tests are true
+IFERROR|IFERROR(value, value_if_error)|replaces any error
+IFNA|IFNA(value, value_if_na)|replaces only #N/A
+ISBLANK|ISBLANK(value)|TRUE when a cell is empty
+ISNUMBER|ISNUMBER(value)|TRUE when a cell holds a number
+ISTEXT|ISTEXT(value)|TRUE when a cell holds text
+ISERROR|ISERROR(value)|TRUE when there is any error
+ISNA|ISNA(value)|TRUE when there is #N/A
+ISEVEN|ISEVEN(number)|TRUE for even numbers
+ISODD|ISODD(number)|TRUE for odd numbers
+ISFORMULA|ISFORMULA(reference)|TRUE when a cell holds a formula
+NA|NA()|returns #N/A on purpose
+TRUE|TRUE()|the value TRUE
+FALSE|FALSE()|the value FALSE
+VLOOKUP|VLOOKUP(lookup_value, table, col_number, [range_lookup])|finds a value in a first column, returns one to its right
+HLOOKUP|HLOOKUP(lookup_value, table, row_number, [range_lookup])|finds a value in a top row, returns one below it
+XLOOKUP|XLOOKUP(lookup_value, lookup_range, return_range, [if_not_found], [match_mode], [search_mode])|finds a value and returns its match from any direction|2021
+LOOKUP|LOOKUP(lookup_value, lookup_vector, [result_vector])|older lookup that needs sorted data
+INDEX|INDEX(array, row_num, [column_num])|returns the value at a position
+MATCH|MATCH(lookup_value, lookup_array, [match_type])|returns the position of a value; use 0 for exact
+XMATCH|XMATCH(lookup_value, lookup_array, [match_mode])|returns the position of a value, exact by default|2021
+OFFSET|OFFSET(reference, rows, cols, [height], [width])|a range a number of steps away; recalculates constantly
+INDIRECT|INDIRECT(ref_text)|turns text into a reference; recalculates constantly and breaks silently
+ADDRESS|ADDRESS(row, column, [abs], [a1], [sheet])|builds a cell address as text
+ROW|ROW([reference])|row number
+ROWS|ROWS(array)|how many rows
+COLUMN|COLUMN([reference])|column number
+COLUMNS|COLUMNS(array)|how many columns
+TRANSPOSE|TRANSPOSE(array)|swaps rows and columns
+FORMULATEXT|FORMULATEXT(reference)|shows a formula as text
+HYPERLINK|HYPERLINK(link, [name])|makes a clickable link
+GETPIVOTDATA|GETPIVOTDATA(field, pivot, …)|reads a value from a PivotTable
+FILTER|FILTER(array, include, [if_empty])|returns every row that matches|2021
+SORT|SORT(array, [sort_index], [sort_order], [by_col])|sorted copy of a range|2021
+SORTBY|SORTBY(array, by_array1, [order1], …)|sorts one range by another|2021
+UNIQUE|UNIQUE(array, [by_col], [exactly_once])|list without repeats|2021
+TAKE|TAKE(array, rows, [columns])|first or last rows of a result|2024
+DROP|DROP(array, rows, [columns])|removes rows from a result|2024
+CHOOSECOLS|CHOOSECOLS(array, col1, …)|picks columns from a result|2024
+CHOOSEROWS|CHOOSEROWS(array, row1, …)|picks rows from a result|2024
+VSTACK|VSTACK(array1, …)|stacks ranges on top of each other|2024
+HSTACK|HSTACK(array1, …)|puts ranges side by side|2024
+TOCOL|TOCOL(array, [ignore])|turns a block into one column|2024
+TOROW|TOROW(array, [ignore])|turns a block into one row|2024
+WRAPROWS|WRAPROWS(vector, count)|wraps a list into rows|2024
+WRAPCOLS|WRAPCOLS(vector, count)|wraps a list into columns|2024
+GROUPBY|GROUPBY(row_fields, values, function)|summary table from one formula|365
+PIVOTBY|PIVOTBY(row_fields, col_fields, values, function)|pivot from one formula|365
+LET|LET(name1, value1, …, result)|names values inside one formula|2021
+LAMBDA|LAMBDA(parameter1, …, calculation)|makes your own function|2024
+MAP|MAP(array, lambda)|runs a LAMBDA on every item|2024
+BYROW|BYROW(array, lambda)|runs a LAMBDA on every row|2024
+BYCOL|BYCOL(array, lambda)|runs a LAMBDA on every column|2024
+REDUCE|REDUCE(initial, array, lambda)|runs a LAMBDA down to one value|2024
+SCAN|SCAN(initial, array, lambda)|running results from a LAMBDA|2024
+CONCAT|CONCAT(text1, …)|joins text or a whole range|2019
+CONCATENATE|CONCATENATE(text1, …)|joins text; kept for old files, use CONCAT or &
+TEXTJOIN|TEXTJOIN(delimiter, ignore_empty, text1, …)|joins text with a separator|2019
+TEXTSPLIT|TEXTSPLIT(text, col_delimiter, [row_delimiter])|splits text into cells|2024
+TEXTBEFORE|TEXTBEFORE(text, delimiter, [instance])|text before a character|2024
+TEXTAFTER|TEXTAFTER(text, delimiter, [instance])|text after a character|2024
+LEFT|LEFT(text, [num_chars])|first characters
+RIGHT|RIGHT(text, [num_chars])|last characters
+MID|MID(text, start, num_chars)|characters from the middle
+LEN|LEN(text)|number of characters
+FIND|FIND(find_text, within_text, [start])|position of text; case matters
+SEARCH|SEARCH(find_text, within_text, [start])|position of text; case ignored, wildcards allowed
+SUBSTITUTE|SUBSTITUTE(text, old, new, [instance])|replaces text by what it says
+REPLACE|REPLACE(text, start, num_chars, new)|replaces text by its position
+TRIM|TRIM(text)|removes extra spaces
+CLEAN|CLEAN(text)|removes hidden characters
+UPPER|UPPER(text)|all capitals
+LOWER|LOWER(text)|all lower case
+PROPER|PROPER(text)|Capitalizes Each Word
+TEXT|TEXT(value, format)|turns a number or date into formatted text
+VALUE|VALUE(text)|turns text into a number
+NUMBERVALUE|NUMBERVALUE(text, [decimal], [group])|turns text into a number with set separators
+EXACT|EXACT(text1, text2)|TRUE when two texts match, case included
+REPT|REPT(text, times)|repeats text
+CHAR|CHAR(number)|character from a code; CHAR(10) is a line break
+CODE|CODE(text)|code of the first character
+UNICHAR|UNICHAR(number)|character from a Unicode number
+TODAY|TODAY()|today's date, updates daily
+NOW|NOW()|date and time now
+DATE|DATE(year, month, day)|builds a date
+DATEVALUE|DATEVALUE(text)|turns text into a date
+DATEDIF|DATEDIF(start, end, unit)|whole years "Y", months "M" or days "D" between dates
+DAYS|DAYS(end, start)|days between two dates
+YEAR|YEAR(date)|the year
+MONTH|MONTH(date)|the month number
+DAY|DAY(date)|the day of the month
+WEEKDAY|WEEKDAY(date, [type])|day of the week as a number; type 2 makes Monday 1
+WEEKNUM|WEEKNUM(date, [type])|week of the year
+ISOWEEKNUM|ISOWEEKNUM(date)|ISO week of the year
+EDATE|EDATE(date, months)|same day a number of months later
+EOMONTH|EOMONTH(date, months)|last day of a month
+NETWORKDAYS|NETWORKDAYS(start, end, [holidays])|weekdays between dates, counting both ends
+NETWORKDAYS.INTL|NETWORKDAYS.INTL(start, end, [weekend], [holidays])|workdays with your own weekend
+WORKDAY|WORKDAY(start, days, [holidays])|date a number of workdays away
+WORKDAY.INTL|WORKDAY.INTL(start, days, [weekend], [holidays])|same, with your own weekend
+YEARFRAC|YEARFRAC(start, end, [basis])|part of a year between dates
+TIME|TIME(hour, minute, second)|builds a time
+TIMEVALUE|TIMEVALUE(text)|turns text into a time
+HOUR|HOUR(time)|the hour
+MINUTE|MINUTE(time)|the minute
+SECOND|SECOND(time)|the second
+PMT|PMT(rate, periods, present_value, [future_value], [type])|payment on a loan
+IPMT|IPMT(rate, period, periods, present_value)|interest part of one payment
+PPMT|PPMT(rate, period, periods, present_value)|principal part of one payment
+CUMIPMT|CUMIPMT(rate, periods, pv, start, end, type)|interest paid over several payments
+FV|FV(rate, periods, payment, [present_value], [type])|future value of savings
+PV|PV(rate, periods, payment, [future_value], [type])|value today of future payments
+NPER|NPER(rate, payment, present_value)|how many payments
+RATE|RATE(periods, payment, present_value)|interest rate per period
+NPV|NPV(rate, value1, …)|net present value; first value is discounted one period
+XNPV|XNPV(rate, values, dates)|net present value with real dates
+IRR|IRR(values, [guess])|return that makes NPV zero
+XIRR|XIRR(values, dates, [guess])|return with real dates
+EFFECT|EFFECT(nominal_rate, periods)|effective yearly rate
+SLN|SLN(cost, salvage, life)|straight-line depreciation
+DB|DB(cost, salvage, life, period)|declining-balance depreciation
+IMAGE|IMAGE(url, [alt_text])|picture from a web address|365
+STOCKHISTORY|STOCKHISTORY(ticker, start, [end])|past share prices|365
+CONVERT|CONVERT(number, from, to)|changes units
+CELL|CELL(info_type, [reference])|facts about a cell
+TYPE|TYPE(value)|what kind of value it is
+N|N(value)|turns a value into a number
+T|T(value)|returns text, or nothing
+REGEXTEST|REGEXTEST(text, pattern)|TRUE when text fits a pattern|365
+REGEXEXTRACT|REGEXEXTRACT(text, pattern)|pulls out text that fits a pattern|365
+REGEXREPLACE|REGEXREPLACE(text, pattern, replacement)|replaces text that fits a pattern|365

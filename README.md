@@ -102,27 +102,19 @@ picks and setup are in BUILD-GUIDE §9.
 - Edit the `.html` files and re-render with `build/render.py` — see FACTS-TO-VERIFY
 
 ### Excel GPT chatbot — 30 pts
-**Two of them — pick one, or ship both.** See `chatbot/CHOOSING.md`.
+One knowledge base (`chatbot/src/`) feeds all of it. See `chatbot/CHOOSING.md`.
 
-**A · `chatbot/excel-gpt-chatbot.html`** — inline panel, one self-contained
-block, zero dependencies and zero cost.
+- **On the site:** the plugin's `[rh_excel_helper]` panel, or `[rh_excel_gpt]` as a
+  floating button. It answers 93 Excel topics, checks pasted formulas, writes
+  common ones, and runs a quiz, with no key and no cost. Add an API key and it
+  becomes a live GPT; if that fails, the built-in answers take over.
+- **In ChatGPT:** `chatbot/custom-gpt/` upgrades your **Lab #3 GPT**: instructions,
+  a knowledge file, starters and a test list. Custom GPT pages go offline on
+  11 December 2026, and the link on the site hides itself that day.
+- `npm run chatbot` rebuilds, `npm run test:chatbot` checks it.
 
-- 26 Excel topics answered on-page: lookups, PivotTables, IF/IFS, SUMIF/COUNTIF,
-  absolute references, conditional formatting, charts, dates, text functions,
-  Tables, Flash Fill, Power Query, error messages, shortcuts, printing
-- Keyword-scored matching, verified by a 28-case test — including correct
-  fallback on out-of-scope questions
-- Hands off to your **Lab #3 Custom GPT** for anything deeper
-
-**B · `chatbot/rh-excel-gpt/`** — a WordPress plugin with a floating launcher and
-a **live language model** behind it. The API key is stored server-side and every
-request is proxied through your own domain, so the key is never in page source.
-Settings screen for provider, model, system prompt and limits; two independent
-rate limits; graceful fallback when the model is off.
-
-> ChatGPT sends headers that block iframing, so a Custom GPT cannot literally be
-> embedded. Both of these answer on-page and link out to your Lab #3 GPT — which
-> is both what works and what demonstrates the requirement.
+> ChatGPT blocks iframing, so a Custom GPT cannot literally be embedded. The page
+> answers on its own and links out to your Lab #3 GPT.
 
 ### Blog — 30 pts
 Threaded comments with an **Author** badge on your replies, prev/next post
@@ -142,7 +134,7 @@ outreach texts for four people and the reply pattern that earns full marks.
 
 1. ~~Add your photos~~ — done: three of yours are in `gallery/`, captioned on the
    Gallery page and placed on About Me and the home page. Upload them in Step 9c.
-2. **Paste your Lab #3 GPT link** into `chatbot/excel-gpt-chatbot.html` (replace all 3 occurrences).
+2. **Upgrade your Lab #3 GPT** with `chatbot/custom-gpt/SETUP.md`, then paste its link in Settings → Excel GPT.
 3. **Read FACTS-TO-VERIFY.md** — five things I inferred, including whether Tom and
    Serena Heuser are your parents and whether the blog story is genuinely yours.
 
