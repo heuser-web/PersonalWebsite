@@ -40,63 +40,58 @@
 <header class="rh-pagehead rh-pagehead--art" style="--rh-pagehead-art:url('assets/mesh.jpg')">
   <div class="rh-edge" style="position:relative;z-index:1">
     <p class="rh-eyebrow">Chatbot B</p>
-    <h1>Excel GPT Assistant</h1>
-    <p>A WordPress plugin. Floating launcher, live model, API key kept server-side.</p>
+    <h1>Excel Helper, floating</h1>
+    <p>The same assistant as a button in the corner of the page.</p>
   </div>
 </header>
 <section class="rh-section"><div class="rh-edge"><div class="rh-article">
   <p class="rh-lede">Click the green <strong>Ask about Excel</strong> button in the bottom-right corner.</p>
-  <p>This is the plugin's real interface and its real JavaScript, talking to a real chat endpoint on
-  this dev server. Ask it something — VLOOKUP, PivotTables, IF, SUMIF, <code>#N/A</code>, absolute
-  references, shortcuts, duplicates, charts — and it answers. Ask it something that is not about
-  Excel and it will refuse, because the system prompt tells it to.</p>
-  <p><strong>Offline vs live.</strong> With no API key set, the dev server answers from a small
-  built-in set so the whole flow is testable. Set <code>OPENAI_API_KEY</code> (or
-  <code>ANTHROPIC_API_KEY</code>) before starting the server and the exact same interface returns
-  real model answers instead:</p>
-  <pre style="background:var(--rh-bg-alt);padding:1rem;border-radius:var(--rh-radius-sm);overflow-x:auto"><code>OPENAI_API_KEY=sk-... python3 build/devserver.py</code></pre>
-  <p>On the real site this endpoint is <code>/wp-json/rh-excel-gpt/v1/chat</code>, served by the
-  plugin, with your key in the WordPress database and never in the page.</p>
-  <p><a href="excel-helper.html">Compare it with the inline version &rarr;</a></p>
+  <p>This is the plugin's real interface. With no API key it answers from its built-in knowledge.
+  To try the live model, start the dev server with a key and open this page with <code>?live</code>:</p>
+  <pre style="background:var(--rh-bg-alt);padding:1rem;border-radius:var(--rh-radius-sm);overflow-x:auto"><code>OPENAI_API_KEY=... python3 build/devserver.py</code></pre>
+  <p><a href="excel-helper.html">Compare it with the panel version &rarr;</a></p>
 </div></div></section>
-<div class="rhxg" id="rhxg-root" data-live="1">
-		<button class="rhxg__launch" type="button" aria-expanded="false" aria-controls="rhxg-panel">
-			<span class="rhxg__launch-icon" aria-hidden="true">
-				<svg viewBox="0 0 24 24"><path d="M4 3h9l7 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13 3v7h7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 13.5l3.2 4.5M11.2 13.5L8 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-			</span>
-			<span class="rhxg__launch-label">Ask about Excel</span>
-		</button>
+<div class="rhxg" id="rhxg-root">
+	<button class="rhxg__launch" type="button" aria-expanded="false" aria-controls="rhxg-panel">
+		<span class="rhxg__launch-icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24"><path d="M4 3h9l7 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13 3v7h7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 13.5l3.2 4.5M11.2 13.5L8 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+		</span>
+		<span class="rhxg__launch-label">Ask about Excel</span>
+	</button>
 
-		<div class="rhxg__panel" id="rhxg-panel" hidden>
-			<div class="rhxg__head">
-				<div>
-					<p class="rhxg__kicker">Live GPT · Microsoft Excel</p>
-					<h3 class="rhxg__title">Excel Assistant</h3>
-				</div>
+	<div class="rhxg__panel" id="rhxg-panel" role="dialog" aria-label="Excel Helper" hidden>
+		<div class="rhxg__head">
+			<div>
+				<p class="rhxg__kicker">Microsoft Excel</p>
+				<h3 class="rhxg__title">Excel Helper</h3>
+			</div>
+			<div class="rhxg__tools">
+				<button class="rhxg__reset" type="button">Start over</button>
 				<button class="rhxg__close" type="button" aria-label="Close">&times;</button>
 			</div>
-
-			<div class="rhxg__log" role="log" aria-live="polite"></div>
-
-			<form class="rhxg__form">
-				<label class="rhxg__sr" for="rhxg-input">Ask an Excel question</label>
-				<input id="rhxg-input" class="rhxg__input" type="text" autocomplete="off" maxlength="1000"
-					placeholder="Ask anything about Excel…">
-				<button class="rhxg__send" type="submit" aria-label="Send">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5L21 12 3.5 3.5 3.5 10l12 2-12 2z" fill="currentColor"/></svg>
-				</button>
-			</form>
-
-			
 		</div>
+
+		<div class="rhxg__log" role="log" aria-live="polite" aria-label="Excel Helper conversation" tabindex="0"></div>
+		<div class="rhxg__chips" role="group" aria-label="Suggested questions"></div>
+
+		<form class="rhxg__form" autocomplete="off">
+			<label class="rhxg__sr" for="rhxg-input">Ask an Excel question or paste a formula</label>
+			<textarea id="rhxg-input" class="rhxg__input" rows="1" maxlength="1200" spellcheck="false" placeholder="Ask, or paste a formula"></textarea>
+			<button class="rhxg__send" type="submit" aria-label="Send">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5L21 12 3.5 3.5 3.5 10l12 2-12 2z" fill="currentColor"/></svg>
+			</button>
+		</form>
+
+		<p class="rhxg__foot" hidden><a href="#" target="_blank" rel="noopener noreferrer">Open my Excel GPT ↗</a></p>
 	</div>
+</div>
+
 <script>
-var RHXG = { endpoint:'/wp-json/rh-excel-gpt/v1/chat', nonce:'dev', live:1,
-  greeting:'Hi — I am an Excel assistant. Ask me about formulas, PivotTables, charts, or the error message you are stuck on.',
-  gptUrl:'' };
+var RHXG = { endpoint:'/wp-json/rh-excel-gpt/v1/chat', nonce:'', live:/[?&]live\b/.test(location.search) ? 1 : 0, gptUrl:'' };
 </script>
-<link rel="stylesheet" href="assets/rhxg.css">
-<script src="assets/rhxg.js"></script>
+<link rel="stylesheet" href="assets/rhxg.css?v=1795481500">
+<script src="assets/excel-brain.js?v=1795481500"></script>
+<script src="assets/rhxg.js?v=1795481500"></script>
 
 </main>
 

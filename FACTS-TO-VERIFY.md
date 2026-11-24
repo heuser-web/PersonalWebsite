@@ -88,7 +88,7 @@ say so; it is more specific and reads better than plain "Business."
 | About Me | Two `((MEDIA URL: ...))` image markers — upload `gallery/reno-sunset.jpg` and `gallery/treenet.jpg`, paste their URLs |
 | Gallery | Your gallery plugin shortcode |
 | Resume page | Four `((MEDIA URL))` markers, after you upload the PDFs |
-| Chatbot | `YOUR_CUSTOM_GPT_URL_HERE` — **all 3 occurrences** |
+| Chatbot | Your Lab #3 GPT link, in **Settings → Excel GPT** (or `YOUR_CUSTOM_GPT_URL_HERE`, once, if you paste the HTML instead) |
 
 To regenerate the PDFs after editing the resume HTML files:
 

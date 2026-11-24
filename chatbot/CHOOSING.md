@@ -1,56 +1,38 @@
-# Two chatbots — which one to ship
+# The Excel chatbots: what to ship
 
-You have two working Excel chatbots. They solve the same rubric line
-(**Embedded GPT ChatBot with Microsoft Excel info — 30 pts**) in opposite ways.
+All of them now share one knowledge base (`chatbot/src/`), so they never disagree.
 
-| | **A · Inline widget** | **B · WordPress plugin** |
-|---|---|---|
-| File | `excel-gpt-chatbot.html` | `rh-excel-gpt/` (+ `build/rh-excel-gpt.zip`) |
-| Install | Paste into a Custom HTML block | Upload plugin, activate, add `[rh_excel_gpt]` |
-| Where it sits | Inline panel in the page | Floating launcher, bottom-right of every page it's on |
-| How it answers | 26 built-in Excel topics, keyword-matched | **A real language model**, live |
-| Follow-up questions | No — each question is independent | Yes, keeps six turns of context |
-| Off-topic questions | Falls back to a canned message | Politely refuses and steers back, per the system prompt |
-| Cost | £0 / $0, forever | Pennies, but needs an API key with a card on file |
-| Can it break? | Practically no. No network, no key, no dependency | Yes — bad key, no credit, API outage |
-| API key exposure | N/A | **None.** Key stays server-side, proxied through your own domain |
-| Works offline | Yes | No |
+| | **Panel** `[rh_excel_helper]` | **Floating button** `[rh_excel_gpt]` | **Your Lab #3 GPT** |
+|---|---|---|---|
+| Where | In the page | Corner of the page | chatgpt.com, linked from the site |
+| Needs a key | No | No | No |
+| Answers Excel questions | Yes, 93 topics and 208 functions | Same | Yes, live model |
+| Checks a pasted formula | Yes | Yes | Yes |
+| Writes a formula from a sentence | Common patterns | Same | Anything |
+| Quiz | Yes | Yes | Yes |
+| With an API key | Becomes a live GPT | Becomes a live GPT | n/a |
+| If the live model fails | Built-in answer | Built-in answer | n/a |
+| After 11 December 2026 | Keeps working | Keeps working | **Page goes offline** |
 
-## What I'd actually do
+## What I would ship
 
-**Ship B as the main one, and keep A on the same page underneath it.**
+1. Install the plugin (`build/rh-excel-gpt.zip`).
+2. On the Excel Helper page put `[rh_excel_helper]`. One chat on the page is enough.
+3. Upgrade your Lab #3 GPT with `chatbot/custom-gpt/SETUP.md` and paste its link in **Settings → Excel GPT**.
+4. Optional: add an API key and the panel becomes a live GPT.
 
-The rubric says *"Embedded GPT ChatBot."* Chatbot A is a good fake — it answers
-26 Excel topics well, but it is keyword matching, not generation. If your
-professor asks it something off-script, it says "I don't have an answer for
-that." Chatbot B is a genuine GPT and will answer anything Excel-shaped.
+No plugin? Paste `chatbot/excel-gpt-chatbot.html` into a Custom HTML block. It is the same panel.
 
-Keeping A below B costs you nothing and means that if the API key runs dry the
-day it gets graded, there is still a working Excel assistant on the page.
+## What decides the 30 points
 
-## What actually decides your 30 points
+The rubric says: *You must use the GPT Chatbot and prompts covered in Lab #3.* The panel is not that chatbot, and without an API key it is not a GPT. It says so itself if asked. So:
 
-Neither of these is the Lab #3 chatbot, and the rubric explicitly says:
+1. Embed or link your **Lab #3 GPT** the way the lab taught it.
+2. Keep your **Lab #3 prompt** at the top of its instructions.
+3. If you add an API key, paste that same prompt at the top of **Settings → Excel GPT → System prompt**.
 
-> *You must use the GPT Chatbot and prompts covered in Lab #3*
+A custom GPT cannot be put in an iframe, because chatgpt.com blocks it. The button is the working way.
 
-So do this, in order:
+## Changing answers
 
-1. **Embed your Lab #3 Custom GPT the way the lab taught it.** That satisfies the
-   literal requirement. Don't substitute my work for it.
-2. **Paste your Lab #3 system prompt into the plugin** — Settings → Excel GPT →
-   System prompt. Now the plugin *is* running the Lab 3 prompt, which connects
-   the two directly.
-3. **Put your Custom GPT share link in the plugin settings** so the footer links
-   to it.
-
-Do those three and you are demonstrably using the Lab 3 material, with a live
-implementation on top. That is the difference between "followed instructions"
-and "followed instructions and then went further" — and only the second one gets
-extra credit.
-
-## If you don't want to add a payment method
-
-Leave the plugin's **Enable** box unticked and ship Chatbot A as the working
-assistant. The plugin still renders, still looks finished, and points at your
-Custom GPT. You lose live answering; you lose nothing visually.
+Edit `chatbot/src/topics.md`, then run `npm run chatbot` and `npm run test:chatbot`.

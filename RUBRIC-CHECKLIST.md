@@ -88,13 +88,14 @@ professor's rubric, with the file in this kit that covers it.
 
 ## Embedded GPT ChatBot with Excel info — 30 pts
 
-- [ ] Chatbot is embedded on a page of your site → `chatbot/excel-gpt-chatbot.html`
+- [ ] Chatbot is embedded on a page of your site → plugin shortcode `[rh_excel_helper]`
 - [ ] It is about **Microsoft Excel**
-- [ ] Visitors can ask questions and get answers ✔ (28/28 routing tests pass)
+- [ ] Visitors can ask questions and get answers ✔ (`npm run test:chatbot`: 278 checks pass)
 - [ ] **Your Lab #3 Custom GPT is embedded the way the lab taught it** ← *the rubric names this explicitly*
 - [ ] **Your Lab #3 system prompt is pasted into the plugin's System prompt field**
-- [ ] If shipping widget A: `YOUR_CUSTOM_GPT_URL_HERE` replaced — all 3 occurrences
-- [ ] If shipping plugin B: API key entered, Enable ticked, `[rh_excel_gpt]` on the page
+- [ ] Your Lab #3 GPT upgraded with `chatbot/custom-gpt/SETUP.md`, Lab #3 prompt kept at the top
+- [ ] Its share link pasted in Settings → Excel GPT, and the button opens it (**custom GPT pages go offline 11 Dec 2026**)
+- [ ] Optional: API key entered and Enable ticked, so the panel is a live GPT
 - [ ] The GPT used is the one from **Lab #3**, per the rubric note
 - [ ] The page is reachable from the menu
 
