@@ -362,3 +362,18 @@ DECLINED = user decided not to pursue
 **Suggested improvement:** Add to the shared-tree section: snapshot, worktree on its own port, announce regions, git merge-file against the snapshot, rebuild generated files instead of merging them.
 
 **Principle:** When state is shared and uncommitted, a frozen common ancestor is what makes merging possible.
+
+### Observation 23: Fixed overlays need a phone screenshot, not only an overflow check
+
+**Status:** OPEN
+**Date:** 2026-11-23
+**Session context:** Added a third-party media player overlay to a scroll-driven page.
+**Skill:** New skill candidate: web-overlay-checks
+**Type:** open-source
+**Phase/Area:** Verification
+
+**Issue:** The overlay passed console and horizontal-overflow checks but covered body copy and a call to action on phones. Only the screenshot showed it.
+
+**Suggested improvement:** Screenshot every fixed overlay in its open state at phone width before delivery.
+
+**Principle:** Overflow metrics do not detect occlusion.

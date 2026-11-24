@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'RH_VERSION', '2.2.0' );
+define( 'RH_VERSION', '2.3.3' );
 
 /* -------------------------------------------------------------------------
  * 1. Theme setup
