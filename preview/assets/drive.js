@@ -142,9 +142,80 @@
       hush: function (h) { if (ctx) { if (h) ctx.suspend(); else if (vol) ctx.resume(); } }
     };
   }());
+  /* ---------------------------------------------------------------- beat
+     A short playlist, played through YouTube's own player: nothing is downloaded or
+     hosted here, and nothing loads from YouTube until the button is pressed. The
+     player is kept off screen; a small chip shows the title and the producer credit
+     their terms ask for. If YouTube cannot load, the synthesised bass above takes
+     over. Tracks (id, name, producer, beats per second) are the data-tracks JSON on
+     .rd-sound in parts/drive.html; bps only times the lights, so it can be approximate. */
   var snd = $('.rd-sound');
-  if (snd) snd.addEventListener('click', function () { var v = Bass.toggle(); snd.setAttribute('aria-pressed', v ? 'true' : 'false'); var l = $('.rd-sound__t', snd); if (l) l.textContent = v ? 'Bass on' : 'Bass off'; });
-  document.addEventListener('visibilitychange', function () { Bass.hush(document.hidden); });
+  var Beat = (function () {
+    var VOL = 50, GAP = 8000, TR = [];
+    try { TR = JSON.parse(snd.getAttribute('data-tracks')) || []; } catch (x) {}
+    var on = false, ready = false, playing = false, failed = !TR.length, away = false, wait = 0, dock = null, player = null, link = null, raw = -1, at = 0, i = 0, bad = 0;
+    function label() { if (!snd) return; snd.setAttribute('aria-pressed', on ? 'true' : 'false'); var l = $('.rd-sound__t', snd); if (l) l.textContent = on ? 'Beat on' : 'Beat off'; }
+    function show() { if (!link) return; var t = TR[i]; link.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(t.id); link.textContent = t.name + ' · Prod. ' + t.by; }
+    function fallback() {
+      if (failed) return; failed = true; playing = ready = false; window.clearTimeout(wait);
+      if (player && player.destroy) { try { player.destroy(); } catch (x) {} }
+      if (dock) { dock.remove(); dock = null; }
+      if (on) Bass.toggle();
+    }
+    function go(n) { i = (n + TR.length) % TR.length; raw = -1; show(); if (ready) player.loadVideoById(TR[i].id); }
+    function build() {
+      var f = document.createElement('iframe'), box = document.createElement('div'), chip = document.createElement('div'), nx = document.createElement('button'), x = document.createElement('button');
+      dock = document.createElement('div'); dock.className = 'rd-dock'; dock.setAttribute('role', 'region'); dock.setAttribute('aria-label', 'Background beat');
+      f.title = 'Background beat, YouTube player'; f.width = f.height = 200; f.allow = 'autoplay; encrypted-media'; f.referrerPolicy = 'strict-origin-when-cross-origin';
+      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(TR[i].id) + '?enablejsapi=1&playsinline=1&rel=0&origin=' + encodeURIComponent(window.location.origin);
+      box.className = 'rd-dock__yt'; box.setAttribute('aria-hidden', 'true'); box.appendChild(f);
+      link = document.createElement('a'); link.target = '_blank'; link.rel = 'noopener'; show();
+      nx.type = 'button'; nx.textContent = 'Next'; nx.setAttribute('aria-label', 'Next track'); nx.addEventListener('click', function () { go(i + 1); });
+      x.type = 'button'; x.textContent = 'Stop'; x.setAttribute('aria-label', 'Stop the beat'); x.addEventListener('click', function () { toggle(); snd.focus({ preventScroll: true }); });
+      chip.className = 'rd-dock__bar'; chip.appendChild(link); chip.appendChild(nx); chip.appendChild(x); dock.appendChild(box); dock.appendChild(chip); body.appendChild(dock);
+      wait = window.setTimeout(fallback, GAP);
+      function bind() {
+        if (failed || player) return;
+        player = new window.YT.Player(f, { events: {
+          onReady: function () { if (failed) return; window.clearTimeout(wait); ready = true; player.setVolume(VOL); if (on && !away) player.playVideo(); },
+          onError: function () { if (!ready || ++bad >= TR.length) fallback(); else go(i + 1); },   // a track that will not play is skipped
+          onStateChange: function (e) {
+            playing = e.data === 1; raw = -1; if (playing) bad = 0;
+            if (playing && !on) player.pauseVideo();
+            if (e.data === 0 && on) go(i + 1);
+          }
+        } });
+      }
+      if (window.YT && window.YT.Player) return bind();
+      var prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = function () { if (prev) prev(); bind(); };
+      var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.onerror = fallback; document.head.appendChild(s);
+    }
+    function toggle() {
+      on = !on; label();
+      if (failed) { Bass.toggle(); return; }
+      if (on && !dock) build();
+      dock.hidden = !on;
+      if (ready) { if (on) player.playVideo(); else player.pauseVideo(); }
+    }
+    return {
+      toggle: toggle,
+      live: function () { return playing || Bass.live(); },
+      /* Holding the sub turns the track up; with no track it plays the synth. */
+      hold: function (v) { if (playing) { player.setVolume(v ? 100 : VOL); if (!v) Bass.hold(false); } else Bass.hold(v); },
+      /* getCurrentTime() only steps a few times a second, so run a clock between steps. */
+      phase: function (t) {
+        if (!playing) return Bass.phase(t);
+        var c = player.getCurrentTime(), n = window.performance.now() / 1000;
+        if (!(c >= 0)) { raw = -1; return Bass.phase(t); }
+        if (c !== raw) { var g = raw < 0 ? c : at + n; raw = c; if (Math.abs(g - c) > 0.12 || raw < 0) g = c; at = g - n; }
+        var r = Math.max(0, at + n) * TR[i].bps;
+        return r >= 0 && r < 1e7 ? r : Bass.phase(t);   // YouTube reports no time while a track loads; NaN here would stick in the road shader for good
+      },
+      hush: function (h) { away = h; Bass.hush(h); if (ready && on) { if (h) player.pauseVideo(); else player.playVideo(); } }
+    };
+  }());
+  if (snd) snd.addEventListener('click', Beat.toggle);
+  document.addEventListener('visibilitychange', function () { Beat.hush(document.hidden); });
 
   /* ------------------------------------------------------------ WebGL? */
   function fail(why) { body.classList.add('rd-nogl'); if (window.console && why) console.warn('[drive] falling back:', why); }
@@ -315,8 +386,8 @@
   var ptr = { x: 0, y: 0, nx: 0, ny: 0, inside: false }, ray, ndc;
   var holdBtn = $('.rd-hold'), holdLbl = holdBtn && $('.rd-hold__t', holdBtn), hx = null, hy = 0, hudTick = 0;
   function inUI(t) { return t && t.closest && t.closest('a,button,input,textarea,select,label,.rd-card,.rd-pick,.rd-door,.rh-header,.rh-nav,.rd-hud,.rd-rail,.rhxg,iframe'); }
-  function startHold() { if (S.hold) return; var sc = SC[sceneIdx()]; if (!sc || !sc.hold) return; S.hold = true; S.holdStart = true; body.classList.add('rd-holding'); if (sc.id === 'bass') Bass.hold(true); }
-  function endHold() { if (!S.hold) return; S.hold = false; body.classList.remove('rd-holding'); Bass.hold(false); }
+  function startHold() { if (S.hold) return; var sc = SC[sceneIdx()]; if (!sc || !sc.hold) return; S.hold = true; S.holdStart = true; body.classList.add('rd-holding'); if (sc.id === 'bass') Beat.hold(true); }
+  function endHold() { if (!S.hold) return; S.hold = false; body.classList.remove('rd-holding'); Beat.hold(false); }
   function sceneIdx() { return idxOf(S.g); }
   function bind() {
     ray = new T.Raycaster(); ndc = new T.Vector2();
@@ -419,10 +490,10 @@
     var ps = S.s; S.s = gToS(S.g); var v = (S.s - ps) / Math.max(dt, 0.001); S.brake += ((v < -0.5 || (gTarget - S.g) < -0.001 ? 1 : 0) - S.brake) * 0.1;
     S.speed += (clamp((Math.abs(v) - 30) / 420, 0, 1) - S.speed) * 0.12; if (S.speed < 0.002) S.speed = 0;
     S.tilt.x += ((ptr.inside ? ptr.nx : 0) - S.tilt.x) * 0.06; S.tilt.y += ((ptr.inside ? ptr.ny : 0) - S.tilt.y) * 0.06;
-    var ph = Bass.phase(S.t), fr = ph - Math.floor(ph); S.beatPhase = fr; S.beat = Math.exp(-fr * 4.2) * (Math.floor(ph) % 4 === 0 ? 1 : 0.82);
+    var ph = Beat.phase(S.t), fr = ph - Math.floor(ph); S.beatPhase = fr; S.beat = Math.exp(-fr * 4.2) * (Math.floor(ph) % 4 === 0 ? 1 : 0.82);
     var id = S.sceneId, inBass = id === 'bass' ? sm(4.36, 4.58, S.g) * (1 - sm(4.9, 5, S.g)) : 0;
     holdAmt += ((S.hold ? 1 : 0) - holdAmt) * (S.hold ? 0.07 : 0.16);
-    var bt = 0.22 + inBass * 0.4 + (Bass.live() ? 0.2 : 0) + (S.hold && id === 'bass' ? 0.6 : 0); S.bump += (bt - S.bump) * 0.1;
+    var bt = 0.22 + inBass * 0.4 + (Beat.live() ? 0.2 : 0) + (S.hold && id === 'bass' ? 0.6 : 0); S.bump += (bt - S.bump) * 0.1;
     if (S.hold && id === 'vegas' && holdAmt > 0.82) started = true; if (S.g > 0.16) started = true;
     S.rev += ((S.hold && id === 'vegas' ? 1 : 0) - S.rev) * 0.12; if (S.rev > 0.5 && started) S.flare = Math.max(S.flare, (post && post.on ? 0.1 : 0.22) + (post && post.on ? 0.07 : 0.16) * Math.sin(S.t * 24)); S.ignition += ((started ? 1 : holdAmt * 0.35 * (id === 'vegas' ? 1 : 0)) - S.ignition) * 0.06; S.flare *= 0.94;
     S.hatch += (inBass - S.hatch) * 0.08; S.keys += ((S.hold && id === 'reno' ? 1 : 0) - S.keys) * 0.05; floodHold = id === 'reno' ? sm(0.55, 0.95, S.keys) : 0;
